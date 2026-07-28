@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,6 +9,8 @@
     <!-- Scripts externos CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
     
     <style>
         * {
@@ -1398,6 +1401,47 @@
             font-size: 1em;
         }
         .historial-list { display: flex; flex-direction: column; gap: 10px; }
+
+        /* Tarjetas de seguimiento Shalom */
+        .shalom-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .shalom-card {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: box-shadow 0.15s;
+        }
+        .shalom-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .shalom-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .shalom-card-guia { font-weight: 700; color: var(--primary); font-size: 1.05em; }
+        .shalom-card-codigo { font-size: 0.8em; color: #718096; }
+        .shalom-card-cliente { font-weight: 600; }
+        .shalom-card-destino { font-size: 0.85em; color: #718096; }
+        .shalom-card-estado-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 700;
+            align-self: flex-start;
+        }
+        .shalom-card-detalle { font-size: 0.8em; color: #718096; }
+        .shalom-card-fecha { font-size: 0.75em; color: #a0aec0; }
+        .shalom-card-actions { margin-top: auto; display: flex; justify-content: flex-end; }
+        body.dark-mode .shalom-card { background: #2d3748; }
+
         .historial-card {
             border: 1.5px solid var(--border);
             border-radius: 10px;
@@ -1637,9 +1681,239 @@
                 font-size: 0.75em;
             }
         }
+
+        /* ============================================
+           MODO OSCURO
+           Nota: las áreas de impresión (cotizacion-print,
+           ficha-print, fichaPreview) se mantienen claras
+           intencionalmente para que el PDF exportado sea
+           siempre legible.
+        ============================================ */
+        body.dark-mode {
+            --primary: #e2e8f0;
+            --border: #4a5568;
+            --bg-light: #2d3748;
+            background: #1a202c;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .content,
+        body.dark-mode .products-table,
+        body.dark-mode .products-table thead,
+        body.dark-mode .modal-content,
+        body.dark-mode .sucursal-card,
+        body.dark-mode .autocomplete-dropdown,
+        body.dark-mode .autocomplete-item,
+        body.dark-mode .search-input,
+        body.dark-mode .form-input,
+        body.dark-mode .cantidad-input,
+        body.dark-mode .filter-btn,
+        body.dark-mode .historial-card,
+        body.dark-mode .cliente-panel,
+        body.dark-mode .cliente-db-dropdown,
+        body.dark-mode .cliente-db-item {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .add-product-section {
+            background: #232c3a;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .products-table td,
+        body.dark-mode .products-table th {
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .products-table tbody tr:hover {
+            background: #232c3a;
+        }
+
+        body.dark-mode .autocomplete-item:hover,
+        body.dark-mode .cliente-db-item:hover {
+            background: #364155;
+        }
+
+        body.dark-mode .sucursal-card.selected {
+            background: #1f3a2c;
+        }
+
+        body.dark-mode .search-icon,
+        body.dark-mode .codigo-cell,
+        body.dark-mode .product-prices,
+        body.dark-mode .precio-aplicado,
+        body.dark-mode .sucursal-direccion,
+        body.dark-mode .sucursal-stats,
+        body.dark-mode .empty-state,
+        body.dark-mode .cliente-db-item-sub {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .tab {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .tab.active,
+        body.dark-mode .tab:hover {
+            color: #7f9cf5;
+        }
+
+        body.dark-mode .tabs {
+            border-bottom-color: #4a5568;
+        }
+
+        /* Toggle de tema */
+        .theme-toggle-btn {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* Indicador de sincronización entre pestañas */
+        .sync-indicator {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        .sync-indicator.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Mejora responsive móvil adicional */
+        @media (max-width: 600px) {
+            .search-input, .form-input {
+                font-size: 16px; /* evita zoom automático en iOS */
+            }
+            .cantidad-input {
+                width: 50px;
+                font-size: 16px;
+            }
+            .action-buttons .btn {
+                min-width: 100%;
+            }
+            .modal-content {
+                padding: 20px 15px;
+            }
+            .products-table th, .products-table td {
+                padding: 8px 6px;
+                font-size: 0.8em;
+            }
+        }
+
+        /* Validación visual de inputs */
+        .input-error {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.15) !important;
+        }
+
+        .input-error-msg {
+            color: var(--danger);
+            font-size: 0.8em;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* Margen de ganancia */
+        .margen-info {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
+    <!-- PANTALLA DE ACCESO: configuración inicial (una sola vez) + login -->
+    <div id="pantallaAcceso" style="position:fixed; inset:0; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:white; border-radius:16px; padding:35px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="text-align:center; margin-bottom:25px;">
+                <div style="font-size:2.5em;">🏨</div>
+                <h2 style="margin:8px 0 0; color:#2d3748;">Cotizador Línea Hotelera</h2>
+            </div>
+
+            <!-- Vista 1: configuración de Back4App (solo la primera vez) -->
+            <div id="vistaConfigInicial" style="display:none;">
+                <p style="font-size:0.9em; color:#718096; margin-bottom:15px;">Primera vez aquí: pega los datos de tu proyecto de Back4App (Dashboard → App Settings → Security &amp; Keys). Solo se pide una vez por dispositivo.</p>
+                <div style="margin-bottom:12px;">
+                    <label class="form-label">Application ID</label>
+                    <input type="text" class="form-input" id="accesoAppId" placeholder="Tu Application ID">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label class="form-label">JavaScript Key</label>
+                    <input type="text" class="form-input" id="accesoJsKey" placeholder="Tu JavaScript Key">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="guardarConfigInicial()">Continuar</button>
+                <div id="accesoConfigError" style="color:var(--danger); font-size:0.85em; margin-top:10px;"></div>
+            </div>
+
+            <!-- Vista 2: login -->
+            <div id="vistaLogin" style="display:none;">
+                <div style="margin-bottom:12px;">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" class="form-input" id="loginUsuario" placeholder="Tu usuario" autocomplete="username">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Tu contraseña" autocomplete="current-password">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="iniciarSesion()">Iniciar sesión</button>
+                <div id="loginError" style="color:var(--danger); font-size:0.85em; margin-top:10px;"></div>
+                <p style="text-align:center; margin-top:18px; font-size:0.9em;">
+                    ¿Primera vez? <a href="#" onclick="mostrarVistaRegistro(); return false;" style="color:var(--primary); font-weight:600;">Crear cuenta</a>
+                </p>
+                <p style="text-align:center; margin-top:6px;">
+                    <a href="#" onclick="mostrarVistaConfigDesdeGear(); return false;" style="color:#a0aec0; font-size:0.8em;">⚙️ Cambiar datos de Back4App</a>
+                </p>
+            </div>
+
+            <!-- Vista 3: registro -->
+            <div id="vistaRegistro" style="display:none;">
+                <div style="margin-bottom:12px;">
+                    <label class="form-label">Elige un usuario</label>
+                    <input type="text" class="form-input" id="registroUsuario" placeholder="Usuario" autocomplete="username">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label class="form-label">Correo (opcional, para recuperar acceso)</label>
+                    <input type="email" class="form-input" id="registroEmail" placeholder="tu@correo.com">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-input" id="registroPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="registrarUsuario()">Crear cuenta</button>
+                <div id="registroError" style="color:var(--danger); font-size:0.85em; margin-top:10px;"></div>
+                <p style="text-align:center; margin-top:18px; font-size:0.9em;">
+                    ¿Ya tienes cuenta? <a href="#" onclick="mostrarVistaLogin(); return false;" style="color:var(--primary); font-weight:600;">Iniciar sesión</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- LOADING OVERLAY -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
@@ -1675,11 +1949,39 @@
                         <input type="number" step="0.01" min="0" class="form-input" id="editProductoMayor" required>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Costo (S/) <span style="font-weight:400; color:#718096;">— opcional, para calcular margen de ganancia</span></label>
+                    <input type="number" step="0.01" min="0" class="form-input" id="editProductoCosto" placeholder="Ej: 15.00">
+                </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-danger" onclick="closeEditProductoModal()">Cancelar</button>
                     <button type="submit" class="btn btn-success">💾 Guardar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL PANEL DE CUENTA / CONFIGURACIÓN -->
+    <div class="modal" id="panelCuentaModal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙️ Cuenta y configuración</h2>
+                <button class="modal-close" onclick="cerrarPanelCuenta()">×</button>
+            </div>
+            <p style="font-size:0.9em; color:#718096;">Sesión activa: <strong id="panelCuentaUsuario">—</strong></p>
+            <details style="margin:15px 0;">
+                <summary style="cursor:pointer; color:#718096; font-size:0.85em;">Datos de conexión a Back4App (avanzado)</summary>
+                <div class="form-group" style="margin-top:10px;">
+                    <label class="form-label">Application ID</label>
+                    <input type="text" class="form-input" id="panelAppId">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">JavaScript Key</label>
+                    <input type="text" class="form-input" id="panelJsKey">
+                </div>
+                <button class="btn btn-primary" style="width:100%;" onclick="guardarConfigDesdeGear()">Guardar cambios</button>
+            </details>
+            <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
         </div>
     </div>
 
@@ -1758,9 +2060,13 @@
                             <span id="mayorStatusText">Precio AUTO</span>
                         </span>
                     </div>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="Alternar tema claro/oscuro (Ctrl+D)">🌙 Oscuro</button>
+                    <button class="theme-toggle-btn" onclick="abrirPanelCuenta()" title="Cuenta y configuración">⚙️</button>
                 </div>
             </div>
         </div>
+
+        <div class="sync-indicator" id="syncIndicator" onclick="location.reload()">🔄 Datos actualizados en otra pestaña — click para recargar</div>
 
 
         <div class="content">
@@ -1772,6 +2078,7 @@
                 <button class="tab" onclick="switchTab('productos')">📦 Productos</button>
                 <button class="tab" onclick="switchTab('gestionsucursales')">🏢 Gestión Sucursales</button>
                 <button class="tab" onclick="switchTab('fichas')">📄 Fichas Técnicas</button>
+                <button class="tab" onclick="switchTab('shalom')">🚚 Seguimiento Shalom</button>
             </div>
 
             <!-- TAB: COTIZAR -->
@@ -2053,8 +2360,42 @@
         </div>
         <button class="btn btn-danger btn-small" onclick="limpiarHistorial()" style="font-size:0.8em;">🗑️ Limpiar todo</button>
     </div>
+
+    <!-- FILTROS AVANZADOS -->
+    <div class="add-product-section" style="margin-bottom:15px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <div style="flex:2; min-width:180px;">
+                <label class="form-label" style="font-size:0.85em;">Buscar cliente / empresa</label>
+                <input type="text" id="historialFiltroTexto" class="form-input" placeholder="Nombre o empresa..." oninput="renderHistorial()">
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label class="form-label" style="font-size:0.85em;">Desde</label>
+                <input type="date" id="historialFiltroDesde" class="form-input" onchange="renderHistorial()">
+            </div>
+            <div style="flex:1; min-width:140px;">
+                <label class="form-label" style="font-size:0.85em;">Hasta</label>
+                <input type="date" id="historialFiltroHasta" class="form-input" onchange="renderHistorial()">
+            </div>
+            <div>
+                <button class="btn btn-small" style="background:var(--border);" onclick="limpiarFiltrosHistorial()">✕ Limpiar filtros</button>
+            </div>
+        </div>
+    </div>
+
     <div id="historialList">
         <div class="historial-empty">No hay cotizaciones guardadas aún.<br><br>Después de armar una cotización, haz clic en <strong>"💾 Guardar"</strong> o genera un PDF/Imagen para guardarla automáticamente.</div>
+    </div>
+
+    <!-- PLANTILLAS DE COTIZACIÓN -->
+    <div class="historial-header-row" style="margin-top:30px;">
+        <div>
+            <strong style="font-size:1.1em; color:var(--primary);">📋 Plantillas de Cotización</strong>
+            <span class="historial-count-badge" id="plantillasCount">0</span>
+        </div>
+    </div>
+    <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">Paquetes de productos reutilizables (sin datos de cliente) para armar cotizaciones rápidas.</p>
+    <div id="plantillasList">
+        <div class="historial-empty">No hay plantillas guardadas.<br><br>Arma una cotización y haz clic en <strong>"📋 Plantilla"</strong> para guardarla como reutilizable.</div>
     </div>
 </div>
 
@@ -2196,6 +2537,72 @@
                 <p style="text-align: center; color: #718096;">Completa el formulario y click en "Actualizar Vista Previa"</p>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- TAB: SEGUIMIENTO SHALOM -->
+<div class="tab-content" id="tab-shalom">
+
+    <!-- Banner de notificaciones (envíos recién entregados) -->
+    <div id="shalomNotifBanner" style="display:none; margin-bottom:20px;"></div>
+
+    <!-- ESCANEAR QR -->
+    <div class="add-product-section">
+        <div class="add-product-title">📷 Registrar nueva guía (escanear QR)</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+            <button type="button" class="btn btn-primary" id="btnIniciarCamara" onclick="iniciarCamaraQR()">📷 Usar cámara</button>
+            <button type="button" class="btn" style="background:var(--border); display:none;" id="btnDetenerCamara" onclick="detenerCamaraQR()">✕ Detener cámara</button>
+            <label class="btn btn-warning" style="cursor:pointer;">
+                🖼️ Subir foto de la guía
+                <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="leerQRDesdeArchivo(this)">
+            </label>
+        </div>
+        <div id="shalomCameraWrapper" style="display:none; position:relative; max-width:400px;">
+            <video id="shalomVideo" style="width:100%; border-radius:8px; background:#000;" playsinline autoplay muted></video>
+            <div id="shalomCameraHint" style="font-size:0.8em; color:#718096; margin-top:6px;">Apunta la cámara al código QR de tu guía…</div>
+        </div>
+        <canvas id="shalomCanvas" style="display:none;"></canvas>
+        <div id="shalomCameraError" style="display:none; margin-top:10px; padding:12px; background:#fff5f5; border-radius:8px; border:1px solid var(--danger); font-size:0.85em; color:var(--danger);"></div>
+
+        <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#f0fff4; border-radius:8px; border:2px solid var(--success);">
+            <strong>✅ Código detectado:</strong> <span id="shalomQrTexto"></span>
+            <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Shalom necesita el N° de Orden y el Código de Orden (4 dígitos) juntos para poder rastrear. Verifica/completa ambos campos antes de registrar.</p>
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <input type="text" class="form-input" id="shalomGuiaEditable" maxlength="8" placeholder="N° de Orden" style="max-width:150px;">
+                <input type="text" class="form-input" id="shalomCodigoEditable" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
+                <input type="text" class="form-input" id="shalomClienteRef" placeholder="Cliente (opcional)" style="max-width:200px;">
+                <input type="text" class="form-input" id="shalomDestinoRef" placeholder="Destino (opcional)" style="max-width:200px;">
+                <button type="button" class="btn btn-success" onclick="registrarGuiaShalom()">➕ Registrar seguimiento</button>
+            </div>
+        </div>
+
+        <!-- Entrada manual como respaldo -->
+        <details style="margin-top:15px;">
+            <summary style="cursor:pointer; color:#718096; font-size:0.9em;">¿No se detecta el QR? Ingresa la guía manualmente</summary>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                <input type="text" class="form-input" id="shalomGuiaManual" maxlength="8" placeholder="N° de Orden" style="max-width:150px;">
+                <input type="text" class="form-input" id="shalomCodigoManual" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
+                <input type="text" class="form-input" id="shalomClienteManual" placeholder="Cliente (opcional)" style="max-width:200px;">
+                <input type="text" class="form-input" id="shalomDestinoManual" placeholder="Destino (opcional)" style="max-width:200px;">
+                <button type="button" class="btn btn-success" onclick="registrarGuiaManual()">➕ Registrar</button>
+            </div>
+        </details>
+    </div>
+
+    <!-- LISTA DE ENVÍOS RASTREADOS -->
+    <div class="historial-header-row" style="margin-top:30px;">
+        <div>
+            <strong style="font-size:1.1em; color:var(--primary);">📦 Envíos en seguimiento</strong>
+            <span class="historial-count-badge" id="shalomCount">0</span>
+        </div>
+        <button class="btn btn-small" style="background:var(--border);" onclick="cargarEnviosShalom()">🔄 Actualizar ahora</button>
+    </div>
+    <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">
+        El robot de fondo (GitHub Actions) consulta cada 30 min, incluso con el navegador cerrado.
+    </p>
+    <input type="text" class="form-input" id="shalomBuscador" placeholder="🔍 Buscar por cliente, destino, guía o estado…" style="margin-bottom:15px;" oninput="renderListaShalom()">
+    <div id="shalomList" class="shalom-cards-grid">
+        <div class="historial-empty">No hay envíos en seguimiento. Escanea el QR de una guía para empezar.</div>
     </div>
 </div>
 
@@ -2521,6 +2928,7 @@ async function generarFichaPDF() {
             <div class="total-info-container">
                 <div id="totalInfo" style="font-size: 0.95em;">0 productos</div>
                 <div style="font-size: 0.8em; opacity: 0.8; margin-top: 5px;" id="itemsBreakdown"></div>
+                <div class="margen-info" id="margenInfo"></div>
                 <div id="envioInfo" style="font-size: 0.85em; margin-top: 10px;"></div>
                 <div class="global-discount-row">
                     <span>🏷️ Desc.:</span>
@@ -2552,6 +2960,8 @@ async function generarFichaPDF() {
                     <button class="btn btn-primary" id="btnGuardarHistorial" disabled onclick="guardarEnHistorial()">💾 Guardar</button>
                     <button class="btn btn-success" id="btnGenerateImage" disabled onclick="generarImagen()">🖼️ Imagen</button>
                     <button class="btn btn-success" id="btnGeneratePDF" disabled onclick="generarPDF()">📄 PDF</button>
+                    <button class="btn btn-warning" id="btnGenerateExcel" disabled onclick="exportarExcel()">📊 Excel</button>
+                    <button class="btn btn-primary" id="btnGuardarPlantilla" disabled onclick="guardarComoPlantilla()">📋 Plantilla</button>
                 </div>
             </div>
         </div>
@@ -3290,7 +3700,63 @@ async function generarFichaPDF() {
                 document.getElementById('mayorStatusText').textContent = forzarPorMayor ? 'Siempre POR MAYOR' : 'Precio AUTO';
                 document.getElementById('mayorStatusText').style.color = forzarPorMayor ? '#667eea' : 'inherit';
             }
+
+            // Cargar tema (dark mode)
+            const savedTheme = localStorage.getItem('tema_lh');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggleBtn').textContent = '☀️ Claro';
+            }
         }
+
+        // ============================================
+        // MODO OSCURO
+        // ============================================
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('tema_lh', isDark ? 'dark' : 'light');
+            document.getElementById('themeToggleBtn').textContent = isDark ? '☀️ Claro' : '🌙 Oscuro';
+        }
+
+        // ============================================
+        // ATAJOS DE TECLADO
+        // Ctrl/Cmd+S: guardar cotización en historial
+        // Ctrl/Cmd+K: enfocar buscador de productos
+        // Ctrl/Cmd+D: alternar tema oscuro
+        // Esc: cerrar modales abiertos
+        // ============================================
+        document.addEventListener('keydown', function(e) {
+            const ctrlOrCmd = e.ctrlKey || e.metaKey;
+
+            if (ctrlOrCmd && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                if (typeof guardarEnHistorial === 'function') {
+                    guardarEnHistorial();
+                }
+            } else if (ctrlOrCmd && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                const el = document.getElementById('searchInput');
+                if (el) el.focus();
+            } else if (ctrlOrCmd && e.key.toLowerCase() === 'd') {
+                e.preventDefault();
+                toggleDarkMode();
+            } else if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        // ============================================
+        // SINCRONIZACIÓN ENTRE PESTAÑAS
+        // Detecta cambios de historial/clientes/productos
+        // hechos en otra pestaña y avisa al usuario.
+        // ============================================
+        window.addEventListener('storage', function(e) {
+            const clavesRelevantes = ['clientes_lh_db', 'sucursales_lh_db', 'productos_lh_db'];
+            if (clavesRelevantes.includes(e.key)) {
+                const indicator = document.getElementById('syncIndicator');
+                if (indicator) indicator.classList.add('show');
+            }
+        });
 
         // ============================================
         // PERSISTENCIA (localStorage)
@@ -3366,6 +3832,12 @@ async function generarFichaPDF() {
                 renderSucursalList();
             } else if (tab === 'historial') {
                 renderHistorial();
+            } else if (tab === 'shalom') {
+                cargarEnviosShalom();
+            }
+
+            if (tab !== 'shalom' && typeof detenerCamaraQR === 'function') {
+                detenerCamaraQR();
             }
         }
 
@@ -3373,11 +3845,20 @@ async function generarFichaPDF() {
         // AUTOCOMPLETADO DE PRODUCTOS
         // ============================================
 
+        // Utilidad de debounce reutilizable (evita recalcular en cada tecla)
+        function debounce(fn, delay = 250) {
+            let timer = null;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
         const searchInput = document.getElementById('searchInput');
         const autocompleteDropdown = document.getElementById('autocompleteDropdown');
         const btnAdd = document.getElementById('btnAdd');
 
-        searchInput.addEventListener('input', function() {
+        searchInput.addEventListener('input', debounce(function() {
             const query = this.value.trim().toLowerCase();
             
             if (query.length < 2) {
@@ -3422,7 +3903,7 @@ async function generarFichaPDF() {
                 autocompleteDropdown.innerHTML = '<div style="padding: 15px; text-align: center; color: #718096;">No se encontraron productos</div>';
                 autocompleteDropdown.style.display = 'block';
             }
-        });
+        }, 200));
 
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
@@ -3478,6 +3959,8 @@ async function generarFichaPDF() {
                 document.getElementById('btnGenerateImage').disabled = true;
                 document.getElementById('btnGeneratePDF').disabled = true;
                 document.getElementById('btnGuardarHistorial').disabled = true;
+                document.getElementById('btnGenerateExcel').disabled = true;
+                document.getElementById('btnGuardarPlantilla').disabled = true;
             } else {
                 tableBody.innerHTML = productosEnTabla.map((producto, index) => {
                     const cantidad = producto.cantidad;
@@ -3556,14 +4039,23 @@ async function generarFichaPDF() {
                 document.getElementById('btnGenerateImage').disabled = false;
                 document.getElementById('btnGeneratePDF').disabled = false;
                 document.getElementById('btnGuardarHistorial').disabled = false;
+                document.getElementById('btnGenerateExcel').disabled = false;
+                document.getElementById('btnGuardarPlantilla').disabled = false;
             }
 
             updateTotal();
         }
 
         function updateCantidad(index, nuevaCantidad) {
-            const cantidad = parseInt(nuevaCantidad) || 1;
-            productosEnTabla[index].cantidad = cantidad < 1 ? 1 : cantidad;
+            let cantidad = parseInt(nuevaCantidad);
+            if (isNaN(cantidad) || cantidad < 1) {
+                mostrarNotificacion('⚠️ La cantidad debe ser un número mayor a 0', 'warning');
+                cantidad = 1;
+            } else if (cantidad > 100000) {
+                mostrarNotificacion('⚠️ Cantidad máxima permitida: 100,000', 'warning');
+                cantidad = 100000;
+            }
+            productosEnTabla[index].cantidad = cantidad;
             renderTable();
             guardarEstado();
         }
@@ -3581,6 +4073,8 @@ async function generarFichaPDF() {
             let totalUnidades = 0;
             let itemsMayor = 0;
             let itemsMenor = 0;
+            let costoTotal = 0;
+            let productosConCosto = 0;
 
             productosEnTabla.forEach(producto => {
                 const cantidad = producto.cantidad;
@@ -3592,6 +4086,10 @@ async function generarFichaPDF() {
                 totalUnidades += cantidad;
                 if (forzarPorMayor || cantidad >= 6) itemsMayor++;
                 else itemsMenor++;
+                if (producto.costo !== undefined && producto.costo !== null) {
+                    costoTotal += cantidad * producto.costo;
+                    productosConCosto++;
+                }
             });
 
             // Descuento global
@@ -3639,6 +4137,20 @@ async function generarFichaPDF() {
                 if (itemsMenor > 0) breakdown += `${itemsMenor} al por menor`;
             }
             document.getElementById('itemsBreakdown').textContent = breakdown;
+
+            // Margen de ganancia (solo si al menos un producto tiene costo definido)
+            const margenEl = document.getElementById('margenInfo');
+            if (productosConCosto > 0) {
+                const costoConDescProporcional = costoTotal; // el costo no se ve afectado por descuentos al cliente
+                const gananciaEstimada = totalFinal - costoConDescProporcional;
+                const margenPct = totalFinal > 0 ? (gananciaEstimada / totalFinal) * 100 : 0;
+                const cobertura = productosConCosto === productosEnTabla.length ? '' : ` (${productosConCosto}/${productosEnTabla.length} con costo)`;
+                margenEl.innerHTML = `📈 Margen estimado: S/ ${gananciaEstimada.toFixed(2)} (${margenPct.toFixed(1)}%)${cobertura}`;
+                margenEl.style.display = 'block';
+            } else {
+                margenEl.innerHTML = '';
+                margenEl.style.display = 'none';
+            }
 
             if (sucursalSeleccionada) {
                 document.getElementById('envioInfo').innerHTML = 
@@ -3762,6 +4274,7 @@ async function generarFichaPDF() {
             document.getElementById('editProductoNombre').value = producto.nombre;
             document.getElementById('editProductoMenor').value = producto.menor;
             document.getElementById('editProductoMayor').value = producto.mayor;
+            document.getElementById('editProductoCosto').value = producto.costo !== undefined ? producto.costo : '';
             
             document.getElementById('editProductoModal').classList.add('active');
         }
@@ -3779,15 +4292,27 @@ async function generarFichaPDF() {
             const nuevoNombre = document.getElementById('editProductoNombre').value.trim();
             const nuevoPrecioMenor = parseFloat(document.getElementById('editProductoMenor').value);
             const nuevoPrecioMayor = parseFloat(document.getElementById('editProductoMayor').value);
+            const costoInput = document.getElementById('editProductoCosto').value;
+            const nuevoCosto = costoInput !== '' ? parseFloat(costoInput) : undefined;
 
             if (!nuevoNombre || nuevoPrecioMenor <= 0 || nuevoPrecioMayor <= 0) {
                 mostrarNotificacion('Por favor completa todos los campos', 'warning');
                 return;
             }
 
+            if (nuevoCosto !== undefined && (isNaN(nuevoCosto) || nuevoCosto < 0)) {
+                mostrarNotificacion('El costo debe ser un número válido mayor o igual a 0', 'warning');
+                return;
+            }
+
             productosDB[productoEditandoIndex].nombre = nuevoNombre;
             productosDB[productoEditandoIndex].menor = nuevoPrecioMenor;
             productosDB[productoEditandoIndex].mayor = nuevoPrecioMayor;
+            if (nuevoCosto !== undefined) {
+                productosDB[productoEditandoIndex].costo = nuevoCosto;
+            } else {
+                delete productosDB[productoEditandoIndex].costo;
+            }
 
             // Actualizar en cotización si existe
             const enTabla = productosEnTabla.find(p => p.codigo === productosDB[productoEditandoIndex].codigo);
@@ -3795,6 +4320,7 @@ async function generarFichaPDF() {
                 enTabla.nombre = nuevoNombre;
                 enTabla.menor = nuevoPrecioMenor;
                 enTabla.mayor = nuevoPrecioMayor;
+                enTabla.costo = nuevoCosto;
             }
 
             renderProductList();
@@ -4062,6 +4588,122 @@ async function generarFichaPDF() {
                 showLoading(false);
                 mostrarNotificacion('❌ Error al generar imagen', 'error');
             }
+        }
+
+        // ============================================
+        // EXPORTACIÓN A EXCEL
+        // ============================================
+
+        function exportarExcel() {
+            if (productosEnTabla.length === 0) {
+                mostrarNotificacion('Agrega productos primero', 'warning');
+                return;
+            }
+
+            const cliente = getClienteData();
+            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
+
+            const filas = productosEnTabla.map(p => {
+                const precioBase = obtenerPrecio(p, p.cantidad);
+                const precioUnitario = p.precioOverride !== undefined ? p.precioOverride : precioBase;
+                const descPct = p.descuento || 0;
+                const precioConDesc = precioUnitario * (1 - descPct / 100);
+                const totalLinea = p.cantidad * precioConDesc;
+                const tipoPrecio = p.precioOverride !== undefined ? 'Personalizado' : (forzarPorMayor ? 'Por Mayor (Forzado)' : (p.cantidad >= 6 ? 'Por Mayor' : 'Por Menor'));
+                return {
+                    'Código': p.codigo,
+                    'Producto': p.nombre,
+                    'Color/Variante': p.color || '',
+                    'Cantidad': p.cantidad,
+                    'Tipo Precio': tipoPrecio,
+                    'Precio Unit. (S/)': Number(precioUnitario.toFixed(2)),
+                    'Descuento %': descPct,
+                    'Total Línea (S/)': Number((mostrarConIGV ? calcularPrecioConIGV(totalLinea) : totalLinea).toFixed(2))
+                };
+            });
+
+            let subtotal = filas.reduce((a, f) => a + f['Total Línea (S/)'], 0);
+            const descMonto = subtotal * globalDescPct / 100;
+            const totalFinal = subtotal - descMonto;
+
+            filas.push({});
+            filas.push({ 'Código': '', 'Producto': 'Subtotal', 'Total Línea (S/)': Number(subtotal.toFixed(2)) });
+            if (globalDescPct > 0) {
+                filas.push({ 'Código': '', 'Producto': `Descuento global (${globalDescPct}%)`, 'Total Línea (S/)': Number((-descMonto).toFixed(2)) });
+            }
+            filas.push({ 'Código': '', 'Producto': `TOTAL ${mostrarConIGV ? '(IGV incl.)' : '(sin IGV)'}`, 'Total Línea (S/)': Number(totalFinal.toFixed(2)) });
+
+            const wb = XLSX.utils.book_new();
+            const wsData = XLSX.utils.json_to_sheet(filas);
+            wsData['!cols'] = [{ wch: 12 }, { wch: 35 }, { wch: 15 }, { wch: 10 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 16 }];
+            XLSX.utils.book_append_sheet(wb, wsData, 'Cotización');
+
+            const wsCliente = XLSX.utils.json_to_sheet([{
+                'Cliente': cliente.nombre || '',
+                'Empresa': cliente.empresa || '',
+                'RUC': cliente.ruc || '',
+                'Teléfono': cliente.telefono || '',
+                'Email': cliente.email || '',
+                'Sucursal envío': sucursalSeleccionada ? sucursalSeleccionada.nombre : '',
+                'Fecha': new Date().toLocaleDateString('es-PE')
+            }]);
+            XLSX.utils.book_append_sheet(wb, wsCliente, 'Datos Cliente');
+
+            XLSX.writeFile(wb, `Cotizacion_LineaHotelera_${Date.now()}.xlsx`);
+            mostrarNotificacion('✅ Excel generado exitosamente', 'success');
+        }
+
+        // ============================================
+        // PLANTILLAS DE COTIZACIÓN REUTILIZABLES
+        // (guarda solo productos/config, sin datos del cliente)
+        // ============================================
+
+        function getPlantillasDB() {
+            try { return JSON.parse(localStorage.getItem('plantillas_lh') || '[]'); }
+            catch(e) { return []; }
+        }
+
+        function guardarComoPlantilla() {
+            if (productosEnTabla.length === 0) {
+                mostrarNotificacion('Agrega productos primero', 'warning');
+                return;
+            }
+            const nombre = prompt('Nombre de la plantilla (ej: "Paquete Habitación Estándar"):');
+            if (!nombre || !nombre.trim()) return;
+
+            const plantillas = getPlantillasDB();
+            const plantilla = {
+                id: Date.now(),
+                nombre: nombre.trim(),
+                fecha: new Date().toISOString(),
+                productos: JSON.parse(JSON.stringify(productosEnTabla)),
+                globalDescPct: parseFloat(document.getElementById('globalDiscount').value) || 0
+            };
+            plantillas.unshift(plantilla);
+            if (plantillas.length > 50) plantillas.pop();
+            localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
+            mostrarNotificacion(`✅ Plantilla "${plantilla.nombre}" guardada`, 'success');
+            if (typeof renderPlantillas === 'function') renderPlantillas();
+        }
+
+        function cargarPlantilla(id) {
+            const plantillas = getPlantillasDB();
+            const plantilla = plantillas.find(p => p.id === id);
+            if (!plantilla) return;
+            if (productosEnTabla.length > 0 && !confirm(`¿Cargar plantilla "${plantilla.nombre}"? Se reemplazarán los productos actuales.`)) return;
+            productosEnTabla = JSON.parse(JSON.stringify(plantilla.productos));
+            document.getElementById('globalDiscount').value = plantilla.globalDescPct || '';
+            renderTable();
+            guardarEstado();
+            switchTabById('cotizar');
+            mostrarNotificacion(`📋 Plantilla "${plantilla.nombre}" cargada`, 'success');
+        }
+
+        function eliminarPlantilla(id) {
+            if (!confirm('¿Eliminar esta plantilla?')) return;
+            const plantillas = getPlantillasDB().filter(p => p.id !== id);
+            localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
+            if (typeof renderPlantillas === 'function') renderPlantillas();
         }
 
         // ============================================
@@ -4476,12 +5118,14 @@ async function generarFichaPDF() {
         // HISTORIAL DE COTIZACIONES
         // ============================================
 
-        function getHistorialDB() {
-            try { return JSON.parse(localStorage.getItem('historial_lh') || '[]'); }
-            catch(e) { return []; }
-        }
+        // ============================================
+        // HISTORIAL DE COTIZACIONES (Back4App, atado al usuario)
+        // ============================================
 
-        function guardarEnHistorial() {
+        const COTIZACION_CLASE = 'Cotizacion';
+        let historialCache = []; // último listado traído del servidor
+
+        async function guardarEnHistorial() {
             if (productosEnTabla.length === 0) { mostrarNotificacion('Agrega productos primero', 'warning'); return; }
             const cliente = getClienteData();
             const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
@@ -4495,7 +5139,6 @@ async function generarFichaPDF() {
             const totalFinal = mostrarConIGV ? calcularPrecioConIGV(subtotal - descMonto) : (subtotal - descMonto);
 
             const entrada = {
-                id: Date.now(),
                 fecha: new Date().toISOString(),
                 cliente: cliente.nombre || 'Sin nombre',
                 empresa: cliente.empresa || '',
@@ -4508,61 +5151,107 @@ async function generarFichaPDF() {
                 forzarPorMayor
             };
 
-            const historial = getHistorialDB();
-            historial.unshift(entrada);
-            if (historial.length > 50) historial.pop();
-            localStorage.setItem('historial_lh', JSON.stringify(historial));
-            renderHistorial();
-            mostrarNotificacion('✅ Cotización guardada en historial', 'success');
+            try {
+                await parseFetch(COTIZACION_CLASE, 'POST', null, {
+                    cliente: entrada.cliente,
+                    empresa: entrada.empresa,
+                    total: entrada.total,
+                    numProductos: entrada.productos.length,
+                    datos: JSON.stringify(entrada),
+                    ACL: aclSoloUsuario()
+                });
+                renderHistorial();
+                mostrarNotificacion('✅ Cotización guardada en historial', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al guardar en la nube: ' + err.message, 'warning');
+                console.error(err);
+            }
         }
 
-        function renderHistorial() {
-            const historial = getHistorialDB();
-            const countEl = document.getElementById('historialCount');
-            if (countEl) countEl.textContent = historial.length;
+        function limpiarFiltrosHistorial() {
+            document.getElementById('historialFiltroTexto').value = '';
+            document.getElementById('historialFiltroDesde').value = '';
+            document.getElementById('historialFiltroHasta').value = '';
+            renderHistorial();
+        }
+
+        async function renderHistorial() {
+            if (!sesionUsuario) return;
             const listEl = document.getElementById('historialList');
+            const countEl = document.getElementById('historialCount');
             if (!listEl) return;
 
-            if (historial.length === 0) {
-                listEl.innerHTML = `<div class="historial-empty">No hay cotizaciones guardadas aún.<br><br>Arma una cotización y haz clic en <strong>"💾 Guardar"</strong>.</div>`;
+            try {
+                const resultado = await parseFetch(COTIZACION_CLASE, 'GET', null, null, { order: '-createdAt', limit: 100 });
+                historialCache = resultado.results || [];
+            } catch (err) {
+                listEl.innerHTML = `<div class="historial-empty">❌ Error al conectar con Back4App: ${err.message}</div>`;
+                console.error(err);
                 return;
             }
 
-            listEl.innerHTML = `<div class="historial-list">${historial.map((entry, i) => {
-                const fecha = new Date(entry.fecha).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-                const numProductos = entry.productos.length;
-                const totalUnid = entry.productos.reduce((a, p) => a + p.cantidad, 0);
+            if (countEl) countEl.textContent = historialCache.length;
+
+            const filtroTextoEl = document.getElementById('historialFiltroTexto');
+            const filtroDesdeEl = document.getElementById('historialFiltroDesde');
+            const filtroHastaEl = document.getElementById('historialFiltroHasta');
+            const filtroTexto = filtroTextoEl ? filtroTextoEl.value.trim().toLowerCase() : '';
+            const filtroDesde = filtroDesdeEl && filtroDesdeEl.value ? new Date(filtroDesdeEl.value + 'T00:00:00') : null;
+            const filtroHasta = filtroHastaEl && filtroHastaEl.value ? new Date(filtroHastaEl.value + 'T23:59:59') : null;
+
+            const historial = historialCache.filter(entry => {
+                if (filtroTexto) {
+                    const texto = `${entry.cliente || ''} ${entry.empresa || ''}`.toLowerCase();
+                    if (!texto.includes(filtroTexto)) return false;
+                }
+                const fechaEntry = new Date(entry.createdAt);
+                if (filtroDesde && fechaEntry < filtroDesde) return false;
+                if (filtroHasta && fechaEntry > filtroHasta) return false;
+                return true;
+            });
+
+            if (historialCache.length === 0) {
+                listEl.innerHTML = `<div class="historial-empty">No hay cotizaciones guardadas aún.<br><br>Arma una cotización y haz clic en <strong>"💾 Guardar"</strong>.</div>`;
+                return;
+            }
+            if (historial.length === 0) {
+                listEl.innerHTML = `<div class="historial-empty">No se encontraron cotizaciones con esos filtros.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = `<div class="historial-list">${historial.map(entry => {
+                const fecha = new Date(entry.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
                 return `
                     <div class="historial-card">
                         <div class="historial-card-left">
                             <div class="historial-card-title">👤 ${entry.cliente}${entry.empresa ? ' — ' + entry.empresa : ''}</div>
                             <div class="historial-card-meta">
                                 <span>📅 ${fecha}</span>
-                                <span>📦 ${numProductos} producto${numProductos!==1?'s':''} · ${totalUnid} unid.</span>
-                                ${entry.sucursal ? `<span>🚚 ${entry.sucursal.nombre}</span>` : ''}
-                                ${entry.globalDescPct > 0 ? `<span>🏷️ Desc. ${entry.globalDescPct}%</span>` : ''}
+                                <span>📦 ${entry.numProductos || 0} producto${entry.numProductos!==1?'s':''}</span>
                             </div>
                         </div>
                         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                            <div class="historial-card-total">S/ ${entry.total.toFixed(2)}</div>
+                            <div class="historial-card-total">S/ ${(entry.total || 0).toFixed(2)}</div>
                             <div class="historial-card-actions">
-                                <button class="btn-historial-load" onclick="cargarDesdeHistorial(${i})">📂 Cargar</button>
-                                <button class="btn-historial-del" onclick="eliminarDeHistorial(${i})">🗑️</button>
+                                <button class="btn-historial-load" onclick="cargarDesdeHistorial('${entry.objectId}')">📂 Cargar</button>
+                                <button class="btn-historial-del" onclick="eliminarDeHistorial('${entry.objectId}')">🗑️</button>
                             </div>
                         </div>
                     </div>`;
             }).join('')}</div>`;
         }
 
-        function cargarDesdeHistorial(index) {
-            const historial = getHistorialDB();
-            const entry = historial[index];
-            if (!entry) return;
+        function cargarDesdeHistorial(objectId) {
+            const registro = historialCache.find(e => e.objectId === objectId);
+            if (!registro) return;
+            let entry;
+            try { entry = JSON.parse(registro.datos); }
+            catch (e) { mostrarNotificacion('❌ No se pudo leer esta cotización guardada.', 'warning'); return; }
+
             if (!confirm(`¿Cargar cotización de "${entry.cliente}"? Se reemplazará la cotización actual.`)) return;
             productosEnTabla = JSON.parse(JSON.stringify(entry.productos));
             sucursalSeleccionada = entry.sucursal || null;
             document.getElementById('globalDiscount').value = entry.globalDescPct || '';
-            // Cargar datos del cliente
             document.getElementById('clienteNombre').value = entry.cliente === 'Sin nombre' ? '' : entry.cliente;
             document.getElementById('clienteEmpresa').value = entry.empresa || '';
             document.getElementById('clienteTelefono').value = entry.telefono || '';
@@ -4575,19 +5264,28 @@ async function generarFichaPDF() {
             mostrarNotificacion('📂 Cotización cargada', 'success');
         }
 
-        function eliminarDeHistorial(index) {
-            const historial = getHistorialDB();
-            historial.splice(index, 1);
-            localStorage.setItem('historial_lh', JSON.stringify(historial));
-            renderHistorial();
+        async function eliminarDeHistorial(objectId) {
+            try {
+                await parseFetch(COTIZACION_CLASE, 'DELETE', objectId);
+                renderHistorial();
+            } catch (err) {
+                mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+            }
         }
 
-        function limpiarHistorial() {
-            if (!confirm('¿Eliminar todo el historial de cotizaciones?')) return;
-            localStorage.removeItem('historial_lh');
-            renderHistorial();
-            mostrarNotificacion('Historial eliminado', 'info');
+        async function limpiarHistorial() {
+            if (!confirm('¿Eliminar todo el historial de cotizaciones? Esta acción no se puede deshacer.')) return;
+            try {
+                for (const entry of historialCache) {
+                    await parseFetch(COTIZACION_CLASE, 'DELETE', entry.objectId);
+                }
+                renderHistorial();
+                mostrarNotificacion('Historial eliminado', 'info');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al eliminar el historial: ' + err.message, 'warning');
+            }
         }
+
 
         function switchTabById(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -4677,15 +5375,578 @@ async function generarFichaPDF() {
         // ============================================
         // INITIALIZATION
 
-        window.onload = function() {
+        // ============================================
+        // NUBE / AUTENTICACIÓN (Back4App — Parse Users)
+        // Todo lo que sigue (Shalom + Historial de cotizaciones) vive
+        // en la nube, atado a la sesión del usuario logueado, para que
+        // el mismo usuario vea sus datos igual en el teléfono y en la PC.
+        // ============================================
+
+        const PARSE_URL = 'https://parseapi.back4app.com';
+
+        let cloudConfig = { appId: '', jsKey: '' };
+        let sesionUsuario = null; // { sessionToken, userId, username }
+
+        function cargarConfigGlobalDesdeStorage() {
+            try {
+                const c = JSON.parse(localStorage.getItem('lh_cloud_config') || 'null');
+                if (c) cloudConfig = c;
+            } catch (e) { /* ignore */ }
+            try {
+                const s = JSON.parse(localStorage.getItem('lh_sesion') || 'null');
+                if (s) sesionUsuario = s;
+            } catch (e) { /* ignore */ }
+        }
+
+        // Envoltorio genérico para la API REST de Parse/Back4App (cualquier clase).
+        async function parseFetch(clase, metodo, objectId, body, query) {
+            let url = `${PARSE_URL}/classes/${clase}`;
+            if (objectId) url += `/${objectId}`;
+
+            if (metodo === 'GET' && query) {
+                const params = new URLSearchParams();
+                if (query.where) params.set('where', JSON.stringify(query.where));
+                if (query.order) params.set('order', query.order);
+                if (query.limit) params.set('limit', query.limit);
+                url += `?${params.toString()}`;
+            }
+
+            const headers = {
+                'X-Parse-Application-Id': cloudConfig.appId,
+                'X-Parse-JavaScript-Key': cloudConfig.jsKey,
+                'Content-Type': 'application/json'
+            };
+            if (sesionUsuario && sesionUsuario.sessionToken) {
+                headers['X-Parse-Session-Token'] = sesionUsuario.sessionToken;
+            }
+
+            const res = await fetch(url, {
+                method: metodo,
+                headers,
+                body: (metodo === 'POST' || metodo === 'PUT') ? JSON.stringify(body || {}) : undefined
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error((data && data.error) || `Error Back4App (${res.status})`);
+            }
+            return data;
+        }
+
+        function aclSoloUsuario() {
+            if (!sesionUsuario) return undefined;
+            return { [sesionUsuario.userId]: { read: true, write: true } };
+        }
+
+        // ---------- Pantalla de acceso: config inicial + login/registro ----------
+
+        function mostrarVista(idVista) {
+            ['vistaConfigInicial', 'vistaLogin', 'vistaRegistro'].forEach(id => {
+                document.getElementById(id).style.display = (id === idVista) ? 'block' : 'none';
+            });
+        }
+        function mostrarVistaLogin() { mostrarVista('vistaLogin'); }
+        function mostrarVistaRegistro() { mostrarVista('vistaRegistro'); }
+        function mostrarVistaConfigDesdeGear() {
+            document.getElementById('accesoAppId').value = cloudConfig.appId || '';
+            document.getElementById('accesoJsKey').value = cloudConfig.jsKey || '';
+            mostrarVista('vistaConfigInicial');
+        }
+
+        function guardarConfigInicial() {
+            const appId = document.getElementById('accesoAppId').value.trim();
+            const jsKey = document.getElementById('accesoJsKey').value.trim();
+            const errEl = document.getElementById('accesoConfigError');
+            if (!appId || !jsKey) {
+                errEl.textContent = 'Completa ambos campos.';
+                return;
+            }
+            errEl.textContent = '';
+            cloudConfig = { appId, jsKey };
+            localStorage.setItem('lh_cloud_config', JSON.stringify(cloudConfig));
+            mostrarVistaLogin();
+        }
+
+        async function iniciarSesion() {
+            const errEl = document.getElementById('loginError');
+            errEl.textContent = '';
+            const usuario = document.getElementById('loginUsuario').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!usuario || !password) { errEl.textContent = 'Completa usuario y contraseña.'; return; }
+
+            try {
+                const params = new URLSearchParams({ username: usuario, password });
+                const res = await fetch(`${PARSE_URL}/login?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Parse-Application-Id': cloudConfig.appId,
+                        'X-Parse-JavaScript-Key': cloudConfig.jsKey
+                    }
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || 'Usuario o contraseña incorrectos.');
+
+                sesionUsuario = { sessionToken: data.sessionToken, userId: data.objectId, username: data.username };
+                localStorage.setItem('lh_sesion', JSON.stringify(sesionUsuario));
+                document.getElementById('pantallaAcceso').style.display = 'none';
+                inicializarAppPostLogin();
+            } catch (err) {
+                errEl.textContent = err.message;
+            }
+        }
+
+        async function registrarUsuario() {
+            const errEl = document.getElementById('registroError');
+            errEl.textContent = '';
+            const usuario = document.getElementById('registroUsuario').value.trim();
+            const email = document.getElementById('registroEmail').value.trim();
+            const password = document.getElementById('registroPassword').value;
+            if (!usuario || !password) { errEl.textContent = 'Usuario y contraseña son obligatorios.'; return; }
+            if (password.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; return; }
+
+            try {
+                const res = await fetch(`${PARSE_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Parse-Application-Id': cloudConfig.appId,
+                        'X-Parse-JavaScript-Key': cloudConfig.jsKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: usuario, password, email: email || undefined })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || 'No se pudo crear la cuenta (¿usuario ya existe?).');
+
+                sesionUsuario = { sessionToken: data.sessionToken, userId: data.objectId, username: usuario };
+                localStorage.setItem('lh_sesion', JSON.stringify(sesionUsuario));
+                document.getElementById('pantallaAcceso').style.display = 'none';
+                inicializarAppPostLogin();
+            } catch (err) {
+                errEl.textContent = err.message;
+            }
+        }
+
+        async function cerrarSesion() {
+            if (!confirm('¿Cerrar sesión en este dispositivo?')) return;
+            try {
+                if (sesionUsuario) {
+                    await fetch(`${PARSE_URL}/logout`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Parse-Application-Id': cloudConfig.appId,
+                            'X-Parse-JavaScript-Key': cloudConfig.jsKey,
+                            'X-Parse-Session-Token': sesionUsuario.sessionToken
+                        }
+                    });
+                }
+            } catch (err) { /* seguimos igual, ya limpiamos localmente */ }
+            localStorage.removeItem('lh_sesion');
+            location.reload();
+        }
+
+        // Verifica al cargar la página si la sesión guardada sigue siendo válida.
+        async function validarAccesoAlCargar() {
+            cargarConfigGlobalDesdeStorage();
+
+            if (!cloudConfig.appId || !cloudConfig.jsKey) {
+                mostrarVista('vistaConfigInicial');
+                return false;
+            }
+
+            if (!sesionUsuario || !sesionUsuario.sessionToken) {
+                mostrarVista('vistaLogin');
+                return false;
+            }
+
+            try {
+                const res = await fetch(`${PARSE_URL}/users/me`, {
+                    headers: {
+                        'X-Parse-Application-Id': cloudConfig.appId,
+                        'X-Parse-JavaScript-Key': cloudConfig.jsKey,
+                        'X-Parse-Session-Token': sesionUsuario.sessionToken
+                    }
+                });
+                if (!res.ok) throw new Error('sesión inválida');
+                document.getElementById('pantallaAcceso').style.display = 'none';
+                return true;
+            } catch (err) {
+                sesionUsuario = null;
+                localStorage.removeItem('lh_sesion');
+                mostrarVista('vistaLogin');
+                return false;
+            }
+        }
+
+        // ---------- Panel de cuenta (⚙️) ----------
+
+        function abrirPanelCuenta() {
+            document.getElementById('panelCuentaUsuario').textContent = sesionUsuario ? sesionUsuario.username : '—';
+            document.getElementById('panelAppId').value = cloudConfig.appId || '';
+            document.getElementById('panelJsKey').value = cloudConfig.jsKey || '';
+            document.getElementById('panelCuentaModal').classList.add('active');
+        }
+        function cerrarPanelCuenta() {
+            document.getElementById('panelCuentaModal').classList.remove('active');
+        }
+        function guardarConfigDesdeGear() {
+            const appId = document.getElementById('panelAppId').value.trim();
+            const jsKey = document.getElementById('panelJsKey').value.trim();
+            if (!appId || !jsKey) { mostrarNotificacion('⚠️ Completa ambos campos', 'warning'); return; }
+            cloudConfig = { appId, jsKey };
+            localStorage.setItem('lh_cloud_config', JSON.stringify(cloudConfig));
+            mostrarNotificacion('✅ Configuración actualizada', 'success');
+        }
+
+        // Todo lo que dependía de la nube (Shalom + historial) se inicializa
+        // recién aquí, una vez que sabemos que hay sesión válida.
+        function inicializarAppPostLogin() {
+            cargarEnviosShalom();
+            renderHistorial();
+            verificarNotificacionesShalomGlobal();
+        }
+
+        // ============================================
+        // SEGUIMIENTO SHALOM (QR + Back4App + robot de fondo)
+        // ============================================
+
+        const SHALOM_CLASE = 'EnvioShalom';
+
+        let shalomCameraStream = null;
+        let shalomScanLoopActive = false;
+        let shalomEnviosCache = []; // último listado traído del servidor, para filtrar sin refetch
+
+
+        // ---------- Escaneo de QR ----------
+
+        function contextoSeguroParaCamara() {
+            return location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        }
+
+        function mostrarErrorCamara(msg) {
+            const el = document.getElementById('shalomCameraError');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function ocultarErrorCamara() {
+            document.getElementById('shalomCameraError').style.display = 'none';
+        }
+
+        async function iniciarCamaraQR() {
+            ocultarErrorCamara();
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                mostrarErrorCamara('Este navegador no soporta acceso a cámara desde aquí.');
+                return;
+            }
+            if (!contextoSeguroParaCamara()) {
+                mostrarErrorCamara('⚠️ La cámara solo funciona si abres este archivo por HTTPS (o localhost) — abrirlo directo desde tu carpeta de archivos no funciona en la mayoría de navegadores. Usa "Subir foto" mientras tanto.');
+                return;
+            }
+
+            detenerCamaraQR(); // por si había una cámara abierta de un intento anterior
+
+            const video = document.getElementById('shalomVideo');
+            const wrapper = document.getElementById('shalomCameraWrapper');
+
+            try {
+                shalomCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } },
+                    audio: false
+                });
+                video.srcObject = shalomCameraStream;
+                wrapper.style.display = 'block';
+                document.getElementById('btnIniciarCamara').style.display = 'none';
+                document.getElementById('btnDetenerCamara').style.display = 'inline-block';
+
+                await new Promise(resolve => {
+                    if (video.readyState >= video.HAVE_METADATA) return resolve();
+                    video.addEventListener('loadedmetadata', resolve, { once: true });
+                });
+                await video.play().catch(() => {});
+
+                shalomScanLoopActive = true;
+                requestAnimationFrame(shalomScanLoop);
+            } catch (err) {
+                console.error(err);
+                if (err.name === 'NotAllowedError') {
+                    mostrarErrorCamara('Bloqueaste el permiso de cámara. Habilítalo en el ícono de candado/cámara de la barra de direcciones y vuelve a intentar.');
+                } else if (err.name === 'NotFoundError') {
+                    mostrarErrorCamara('No se encontró ninguna cámara en este dispositivo.');
+                } else {
+                    mostrarErrorCamara('No se pudo acceder a la cámara (' + err.message + '). Usa "Subir foto" en su lugar.');
+                }
+                detenerCamaraQR();
+            }
+        }
+
+        function detenerCamaraQR() {
+            shalomScanLoopActive = false;
+            if (shalomCameraStream) {
+                shalomCameraStream.getTracks().forEach(t => t.stop());
+                shalomCameraStream = null;
+            }
+            const wrapper = document.getElementById('shalomCameraWrapper');
+            if (wrapper) wrapper.style.display = 'none';
+            const btnIniciar = document.getElementById('btnIniciarCamara');
+            const btnDetener = document.getElementById('btnDetenerCamara');
+            if (btnIniciar) btnIniciar.style.display = 'inline-block';
+            if (btnDetener) btnDetener.style.display = 'none';
+        }
+
+        function shalomScanLoop() {
+            if (!shalomScanLoopActive) return;
+            const video = document.getElementById('shalomVideo');
+            const canvas = document.getElementById('shalomCanvas');
+
+            if (video && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const codigo = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+                if (codigo && codigo.data) {
+                    mostrarQRDetectado(codigo.data);
+                    detenerCamaraQR();
+                    return;
+                }
+            }
+            requestAnimationFrame(shalomScanLoop);
+        }
+
+        function leerQRDesdeArchivo(input) {
+            const file = input.files[0];
+            if (!file) return;
+            ocultarErrorCamara();
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('shalomCanvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const codigo = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'attemptBoth' });
+                    if (codigo && codigo.data) {
+                        mostrarQRDetectado(codigo.data);
+                    } else {
+                        mostrarNotificacion('⚠️ No se detectó ningún QR en la imagen. Intenta con mejor luz/enfoque o usa el ingreso manual.', 'warning');
+                    }
+                };
+                img.onerror = function() {
+                    mostrarNotificacion('⚠️ No se pudo leer esa imagen.', 'warning');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Extrae un posible número de guía desde el contenido crudo del QR.
+        // El QR de Shalom puede contener una URL con el número, o el número
+        // solo. Se deja el campo editable para que el usuario corrija si
+        // la extracción automática no da con el formato exacto.
+        function extraerGuiaDeTextoQR(texto) {
+            const soloNumero = texto.match(/[A-Z]{0,4}-?\d{4,}/i);
+            return soloNumero ? soloNumero[0] : texto;
+        }
+
+        function mostrarQRDetectado(textoQR) {
+            document.getElementById('shalomQrTexto').textContent = textoQR;
+            document.getElementById('shalomGuiaEditable').value = extraerGuiaDeTextoQR(textoQR);
+            document.getElementById('shalomQrResultado').style.display = 'block';
+        }
+
+        // ---------- Registro y listado ----------
+
+        async function registrarGuiaShalom() {
+            const guia = document.getElementById('shalomGuiaEditable').value.trim();
+            const codigo = document.getElementById('shalomCodigoEditable').value.trim();
+            const cliente = document.getElementById('shalomClienteRef').value.trim();
+            const destino = document.getElementById('shalomDestinoRef').value.trim();
+            await crearRegistroShalom(guia, codigo, cliente, destino);
+        }
+
+        async function registrarGuiaManual() {
+            const guia = document.getElementById('shalomGuiaManual').value.trim();
+            const codigo = document.getElementById('shalomCodigoManual').value.trim();
+            const cliente = document.getElementById('shalomClienteManual').value.trim();
+            const destino = document.getElementById('shalomDestinoManual').value.trim();
+            await crearRegistroShalom(guia, codigo, cliente, destino);
+            document.getElementById('shalomGuiaManual').value = '';
+            document.getElementById('shalomCodigoManual').value = '';
+            document.getElementById('shalomClienteManual').value = '';
+            document.getElementById('shalomDestinoManual').value = '';
+        }
+
+        async function crearRegistroShalom(guia, codigo, cliente, destino) {
+            if (!guia || !codigo) {
+                mostrarNotificacion('⚠️ Shalom necesita el N° de Orden Y el Código de Orden (4 dígitos) para poder rastrear', 'warning');
+                return;
+            }
+            try {
+                const existentes = await parseFetch(SHALOM_CLASE, 'GET', null, null, { where: { guia }, limit: 1 });
+                if (existentes.results && existentes.results.length > 0) {
+                    mostrarNotificacion(`ℹ️ La guía ${guia} ya estaba registrada`, 'info');
+                    return;
+                }
+
+                await parseFetch(SHALOM_CLASE, 'POST', null, {
+                    guia,
+                    codigo,
+                    cliente: cliente || null,
+                    destino: destino || null,
+                    estado: 'pendiente',
+                    notificado: false,
+                    ACL: aclSoloUsuario()
+                });
+                mostrarNotificacion(`✅ Guía ${guia} registrada para seguimiento`, 'success');
+                document.getElementById('shalomQrResultado').style.display = 'none';
+                cargarEnviosShalom();
+            } catch (err) {
+                mostrarNotificacion('❌ Error al registrar: ' + err.message, 'warning');
+                console.error(err);
+            }
+        }
+
+        async function eliminarEnvioShalom(objectId) {
+            if (!confirm('¿Eliminar este envío del seguimiento?')) return;
+            try {
+                await parseFetch(SHALOM_CLASE, 'DELETE', objectId);
+                cargarEnviosShalom();
+            } catch (err) {
+                mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+            }
+        }
+
+        async function marcarNotificadoShalom(objectId) {
+            try {
+                await parseFetch(SHALOM_CLASE, 'PUT', objectId, { notificado: true });
+            } catch (err) { console.error(err); }
+        }
+
+        const ETIQUETAS_ESTADO_SHALOM = {
+            pendiente: { texto: '⏳ Pendiente', color: '#718096', bg: '#f0f0f0' },
+            en_transito: { texto: '🚚 En tránsito', color: '#3182ce', bg: '#ebf8ff' },
+            entregado: { texto: '✅ Entregado', color: '#38a169', bg: '#f0fff4' },
+            error: { texto: '⚠️ Error', color: '#e53e3e', bg: '#fff5f5' }
+        };
+
+        async function cargarEnviosShalom() {
+            if (!sesionUsuario) return;
+            const listEl = document.getElementById('shalomList');
+            const bannerEl = document.getElementById('shalomNotifBanner');
+
+            try {
+                const resultado = await parseFetch(SHALOM_CLASE, 'GET', null, null, { order: '-createdAt' });
+                shalomEnviosCache = resultado.results || [];
+
+                const nuevos = shalomEnviosCache.filter(e => e.estado === 'entregado' && !e.notificado);
+                if (nuevos.length > 0) {
+                    bannerEl.style.display = 'block';
+                    bannerEl.innerHTML = nuevos.map(e => `
+                        <div class="sync-indicator show" style="position:static; margin-bottom:8px; cursor:default;">
+                            🎉 La guía <strong>${e.guia}</strong>${e.cliente ? ' (' + e.cliente + ')' : ''} ya llegó a destino.
+                            <button class="btn btn-small" style="margin-left:10px; background:rgba(255,255,255,0.25);" onclick="marcarNotificadoShalom('${e.objectId}'); this.closest('div').remove();">Marcar visto</button>
+                        </div>
+                    `).join('');
+                    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+                        nuevos.forEach(e => new Notification('📦 Envío entregado', { body: `Guía ${e.guia} ya llegó a destino.` }));
+                    } else if (typeof Notification !== 'undefined' && Notification.permission !== 'denied') {
+                        Notification.requestPermission();
+                    }
+                } else {
+                    bannerEl.style.display = 'none';
+                }
+
+                renderListaShalom();
+            } catch (err) {
+                listEl.innerHTML = `<div class="historial-empty">❌ Error al conectar con Back4App: ${err.message}</div>`;
+                console.error(err);
+            }
+        }
+
+        // Filtra shalomEnviosCache por el texto del buscador y pinta las tarjetas.
+        // No vuelve a pedir datos al servidor — solo filtra lo ya cargado.
+        function renderListaShalom() {
+            const listEl = document.getElementById('shalomList');
+            const countEl = document.getElementById('shalomCount');
+            const buscadorEl = document.getElementById('shalomBuscador');
+            const texto = buscadorEl ? buscadorEl.value.trim().toLowerCase() : '';
+
+            countEl.textContent = shalomEnviosCache.length;
+
+            const filtrados = !texto ? shalomEnviosCache : shalomEnviosCache.filter(e => {
+                const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
+                const campo = [e.guia, e.codigo, e.cliente, e.destino, e.detalleEstado, info.texto]
+                    .filter(Boolean).join(' ').toLowerCase();
+                return campo.includes(texto);
+            });
+
+            if (shalomEnviosCache.length === 0) {
+                listEl.innerHTML = '<div class="historial-empty">No hay envíos en seguimiento. Escanea el QR de una guía para empezar.</div>';
+                return;
+            }
+            if (filtrados.length === 0) {
+                listEl.innerHTML = '<div class="historial-empty">No se encontró ningún envío con ese criterio de búsqueda.</div>';
+                return;
+            }
+
+            listEl.innerHTML = filtrados.map(e => {
+                const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
+                const ultima = e.ultimaConsulta ? new Date(e.ultimaConsulta).toLocaleString('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Aún no consultado';
+                return `
+                    <div class="shalom-card">
+                        <div class="shalom-card-top">
+                            <div>
+                                <div class="shalom-card-guia">📦 ${e.guia}</div>
+                                ${e.codigo ? `<div class="shalom-card-codigo">Código: ${e.codigo}</div>` : ''}
+                            </div>
+                            <button class="btn-historial-del" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">🗑️</button>
+                        </div>
+                        ${e.cliente ? `<div class="shalom-card-cliente">👤 ${e.cliente}</div>` : ''}
+                        ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
+                        <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
+                        ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
+                        <div class="shalom-card-fecha">🕓 ${ultima}</div>
+                    </div>`;
+            }).join('');
+        }
+
+        async function verificarNotificacionesShalomGlobal() {
+            if (!sesionUsuario) return;
+            try {
+                const resultado = await parseFetch(SHALOM_CLASE, 'GET', null, null, {
+                    where: { estado: 'entregado', notificado: false }
+                });
+                (resultado.results || []).forEach(e => {
+                    mostrarNotificacion(`🎉 Guía Shalom ${e.guia} ya llegó a destino`, 'success');
+                });
+            } catch (err) {
+                console.error('No se pudo verificar notificaciones Shalom:', err.message);
+            }
+        }
+
+
+        window.onload = async function() {
+            // El catálogo de productos, sucursales y preferencias locales
+            // no dependen de la nube, así que se cargan siempre.
             cargarEstado();
-            cargarPreferencias(); // Cargar preferencias de IGV y Forzar Por Mayor
+            cargarPreferencias(); // Cargar preferencias de IGV, Forzar Por Mayor y tema
             renderSucursales();
             renderProductList();
             renderSucursalList();
+            renderPlantillas();
             console.log('✅ Cotizador cargado correctamente');
             console.log(`📦 ${productosDB.length} productos disponibles`);
             console.log(`🚚 ${sucursalesDB.length} sucursales disponibles`);
+
+            // Historial de cotizaciones y Shalom sí dependen de estar logueado.
+            const accesoValido = await validarAccesoAlCargar();
+            if (accesoValido) {
+                inicializarAppPostLogin();
+            }
         };
 
         // Cerrar modales al hacer click fuera
