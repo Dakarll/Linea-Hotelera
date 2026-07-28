@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     
     <style>
         * {
@@ -1465,6 +1465,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .historial-count-badge {
             background: var(--secondary);
@@ -1642,6 +1644,35 @@
                 padding: 4px 8px;
                 font-size: 0.75em;
             }
+
+            #pantallaAcceso > div {
+                padding: 24px 20px !important;
+                border-radius: 20px !important;
+            }
+
+            .ios-section-header {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .shalom-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .shalom-card {
+                padding: 14px;
+            }
+
+            #shalomCameraWrapper {
+                max-width: 100% !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .add-product-section .add-product-title,
+            .shalom-card-nombre {
+                font-size: 1em;
+            }
         }
 
         /* ============================================
@@ -1747,6 +1778,26 @@
             background: white;
             color: #2d3748;
             border-color: #cbd5e0;
+        }
+
+        /* Las zonas de impresión/vista previa (cotización y ficha técnica)
+           deben verse siempre igual sin importar el modo oscuro — si no,
+           la variable --primary (un "plomo" oscuro) se vuelve gris claro
+           en modo oscuro y el texto blanco sobre esas zonas se vuelve
+           casi invisible. Se re-fija aquí a su valor de modo claro. */
+        #fichaPreview, #fichaPreview *,
+        .cotizacion-print, .cotizacion-print *,
+        .ficha-print, .ficha-print * {
+            --primary: #2d3748;
+            --border: #e2e8f0;
+            --bg-light: #f7fafc;
+        }
+
+        body.dark-mode .loading-content,
+        body.dark-mode .extra-field input {
+            background: #121212;
+            color: #e8e8e8;
+            border-color: #2a2a2a;
         }
 
         /* Toggle de tema */
@@ -1923,16 +1974,17 @@
             align-items: flex-start;
             gap: 8px;
         }
-        .shalom-card-guia {
+        .shalom-card-nombre {
             font-weight: 700;
-            font-size: 1.05em;
+            font-size: 1.08em;
             color: #1c1c1e;
             letter-spacing: -0.01em;
+            margin: 0;
+            line-height: 1.25;
+            overflow-wrap: break-word;
         }
-        body.dark-mode .shalom-card-guia { color: #f2f2f2; }
-        .shalom-card-codigo { font-size: 0.78em; color: #8e8e93; margin-top: 1px; }
-        .shalom-card-cliente { font-weight: 600; font-size: 0.92em; color: #3a3a3c; }
-        body.dark-mode .shalom-card-cliente { color: #d0d0d0; }
+        body.dark-mode .shalom-card-nombre { color: #f2f2f2; }
+        .shalom-card-subinfo { font-size: 0.8em; color: #8e8e93; margin-top: 2px; }
         .shalom-card-destino { font-size: 0.85em; color: #8e8e93; }
         .shalom-card-estado-badge {
             display: inline-flex;
@@ -2570,16 +2622,18 @@
         <div class="historial-empty">No hay cotizaciones guardadas aún.<br><br>Después de armar una cotización, haz clic en <strong>"💾 Guardar"</strong> o genera un PDF/Imagen para guardarla automáticamente.</div>
     </div>
 
-    <!-- PLANTILLAS DE COTIZACIÓN -->
-    <div class="historial-header-row" style="margin-top:30px;">
-        <div>
-            <strong style="font-size:1.1em; color:var(--primary);">📋 Plantillas de Cotización</strong>
-            <span class="historial-count-badge" id="plantillasCount">0</span>
+    <!-- PLANTILLAS DE COTIZACIÓN (deshabilitado por ahora) -->
+    <div style="display:none;">
+        <div class="historial-header-row" style="margin-top:30px;">
+            <div>
+                <strong style="font-size:1.1em; color:var(--primary);">📋 Plantillas de Cotización</strong>
+                <span class="historial-count-badge" id="plantillasCount">0</span>
+            </div>
         </div>
-    </div>
-    <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">Paquetes de productos reutilizables (sin datos de cliente) para armar cotizaciones rápidas.</p>
-    <div id="plantillasList">
-        <div class="historial-empty">No hay plantillas guardadas.<br><br>Arma una cotización y haz clic en <strong>"📋 Plantilla"</strong> para guardarla como reutilizable.</div>
+        <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">Paquetes de productos reutilizables (sin datos de cliente) para armar cotizaciones rápidas.</p>
+        <div id="plantillasList">
+            <div class="historial-empty">No hay plantillas guardadas.<br><br>Arma una cotización y haz clic en <strong>"📋 Plantilla"</strong> para guardarla como reutilizable.</div>
+        </div>
     </div>
 </div>
 
@@ -3144,8 +3198,8 @@ async function generarFichaPDF() {
                     <button class="btn btn-primary" id="btnGuardarHistorial" disabled onclick="guardarEnHistorial()">💾 Guardar</button>
                     <button class="btn btn-success" id="btnGenerateImage" disabled onclick="generarImagen()">🖼️ Imagen</button>
                     <button class="btn btn-success" id="btnGeneratePDF" disabled onclick="generarPDF()">📄 PDF</button>
-                    <button class="btn btn-warning" id="btnGenerateExcel" disabled onclick="exportarExcel()">📊 Excel</button>
-                    <button class="btn btn-primary" id="btnGuardarPlantilla" disabled onclick="guardarComoPlantilla()">📋 Plantilla</button>
+                    <button class="btn btn-warning" id="btnGenerateExcel" disabled onclick="exportarExcel()" style="display:none;">📊 Excel</button>
+                    <button class="btn btn-primary" id="btnGuardarPlantilla" disabled onclick="guardarComoPlantilla()" style="display:none;">📋 Plantilla</button>
                 </div>
             </div>
         </div>
@@ -6090,16 +6144,16 @@ async function generarFichaPDF() {
             listEl.innerHTML = filtrados.map(e => {
                 const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
                 const ultima = e.ultimaConsulta ? new Date(e.ultimaConsulta).toLocaleString('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Aún no consultado';
+                const nombreMostrado = e.cliente || `Guía ${e.guia}`;
                 return `
                     <div class="shalom-card">
                         <div class="shalom-card-top">
-                            <div>
-                                <div class="shalom-card-guia">${e.guia}</div>
-                                ${e.codigo ? `<div class="shalom-card-codigo">Código ${e.codigo}</div>` : ''}
+                            <div style="min-width:0;">
+                                <h3 class="shalom-card-nombre">${nombreMostrado}</h3>
+                                <div class="shalom-card-subinfo">Guía ${e.guia}${e.codigo ? ' · Código ' + e.codigo : ''}</div>
                             </div>
                             <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">✕</button>
                         </div>
-                        ${e.cliente ? `<div class="shalom-card-cliente">${e.cliente}</div>` : ''}
                         ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
                         <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
                         ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
