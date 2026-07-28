@@ -1,10 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cotizador Profesional - Línea Hotelera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Scripts externos CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -30,7 +32,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
             padding: 10px;
             min-height: 100vh;
@@ -1402,46 +1404,6 @@
         }
         .historial-list { display: flex; flex-direction: column; gap: 10px; }
 
-        /* Tarjetas de seguimiento Shalom */
-        .shalom-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 14px;
-        }
-        .shalom-card {
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            transition: box-shadow 0.15s;
-        }
-        .shalom-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .shalom-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-        }
-        .shalom-card-guia { font-weight: 700; color: var(--primary); font-size: 1.05em; }
-        .shalom-card-codigo { font-size: 0.8em; color: #718096; }
-        .shalom-card-cliente { font-weight: 600; }
-        .shalom-card-destino { font-size: 0.85em; color: #718096; }
-        .shalom-card-estado-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 700;
-            align-self: flex-start;
-        }
-        .shalom-card-detalle { font-size: 0.8em; color: #718096; }
-        .shalom-card-fecha { font-size: 0.75em; color: #a0aec0; }
-        .shalom-card-actions { margin-top: auto; display: flex; justify-content: flex-end; }
-        body.dark-mode .shalom-card { background: #2d3748; }
-
         .historial-card {
             border: 1.5px solid var(--border);
             border-radius: 10px;
@@ -1683,18 +1645,20 @@
         }
 
         /* ============================================
-           MODO OSCURO
+           MODO OSCURO — negro real, apto para pantallas OLED
+           (no es un simple "negativo": fondos casi negros reales,
+           no gris-azulado invertido)
            Nota: las áreas de impresión (cotizacion-print,
            ficha-print, fichaPreview) se mantienen claras
            intencionalmente para que el PDF exportado sea
            siempre legible.
         ============================================ */
         body.dark-mode {
-            --primary: #e2e8f0;
-            --border: #4a5568;
-            --bg-light: #2d3748;
-            background: #1a202c;
-            color: #e2e8f0;
+            --primary: #d4d4d8;
+            --border: #2a2a2a;
+            --bg-light: #121212;
+            background: #000000;
+            color: #e8e8e8;
         }
 
         body.dark-mode .content,
@@ -1709,35 +1673,40 @@
         body.dark-mode .cantidad-input,
         body.dark-mode .filter-btn,
         body.dark-mode .historial-card,
+        body.dark-mode .shalom-card,
         body.dark-mode .cliente-panel,
         body.dark-mode .cliente-db-dropdown,
         body.dark-mode .cliente-db-item {
-            background: #2d3748;
-            color: #e2e8f0;
-            border-color: #4a5568;
+            background: #121212;
+            color: #e8e8e8;
+            border-color: #2a2a2a;
+        }
+
+        body.dark-mode .form-label {
+            color: #d4d4d8;
         }
 
         body.dark-mode .add-product-section {
-            background: #232c3a;
-            border-color: #4a5568;
+            background: #161616;
+            border-color: #2a2a2a;
         }
 
         body.dark-mode .products-table td,
         body.dark-mode .products-table th {
-            border-color: #4a5568;
+            border-color: #2a2a2a;
         }
 
         body.dark-mode .products-table tbody tr:hover {
-            background: #232c3a;
+            background: #1a1a1a;
         }
 
         body.dark-mode .autocomplete-item:hover,
         body.dark-mode .cliente-db-item:hover {
-            background: #364155;
+            background: #1e1e1e;
         }
 
         body.dark-mode .sucursal-card.selected {
-            background: #1f3a2c;
+            background: #0f2418;
         }
 
         body.dark-mode .search-icon,
@@ -1747,21 +1716,37 @@
         body.dark-mode .sucursal-direccion,
         body.dark-mode .sucursal-stats,
         body.dark-mode .empty-state,
+        body.dark-mode .historial-empty,
         body.dark-mode .cliente-db-item-sub {
-            color: #a0aec0;
+            color: #9a9a9a;
         }
 
         body.dark-mode .tab {
-            color: #a0aec0;
+            color: #9a9a9a;
         }
 
         body.dark-mode .tab.active,
         body.dark-mode .tab:hover {
-            color: #7f9cf5;
+            color: #a5b4fc;
         }
 
         body.dark-mode .tabs {
-            border-bottom-color: #4a5568;
+            border-bottom-color: #2a2a2a;
+        }
+
+        /* La pantalla de acceso (login/registro) y el panel de cuenta
+           siempre usan su propia paleta clara y legible, sin importar
+           si el modo oscuro está activo — evita texto invisible
+           (blanco sobre blanco) heredado del tema. */
+        #pantallaAcceso, #pantallaAcceso * ,
+        #panelCuentaModal .modal-content, #panelCuentaModal .modal-content * {
+            color: #2d3748;
+        }
+        #pantallaAcceso h2 { color: #1a202c; }
+        #pantallaAcceso .form-input, #panelCuentaModal .form-input {
+            background: white;
+            color: #2d3748;
+            border-color: #cbd5e0;
         }
 
         /* Toggle de tema */
@@ -1804,6 +1789,192 @@
             display: block;
             animation: fadeIn 0.3s ease;
         }
+
+        /* ============================================
+           SEGUIMIENTO SHALOM — estética estilo iOS
+           (tipografía del sistema, tarjetas redondeadas con
+           sombra suave, banner inline en vez de flotante,
+           buscador tipo "pill" de iOS)
+        ============================================ */
+        .ios-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin: 28px 0 14px;
+        }
+        .ios-section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--primary);
+        }
+        .ios-section-subtitle {
+            font-size: 0.85em;
+            color: #8e8e93;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .ios-link-btn {
+            background: none;
+            border: none;
+            color: #007aff;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 4px;
+        }
+        .ios-link-btn:hover { opacity: 0.7; }
+        body.dark-mode .ios-link-btn { color: #0a84ff; }
+
+        .ios-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+            animation: fadeIn 0.3s ease;
+        }
+        .ios-banner--success { background: #e8f9ee; }
+        body.dark-mode .ios-banner--success { background: #0d2818; }
+        .ios-banner-icon { font-size: 1.4em; line-height: 1; flex-shrink: 0; }
+        .ios-banner-body { flex: 1; min-width: 0; }
+        .ios-banner-title { font-weight: 600; font-size: 0.95em; color: #1c1c1e; }
+        body.dark-mode .ios-banner-title { color: #e8e8e8; }
+        .ios-banner-text { font-size: 0.85em; color: #636366; margin-top: 2px; }
+        body.dark-mode .ios-banner-text { color: #9a9a9a; }
+        .ios-banner-dismiss {
+            background: rgba(0,0,0,0.06);
+            border: none;
+            color: #1c1c1e;
+            font-size: 0.8em;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .ios-banner-dismiss:hover { background: rgba(0,0,0,0.12); }
+        body.dark-mode .ios-banner-dismiss { background: rgba(255,255,255,0.1); color: #e8e8e8; }
+        body.dark-mode .ios-banner-dismiss:hover { background: rgba(255,255,255,0.18); }
+
+        .ios-search-wrap {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .ios-search-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #8e8e93;
+            pointer-events: none;
+        }
+        .ios-search {
+            width: 100%;
+            padding: 9px 14px 9px 34px;
+            border: none;
+            border-radius: 12px;
+            background: #f2f2f7;
+            font-size: 0.95em;
+            color: #1c1c1e;
+            transition: background 0.15s;
+        }
+        .ios-search:focus {
+            outline: none;
+            background: #e9e9ee;
+        }
+        body.dark-mode .ios-search { background: #1c1c1e; color: #e8e8e8; }
+        body.dark-mode .ios-search:focus { background: #262626; }
+        body.dark-mode .ios-search-wrap svg { color: #6d6d70; }
+
+        .shalom-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 14px;
+        }
+        .shalom-card {
+            position: relative;
+            border: none;
+            border-radius: 18px;
+            padding: 16px 16px 14px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .shalom-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.09);
+        }
+        body.dark-mode .shalom-card {
+            background: #121212;
+            box-shadow: 0 0 0 1px #262626, 0 4px 14px rgba(0,0,0,0.4);
+        }
+        .shalom-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .shalom-card-guia {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: #1c1c1e;
+            letter-spacing: -0.01em;
+        }
+        body.dark-mode .shalom-card-guia { color: #f2f2f2; }
+        .shalom-card-codigo { font-size: 0.78em; color: #8e8e93; margin-top: 1px; }
+        .shalom-card-cliente { font-weight: 600; font-size: 0.92em; color: #3a3a3c; }
+        body.dark-mode .shalom-card-cliente { color: #d0d0d0; }
+        .shalom-card-destino { font-size: 0.85em; color: #8e8e93; }
+        .shalom-card-estado-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 0.76em;
+            font-weight: 700;
+            align-self: flex-start;
+            margin-top: 4px;
+            letter-spacing: 0.01em;
+        }
+        .shalom-card-detalle {
+            font-size: 0.78em;
+            color: #8e8e93;
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+        .shalom-card-fecha {
+            font-size: 0.72em;
+            color: #c7c7cc;
+            margin-top: 6px;
+        }
+        body.dark-mode .shalom-card-fecha { color: #6d6d70; }
+        .shalom-card-del-btn {
+            background: #f2f2f7;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 0.85em;
+            color: #8e8e93;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .shalom-card-del-btn:hover { background: #ffe5e5; color: #ff3b30; }
+        body.dark-mode .shalom-card-del-btn { background: #1c1c1e; color: #9a9a9a; }
+        body.dark-mode .shalom-card-del-btn:hover { background: #3a1414; color: #ff453a; }
 
         /* Mejora responsive móvil adicional */
         @media (max-width: 600px) {
@@ -1884,7 +2055,7 @@
                 <button class="btn btn-primary" style="width:100%;" onclick="iniciarSesion()">Iniciar sesión</button>
                 <div id="loginError" style="color:var(--danger); font-size:0.85em; margin-top:10px;"></div>
                 <p style="text-align:center; margin-top:18px; font-size:0.9em;">
-                    ¿Primera vez? <a href="#" onclick="mostrarVistaRegistro(); return false;" style="color:var(--primary); font-weight:600;">Crear cuenta</a>
+                    ¿Primera vez? <a href="#" onclick="mostrarVistaRegistro(); return false;" style="color:#667eea; font-weight:600;">Crear cuenta</a>
                 </p>
                 <p style="text-align:center; margin-top:6px;">
                     <a href="#" onclick="mostrarVistaConfigDesdeGear(); return false;" style="color:#a0aec0; font-size:0.8em;">⚙️ Cambiar datos de Back4App</a>
@@ -1908,11 +2079,24 @@
                 <button class="btn btn-primary" style="width:100%;" onclick="registrarUsuario()">Crear cuenta</button>
                 <div id="registroError" style="color:var(--danger); font-size:0.85em; margin-top:10px;"></div>
                 <p style="text-align:center; margin-top:18px; font-size:0.9em;">
-                    ¿Ya tienes cuenta? <a href="#" onclick="mostrarVistaLogin(); return false;" style="color:var(--primary); font-weight:600;">Iniciar sesión</a>
+                    ¿Ya tienes cuenta? <a href="#" onclick="mostrarVistaLogin(); return false;" style="color:#667eea; font-weight:600;">Iniciar sesión</a>
                 </p>
             </div>
         </div>
     </div>
+    <script>
+        // Salvaguarda: muestra el login de inmediato, sin esperar a que
+        // termine de cargar/ejecutar el resto de la página. El App ID y la
+        // JavaScript Key ya vienen fijos en el código, así que solo falta
+        // iniciar sesión (o crear cuenta la primera vez).
+        (function () {
+            try {
+                var haysesion = !!localStorage.getItem('lh_sesion');
+                var el = document.getElementById(haysesion ? 'vistaLogin' : 'vistaLogin');
+                if (el) el.style.display = 'block';
+            } catch (e) { /* si algo falla aquí, el resto del script aún puede corregirlo */ }
+        })();
+    </script>
 
     <!-- LOADING OVERLAY -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -2590,17 +2774,17 @@
     </div>
 
     <!-- LISTA DE ENVÍOS RASTREADOS -->
-    <div class="historial-header-row" style="margin-top:30px;">
+    <div class="ios-section-header">
         <div>
-            <strong style="font-size:1.1em; color:var(--primary);">📦 Envíos en seguimiento</strong>
-            <span class="historial-count-badge" id="shalomCount">0</span>
+            <div class="ios-section-title">Envíos <span id="shalomCount" style="color:#8e8e93; font-weight:600;">0</span></div>
+            <div class="ios-section-subtitle">Actualizado cada 30 min por el robot, incluso con el navegador cerrado</div>
         </div>
-        <button class="btn btn-small" style="background:var(--border);" onclick="cargarEnviosShalom()">🔄 Actualizar ahora</button>
+        <button class="ios-link-btn" onclick="cargarEnviosShalom()">Actualizar</button>
     </div>
-    <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">
-        El robot de fondo (GitHub Actions) consulta cada 30 min, incluso con el navegador cerrado.
-    </p>
-    <input type="text" class="form-input" id="shalomBuscador" placeholder="🔍 Buscar por cliente, destino, guía o estado…" style="margin-bottom:15px;" oninput="renderListaShalom()">
+    <div class="ios-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" class="ios-search" id="shalomBuscador" placeholder="Buscar por cliente, destino, guía o estado" oninput="renderListaShalom()">
+    </div>
     <div id="shalomList" class="shalom-cards-grid">
         <div class="historial-empty">No hay envíos en seguimiento. Escanea el QR de una guía para empezar.</div>
     </div>
@@ -5384,13 +5568,19 @@ async function generarFichaPDF() {
 
         const PARSE_URL = 'https://parseapi.back4app.com';
 
-        let cloudConfig = { appId: '', jsKey: '' };
+        // App ID y JavaScript Key de Back4App: son seguros de exponer aquí
+        // (a diferencia de la Master Key, que solo vive en GitHub Secrets).
+        // Al venir ya fijos, el cotizador nunca vuelve a pedirlos.
+        let cloudConfig = {
+            appId: 'YYEuzomPW4xixrDyY0pJ4Q6DQPhtc2eyH4yks59g',
+            jsKey: 'voadIWFZyafR9KA4Q8QlqZow8QFGmn0JewBvW0Ft'
+        };
         let sesionUsuario = null; // { sessionToken, userId, username }
 
         function cargarConfigGlobalDesdeStorage() {
             try {
                 const c = JSON.parse(localStorage.getItem('lh_cloud_config') || 'null');
-                if (c) cloudConfig = c;
+                if (c && c.appId && c.jsKey) cloudConfig = c;
             } catch (e) { /* ignore */ }
             try {
                 const s = JSON.parse(localStorage.getItem('lh_sesion') || 'null');
@@ -5846,9 +6036,13 @@ async function generarFichaPDF() {
                 if (nuevos.length > 0) {
                     bannerEl.style.display = 'block';
                     bannerEl.innerHTML = nuevos.map(e => `
-                        <div class="sync-indicator show" style="position:static; margin-bottom:8px; cursor:default;">
-                            🎉 La guía <strong>${e.guia}</strong>${e.cliente ? ' (' + e.cliente + ')' : ''} ya llegó a destino.
-                            <button class="btn btn-small" style="margin-left:10px; background:rgba(255,255,255,0.25);" onclick="marcarNotificadoShalom('${e.objectId}'); this.closest('div').remove();">Marcar visto</button>
+                        <div class="ios-banner ios-banner--success">
+                            <div class="ios-banner-icon">📦</div>
+                            <div class="ios-banner-body">
+                                <div class="ios-banner-title">Guía ${e.guia} entregada</div>
+                                <div class="ios-banner-text">${e.cliente ? e.cliente + ' — ' : ''}ya llegó a destino.</div>
+                            </div>
+                            <button class="ios-banner-dismiss" onclick="marcarNotificadoShalom('${e.objectId}'); this.closest('.ios-banner').remove();">Visto</button>
                         </div>
                     `).join('');
                     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
@@ -5900,16 +6094,16 @@ async function generarFichaPDF() {
                     <div class="shalom-card">
                         <div class="shalom-card-top">
                             <div>
-                                <div class="shalom-card-guia">📦 ${e.guia}</div>
-                                ${e.codigo ? `<div class="shalom-card-codigo">Código: ${e.codigo}</div>` : ''}
+                                <div class="shalom-card-guia">${e.guia}</div>
+                                ${e.codigo ? `<div class="shalom-card-codigo">Código ${e.codigo}</div>` : ''}
                             </div>
-                            <button class="btn-historial-del" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">🗑️</button>
+                            <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">✕</button>
                         </div>
-                        ${e.cliente ? `<div class="shalom-card-cliente">👤 ${e.cliente}</div>` : ''}
+                        ${e.cliente ? `<div class="shalom-card-cliente">${e.cliente}</div>` : ''}
                         ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
                         <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
                         ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
-                        <div class="shalom-card-fecha">🕓 ${ultima}</div>
+                        <div class="shalom-card-fecha">${ultima}</div>
                     </div>`;
             }).join('');
         }
@@ -5930,22 +6124,41 @@ async function generarFichaPDF() {
 
 
         window.onload = async function() {
+            // La pantalla de acceso (login/registro) se resuelve PRIMERO y
+            // aislada en su propio try/catch — así, si algo más abajo falla,
+            // el usuario igual puede ver los campos de usuario/contraseña
+            // en vez de una pantalla en blanco.
+            let accesoValido = false;
+            try {
+                accesoValido = await validarAccesoAlCargar();
+            } catch (err) {
+                console.error('Error validando acceso:', err);
+                mostrarVista('vistaLogin');
+            }
+
             // El catálogo de productos, sucursales y preferencias locales
             // no dependen de la nube, así que se cargan siempre.
-            cargarEstado();
-            cargarPreferencias(); // Cargar preferencias de IGV, Forzar Por Mayor y tema
-            renderSucursales();
-            renderProductList();
-            renderSucursalList();
-            renderPlantillas();
-            console.log('✅ Cotizador cargado correctamente');
-            console.log(`📦 ${productosDB.length} productos disponibles`);
-            console.log(`🚚 ${sucursalesDB.length} sucursales disponibles`);
+            try {
+                cargarEstado();
+                cargarPreferencias(); // Cargar preferencias de IGV, Forzar Por Mayor y tema
+                renderSucursales();
+                renderProductList();
+                renderSucursalList();
+                renderPlantillas();
+                console.log('✅ Cotizador cargado correctamente');
+                console.log(`📦 ${productosDB.length} productos disponibles`);
+                console.log(`🚚 ${sucursalesDB.length} sucursales disponibles`);
+            } catch (err) {
+                console.error('Error inicializando el catálogo local:', err);
+            }
 
             // Historial de cotizaciones y Shalom sí dependen de estar logueado.
-            const accesoValido = await validarAccesoAlCargar();
             if (accesoValido) {
-                inicializarAppPostLogin();
+                try {
+                    inicializarAppPostLogin();
+                } catch (err) {
+                    console.error('Error inicializando datos de la nube:', err);
+                }
             }
         };
 
