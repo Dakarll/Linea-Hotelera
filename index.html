@@ -2784,45 +2784,58 @@
     <!-- Banner de notificaciones (envíos recién entregados) -->
     <div id="shalomNotifBanner" style="display:none; margin-bottom:20px;"></div>
 
-    <!-- ESCANEAR QR -->
+    <!-- REGISTRAR NUEVA GUÍA (entrada manual = la forma confiable) -->
     <div class="add-product-section">
-        <div class="add-product-title">📷 Registrar nueva guía (escanear QR)</div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
-            <button type="button" class="btn btn-primary" id="btnIniciarCamara" onclick="iniciarCamaraQR()">📷 Usar cámara</button>
-            <button type="button" class="btn" style="background:var(--border); display:none;" id="btnDetenerCamara" onclick="detenerCamaraQR()">✕ Detener cámara</button>
-            <label class="btn btn-warning" style="cursor:pointer;">
-                🖼️ Subir foto de la guía
-                <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="leerQRDesdeArchivo(this)">
-            </label>
-        </div>
-        <div id="shalomCameraWrapper" style="display:none; position:relative; max-width:400px;">
-            <video id="shalomVideo" style="width:100%; border-radius:8px; background:#000;" playsinline autoplay muted></video>
-            <div id="shalomCameraHint" style="font-size:0.8em; color:#718096; margin-top:6px;">Apunta la cámara al código QR de tu guía…</div>
-        </div>
-        <canvas id="shalomCanvas" style="display:none;"></canvas>
-        <div id="shalomCameraError" style="display:none; margin-top:10px; padding:12px; background:#fff5f5; border-radius:8px; border:1px solid var(--danger); font-size:0.85em; color:var(--danger);"></div>
-
-        <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#f0fff4; border-radius:8px; border:2px solid var(--success);">
-            <strong>✅ Código detectado:</strong> <span id="shalomQrTexto"></span>
-            <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Shalom necesita el N° de Orden y el Código de Orden (4 dígitos) juntos para poder rastrear. Verifica/completa ambos campos antes de registrar.</p>
-            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                <input type="text" class="form-input" id="shalomGuiaEditable" maxlength="8" placeholder="N° de Orden" style="max-width:150px;">
-                <input type="text" class="form-input" id="shalomCodigoEditable" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
-                <input type="text" class="form-input" id="shalomClienteRef" placeholder="Cliente (opcional)" style="max-width:200px;">
-                <input type="text" class="form-input" id="shalomDestinoRef" placeholder="Destino (opcional)" style="max-width:200px;">
-                <button type="button" class="btn btn-success" onclick="registrarGuiaShalom()">➕ Registrar seguimiento</button>
-            </div>
+        <div class="add-product-title">➕ Registrar nueva guía</div>
+        <p style="font-size:0.85em; opacity:0.9; margin-bottom:15px;">Copia el N° de Orden y el Código (4 dígitos) tal como aparecen impresos en tu comprobante Shalom.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <input type="text" class="form-input" id="shalomGuiaManual" maxlength="8" placeholder="N° de Orden" style="max-width:150px;">
+            <input type="text" class="form-input" id="shalomCodigoManual" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
+            <input type="text" class="form-input" id="shalomClienteManual" placeholder="Cliente (opcional)" style="max-width:200px;">
+            <input type="text" class="form-input" id="shalomDestinoManual" placeholder="Destino (opcional)" style="max-width:200px;">
+            <button type="button" class="btn btn-success" onclick="registrarGuiaManual()">➕ Registrar</button>
         </div>
 
-        <!-- Entrada manual como respaldo -->
-        <details style="margin-top:15px;">
-            <summary style="cursor:pointer; color:#718096; font-size:0.9em;">¿No se detecta el QR? Ingresa la guía manualmente</summary>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                <input type="text" class="form-input" id="shalomGuiaManual" maxlength="8" placeholder="N° de Orden" style="max-width:150px;">
-                <input type="text" class="form-input" id="shalomCodigoManual" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
-                <input type="text" class="form-input" id="shalomClienteManual" placeholder="Cliente (opcional)" style="max-width:200px;">
-                <input type="text" class="form-input" id="shalomDestinoManual" placeholder="Destino (opcional)" style="max-width:200px;">
-                <button type="button" class="btn btn-success" onclick="registrarGuiaManual()">➕ Registrar</button>
+        <!-- Escanear QR: opcional. El QR de Shalom NO trae el N° de Orden
+             público ni el código — trae un ID interno que solo la app
+             oficial de Shalom puede usar (con tu cuenta logueada). Por eso
+             ya no se autocompleta nada con el contenido del QR: solo se
+             muestra como referencia. -->
+        <details style="margin-top:18px;">
+            <summary style="cursor:pointer; color:#718096; font-size:0.9em;">📷 Escanear QR (referencia — no autocompleta los datos)</summary>
+            <div style="margin-top:10px;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+                    <button type="button" class="btn btn-primary" id="btnIniciarCamara" onclick="iniciarCamaraQR()">📷 Usar cámara</button>
+                    <button type="button" class="btn" style="background:var(--border); display:none;" id="btnDetenerCamara" onclick="detenerCamaraQR()">✕ Detener cámara</button>
+                    <label class="btn btn-warning" style="cursor:pointer;">
+                        🖼️ Subir foto
+                        <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="leerQRDesdeArchivo(this)">
+                    </label>
+                </div>
+                <div id="shalomCameraWrapper" style="display:none; position:relative; max-width:400px;">
+                    <video id="shalomVideo" style="width:100%; border-radius:8px; background:#000;" playsinline autoplay muted></video>
+                    <div id="shalomCameraHint" style="font-size:0.8em; color:#718096; margin-top:6px;">Apunta la cámara al código QR de tu guía…</div>
+                </div>
+                <canvas id="shalomCanvas" style="display:none;"></canvas>
+                <div id="shalomCameraError" style="display:none; margin-top:10px; padding:12px; background:#fff5f5; border-radius:8px; border:1px solid var(--danger); font-size:0.85em; color:var(--danger);"></div>
+
+                <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#fffbea; border-radius:8px; border:2px solid var(--accent);">
+                    <strong>📎 Contenido leído del QR:</strong> <span id="shalomQrTexto"></span>
+                    <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Esto no es el N° de Orden — es un código interno de Shalom. Tienes dos opciones:</p>
+                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
+                        <div style="padding:10px; background:white; border-radius:6px;">
+                            <strong style="font-size:0.85em;">Opción A — Automático (experimental)</strong>
+                            <p style="font-size:0.8em; color:#718096; margin:4px 0 8px;">El robot intenta resolverlo solo usando este código. Puede fallar si Shalom cambia su web.</p>
+                            <input type="text" class="form-input" id="shalomQrCliente" placeholder="Cliente (opcional)" style="max-width:200px; display:inline-block;">
+                            <input type="text" class="form-input" id="shalomQrDestino" placeholder="Destino (opcional)" style="max-width:200px; display:inline-block;">
+                            <button type="button" class="btn btn-warning" onclick="registrarPorQRAutomatico()">🤖 Registrar automático</button>
+                        </div>
+                        <div style="padding:10px; background:white; border-radius:6px;">
+                            <strong style="font-size:0.85em;">Opción B — Manual (confiable)</strong>
+                            <p style="font-size:0.8em; color:#718096; margin:4px 0 8px;">Escribe el N° de Orden y Código tal como aparecen impresos en tu comprobante, más abajo en "Ingresar manualmente".</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </details>
     </div>
@@ -5987,30 +6000,61 @@ async function generarFichaPDF() {
             reader.readAsDataURL(file);
         }
 
-        // Extrae un posible número de guía desde el contenido crudo del QR.
-        // El QR de Shalom puede contener una URL con el número, o el número
-        // solo. Se deja el campo editable para que el usuario corrija si
-        // la extracción automática no da con el formato exacto.
-        function extraerGuiaDeTextoQR(texto) {
-            const soloNumero = texto.match(/[A-Z]{0,4}-?\d{4,}/i);
-            return soloNumero ? soloNumero[0] : texto;
-        }
-
+        // El QR de Shalom NO contiene el N° de Orden público ni el código
+        // de seguridad — contiene un ID interno propio de Shalom ("oseId",
+        // ej. "89636411/document/1/"). Con este ID, el robot de fondo puede
+        // intentar resolver el envío automáticamente (ver Opción A), pero
+        // no es 100% garantizado — por eso también se ofrece la opción
+        // manual de siempre como respaldo confiable.
         function mostrarQRDetectado(textoQR) {
             document.getElementById('shalomQrTexto').textContent = textoQR;
-            document.getElementById('shalomGuiaEditable').value = extraerGuiaDeTextoQR(textoQR);
             document.getElementById('shalomQrResultado').style.display = 'block';
         }
 
-        // ---------- Registro y listado ----------
-
-        async function registrarGuiaShalom() {
-            const guia = document.getElementById('shalomGuiaEditable').value.trim();
-            const codigo = document.getElementById('shalomCodigoEditable').value.trim();
-            const cliente = document.getElementById('shalomClienteRef').value.trim();
-            const destino = document.getElementById('shalomDestinoRef').value.trim();
-            await crearRegistroShalom(guia, codigo, cliente, destino);
+        function extraerOseIdDeTextoQR(texto) {
+            const m = texto.match(/(\d{5,})/);
+            return m ? m[1] : texto;
         }
+
+        async function registrarPorQRAutomatico() {
+            const textoQR = document.getElementById('shalomQrTexto').textContent.trim();
+            const oseId = extraerOseIdDeTextoQR(textoQR);
+            const cliente = document.getElementById('shalomQrCliente').value.trim();
+            const destino = document.getElementById('shalomQrDestino').value.trim();
+
+            if (!oseId) {
+                mostrarNotificacion('⚠️ No se pudo leer un código válido del QR', 'warning');
+                return;
+            }
+            try {
+                const existentes = await parseFetch(SHALOM_CLASE, 'GET', null, null, { where: { oseId }, limit: 1 });
+                if (existentes.results && existentes.results.length > 0) {
+                    mostrarNotificacion('ℹ️ Este QR ya estaba registrado', 'info');
+                    return;
+                }
+
+                await parseFetch(SHALOM_CLASE, 'POST', null, {
+                    oseId,
+                    guia: null,
+                    codigo: null,
+                    cliente: cliente || null,
+                    destino: destino || null,
+                    estado: 'pendiente',
+                    notificado: false,
+                    ACL: aclSoloUsuario()
+                });
+                mostrarNotificacion('✅ Registrado — el robot intentará resolverlo automáticamente en su próxima ronda', 'success');
+                document.getElementById('shalomQrResultado').style.display = 'none';
+                document.getElementById('shalomQrCliente').value = '';
+                document.getElementById('shalomQrDestino').value = '';
+                cargarEnviosShalom();
+            } catch (err) {
+                mostrarNotificacion('❌ Error al registrar: ' + err.message, 'warning');
+                console.error(err);
+            }
+        }
+
+        // ---------- Registro y listado ----------
 
         async function registrarGuiaManual() {
             const guia = document.getElementById('shalomGuiaManual').value.trim();
@@ -6093,14 +6137,14 @@ async function generarFichaPDF() {
                         <div class="ios-banner ios-banner--success">
                             <div class="ios-banner-icon">📦</div>
                             <div class="ios-banner-body">
-                                <div class="ios-banner-title">Guía ${e.guia} entregada</div>
-                                <div class="ios-banner-text">${e.cliente ? e.cliente + ' — ' : ''}ya llegó a destino.</div>
+                                <div class="ios-banner-title">${e.guia ? 'Guía ' + e.guia : (e.cliente || 'Envío')} entregado</div>
+                                <div class="ios-banner-text">${e.cliente && e.guia ? e.cliente + ' — ' : ''}ya llegó a destino.</div>
                             </div>
                             <button class="ios-banner-dismiss" onclick="marcarNotificadoShalom('${e.objectId}'); this.closest('.ios-banner').remove();">Visto</button>
                         </div>
                     `).join('');
                     if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-                        nuevos.forEach(e => new Notification('📦 Envío entregado', { body: `Guía ${e.guia} ya llegó a destino.` }));
+                        nuevos.forEach(e => new Notification('📦 Envío entregado', { body: `${e.guia || e.cliente || 'Tu envío'} ya llegó a destino.` }));
                     } else if (typeof Notification !== 'undefined' && Notification.permission !== 'denied') {
                         Notification.requestPermission();
                     }
@@ -6127,7 +6171,7 @@ async function generarFichaPDF() {
 
             const filtrados = !texto ? shalomEnviosCache : shalomEnviosCache.filter(e => {
                 const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
-                const campo = [e.guia, e.codigo, e.cliente, e.destino, e.detalleEstado, info.texto]
+                const campo = [e.guia, e.codigo, e.oseId, e.cliente, e.destino, e.detalleEstado, info.texto]
                     .filter(Boolean).join(' ').toLowerCase();
                 return campo.includes(texto);
             });
@@ -6144,13 +6188,16 @@ async function generarFichaPDF() {
             listEl.innerHTML = filtrados.map(e => {
                 const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
                 const ultima = e.ultimaConsulta ? new Date(e.ultimaConsulta).toLocaleString('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Aún no consultado';
-                const nombreMostrado = e.cliente || `Guía ${e.guia}`;
+                const nombreMostrado = e.cliente || (e.guia ? `Guía ${e.guia}` : '🤖 QR sin resolver aún');
+                const subinfo = e.guia
+                    ? `Guía ${e.guia}${e.codigo ? ' · Código ' + e.codigo : ''}`
+                    : `Registrado por QR — el robot intentará resolverlo`;
                 return `
                     <div class="shalom-card">
                         <div class="shalom-card-top">
                             <div style="min-width:0;">
                                 <h3 class="shalom-card-nombre">${nombreMostrado}</h3>
-                                <div class="shalom-card-subinfo">Guía ${e.guia}${e.codigo ? ' · Código ' + e.codigo : ''}</div>
+                                <div class="shalom-card-subinfo">${subinfo}</div>
                             </div>
                             <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">✕</button>
                         </div>
