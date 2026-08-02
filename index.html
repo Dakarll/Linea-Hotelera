@@ -2460,6 +2460,21 @@
                     </div>
                     <div class="sucursal-stats" id="sucursalStats"></div>
                 </div>
+
+                <!-- GENERAR IMAGEN DE SUCURSALES POR PROVINCIA -->
+                <div class="add-product-section">
+                    <div class="add-product-title">📸 Generar imagen de sucursales por provincia</div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+                        <div style="flex:1; min-width:220px;">
+                            <label class="form-label" style="color:white;">Provincia</label>
+                            <input type="text" class="form-input" id="provinciaImagenInput" list="listaProvincias" placeholder="Escribe o elige una provincia...">
+                            <datalist id="listaProvincias"></datalist>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="generarImagenSucursalesPorProvincia()">📸 Generar imagen</button>
+                    </div>
+                    <div id="provinciaImagenStatus" style="margin-top:10px; font-size:0.85em;"></div>
+                </div>
+
                 <div class="sucursal-grid" id="sucursalGrid"></div>
             </div>
 
@@ -2821,20 +2836,7 @@
 
                 <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#fffbea; border-radius:8px; border:2px solid var(--accent);">
                     <strong>📎 Contenido leído del QR:</strong> <span id="shalomQrTexto"></span>
-                    <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Esto no es el N° de Orden — es un código interno de Shalom. Tienes dos opciones:</p>
-                    <div style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
-                        <div style="padding:10px; background:white; border-radius:6px;">
-                            <strong style="font-size:0.85em;">Opción A — Automático (experimental)</strong>
-                            <p style="font-size:0.8em; color:#718096; margin:4px 0 8px;">El robot intenta resolverlo solo usando este código. Puede fallar si Shalom cambia su web.</p>
-                            <input type="text" class="form-input" id="shalomQrCliente" placeholder="Cliente (opcional)" style="max-width:200px; display:inline-block;">
-                            <input type="text" class="form-input" id="shalomQrDestino" placeholder="Destino (opcional)" style="max-width:200px; display:inline-block;">
-                            <button type="button" class="btn btn-warning" onclick="registrarPorQRAutomatico()">🤖 Registrar automático</button>
-                        </div>
-                        <div style="padding:10px; background:white; border-radius:6px;">
-                            <strong style="font-size:0.85em;">Opción B — Manual (confiable)</strong>
-                            <p style="font-size:0.8em; color:#718096; margin:4px 0 8px;">Escribe el N° de Orden y Código tal como aparecen impresos en tu comprobante, más abajo en "Ingresar manualmente".</p>
-                        </div>
-                    </div>
+                    <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Esto no es el N° de Orden — es un código interno de Shalom que esta app no puede traducir automáticamente (su sistema de seguridad bloquea intentos automatizados, y respetamos eso). Escribe el N° de Orden y el Código arriba, en "Registrar nueva guía", tal como aparecen impresos en tu comprobante.</p>
                 </div>
             </div>
         </details>
@@ -2855,6 +2857,20 @@
     <div id="shalomList" class="shalom-cards-grid">
         <div class="historial-empty">No hay envíos en seguimiento. Escanea el QR de una guía para empezar.</div>
     </div>
+</div>
+
+<!-- SUCURSALES POR PROVINCIA — PARA IMAGEN -->
+<div id="sucursalesProvinciaPrint" style="position: fixed; left: -9999px; top: 0; background: white; padding: 40px; width: 900px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
+        <div>
+            <div style="font-size:1.6em; font-weight:800; color:var(--primary);">Sucursales — <span id="spImgProvinciaNombre"></span></div>
+            <div style="color:#718096; margin-top:4px;" id="spImgFecha"></div>
+        </div>
+        <div style="text-align:right; color:#718096; font-size:0.95em;">
+            <div><strong id="spImgCantidad"></strong> sucursales</div>
+        </div>
+    </div>
+    <div id="spImgLista" style="display:flex; flex-direction:column; gap:12px;"></div>
 </div>
 
 <!-- FICHA TÉCNICA PARA IMPRESIÓN -->
@@ -4714,6 +4730,94 @@ async function generarFichaPDF() {
             renderSucursales();
         });
 
+        // Llena el buscador de provincias (datalist) con las provincias
+        // únicas que ya existen en sucursalesDB, ordenadas alfabéticamente.
+        function poblarListaProvincias() {
+            const datalist = document.getElementById('listaProvincias');
+            if (!datalist) return;
+            const provincias = [...new Set(sucursalesDB.map(s => s.provincia).filter(Boolean))].sort();
+            datalist.innerHTML = provincias.map(p => `<option value="${p}"></option>`).join('');
+        }
+
+        async function generarImagenSucursalesPorProvincia() {
+            const input = document.getElementById('provinciaImagenInput');
+            const statusEl = document.getElementById('provinciaImagenStatus');
+            const textoIngresado = input.value.trim();
+
+            if (!textoIngresado) {
+                mostrarNotificacion('⚠️ Escribe o elige una provincia', 'warning');
+                return;
+            }
+
+            // Coincidencia exacta (sin distinguir mayúsculas/acentos simples)
+            // contra las provincias reales, para evitar generar una imagen
+            // vacía por un error de tipeo.
+            const provinciasDisponibles = [...new Set(sucursalesDB.map(s => s.provincia).filter(Boolean))];
+            const provinciaReal = provinciasDisponibles.find(p => p.toLowerCase() === textoIngresado.toLowerCase());
+
+            if (!provinciaReal) {
+                statusEl.innerHTML = `<span style="color:var(--danger);">No se encontró la provincia "${textoIngresado}". Elige una de la lista.</span>`;
+                return;
+            }
+
+            const sucursalesFiltradas = sucursalesDB.filter(s => s.provincia === provinciaReal);
+            if (sucursalesFiltradas.length === 0) {
+                statusEl.innerHTML = `<span style="color:var(--danger);">No hay sucursales registradas en "${provinciaReal}".</span>`;
+                return;
+            }
+
+            statusEl.innerHTML = '<span style="color:#718096;">Generando imagen…</span>';
+            showLoading(true);
+
+            try {
+                document.getElementById('spImgProvinciaNombre').textContent = provinciaReal;
+                document.getElementById('spImgCantidad').textContent = sucursalesFiltradas.length;
+                document.getElementById('spImgFecha').textContent = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                const iconosPorTipo = {
+                    'Grande / Co': '🏢', 'Mediana': '🏪', 'Pequeña': '🏠',
+                    'Terminal': '🚌', 'Micro': '📦', 'Mini-micro': '📦'
+                };
+
+                document.getElementById('spImgLista').innerHTML = sucursalesFiltradas
+                    .sort((a, b) => a.ciudad.localeCompare(b.ciudad) || a.nombre.localeCompare(b.nombre))
+                    .map(s => `
+                        <div style="display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:#f7fafc; border-radius:10px; border:1px solid #e2e8f0;">
+                            <div style="font-size:1.5em; line-height:1;">${iconosPorTipo[s.tipo] || '📍'}</div>
+                            <div style="flex:1;">
+                                <div style="font-weight:700; color:#2d3748; font-size:1.05em;">${s.nombre}</div>
+                                <div style="color:#718096; font-size:0.9em; margin-top:2px;">${s.direccion}</div>
+                                <div style="color:#a0aec0; font-size:0.82em; margin-top:2px;">${s.ciudad} · ${s.tipo}</div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const elemento = document.getElementById('sucursalesProvinciaPrint');
+                const canvas = await html2canvas(elemento, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    useCORS: true,
+                    width: 900,
+                    height: elemento.scrollHeight
+                });
+
+                const nombreArchivo = `Sucursales_${provinciaReal.replace(/\s+/g, '_')}_${Date.now()}.png`;
+                await descargarOCompartirCanvas(canvas, nombreArchivo);
+
+                statusEl.innerHTML = `<span style="color:var(--success);">✅ Imagen generada: ${sucursalesFiltradas.length} sucursales en ${provinciaReal}</span>`;
+                mostrarNotificacion('✅ Imagen de sucursales generada', 'success');
+            } catch (err) {
+                console.error(err);
+                statusEl.innerHTML = `<span style="color:var(--danger);">❌ Error al generar la imagen: ${err.message}</span>`;
+                mostrarNotificacion('❌ Error al generar la imagen', 'warning');
+            } finally {
+                showLoading(false);
+            }
+        }
+
         function filterByTipo(tipo) {
             tipoFiltro = tipo;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -4802,6 +4906,46 @@ async function generarFichaPDF() {
         // GENERACIÓN DE IMAGEN
         // ============================================
 
+        // ============================================
+        // Descargar/compartir una imagen (canvas) de forma que funcione
+        // igual en PC y en celular. El truco de <a download> con data URL
+        // NO funciona en muchos navegadores móviles (sobre todo iPhone:
+        // Safari simplemente abre la imagen en vez de descargarla, o no
+        // hace nada). La solución real es usar la Web Share API cuando
+        // está disponible — abre el panel nativo de "Compartir/Guardar"
+        // del celular — y si no está disponible, caer al método clásico.
+        // ============================================
+        async function descargarOCompartirCanvas(canvas, nombreArchivo) {
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            if (!blob) throw new Error('No se pudo generar la imagen');
+
+            const archivo = new File([blob], nombreArchivo, { type: 'image/png' });
+
+            // Camino 1 (ideal en celular): panel nativo de compartir/guardar.
+            if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+                try {
+                    await navigator.share({ files: [archivo], title: nombreArchivo });
+                    return 'compartido';
+                } catch (err) {
+                    // Si el usuario cancela el panel de compartir, no es un
+                    // error real — seguimos al siguiente método solo si fue
+                    // otro tipo de fallo.
+                    if (err.name === 'AbortError') return 'cancelado';
+                }
+            }
+
+            // Camino 2 (funciona en PC y en varios navegadores Android):
+            // enlace de descarga clásico con URL de blob.
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = nombreArchivo;
+            link.href = url;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+            return 'descargado';
+        }
+
         async function generarImagen() {
             if (productosEnTabla.length === 0) {
                 mostrarNotificacion('Agrega productos primero', 'warning');
@@ -4826,10 +4970,8 @@ async function generarFichaPDF() {
                     height: element.scrollHeight
                 });
 
-                const link = document.createElement('a');
-                link.download = `Cotizacion_LineaHotelera_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                const nombreArchivo = `Cotizacion_LineaHotelera_${Date.now()}.png`;
+                await descargarOCompartirCanvas(canvas, nombreArchivo);
 
                 showLoading(false);
                 mostrarNotificacion('✅ Imagen generada exitosamente', 'success');
@@ -6011,49 +6153,6 @@ async function generarFichaPDF() {
             document.getElementById('shalomQrResultado').style.display = 'block';
         }
 
-        function extraerOseIdDeTextoQR(texto) {
-            const m = texto.match(/(\d{5,})/);
-            return m ? m[1] : texto;
-        }
-
-        async function registrarPorQRAutomatico() {
-            const textoQR = document.getElementById('shalomQrTexto').textContent.trim();
-            const oseId = extraerOseIdDeTextoQR(textoQR);
-            const cliente = document.getElementById('shalomQrCliente').value.trim();
-            const destino = document.getElementById('shalomQrDestino').value.trim();
-
-            if (!oseId) {
-                mostrarNotificacion('⚠️ No se pudo leer un código válido del QR', 'warning');
-                return;
-            }
-            try {
-                const existentes = await parseFetch(SHALOM_CLASE, 'GET', null, null, { where: { oseId }, limit: 1 });
-                if (existentes.results && existentes.results.length > 0) {
-                    mostrarNotificacion('ℹ️ Este QR ya estaba registrado', 'info');
-                    return;
-                }
-
-                await parseFetch(SHALOM_CLASE, 'POST', null, {
-                    oseId,
-                    guia: null,
-                    codigo: null,
-                    cliente: cliente || null,
-                    destino: destino || null,
-                    estado: 'pendiente',
-                    notificado: false,
-                    ACL: aclSoloUsuario()
-                });
-                mostrarNotificacion('✅ Registrado — el robot intentará resolverlo automáticamente en su próxima ronda', 'success');
-                document.getElementById('shalomQrResultado').style.display = 'none';
-                document.getElementById('shalomQrCliente').value = '';
-                document.getElementById('shalomQrDestino').value = '';
-                cargarEnviosShalom();
-            } catch (err) {
-                mostrarNotificacion('❌ Error al registrar: ' + err.message, 'warning');
-                console.error(err);
-            }
-        }
-
         // ---------- Registro y listado ----------
 
         async function registrarGuiaManual() {
@@ -6243,6 +6342,7 @@ async function generarFichaPDF() {
                 cargarEstado();
                 cargarPreferencias(); // Cargar preferencias de IGV, Forzar Por Mayor y tema
                 renderSucursales();
+                poblarListaProvincias();
                 renderProductList();
                 renderSucursalList();
                 renderPlantillas();
