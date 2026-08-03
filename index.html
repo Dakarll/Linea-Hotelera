@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     
     <style>
         * {
@@ -668,6 +669,45 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+
+        /* Niveles de precio dinámicos (por producto: unidad, media docena, docena, etc.) */
+        .tier-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .tier-row .form-input { margin: 0; }
+        .tier-del-btn {
+            background: #fff5f5;
+            color: var(--danger);
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .tier-del-btn:hover { background: #fed7d7; }
+        .tier-add-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1.5px dashed rgba(255,255,255,0.4);
+            color: white;
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .tier-add-btn:hover { background: rgba(255,255,255,0.25); }
+        .modal-content .tier-add-btn {
+            background: #f7fafc; border: 1.5px dashed #cbd5e0; color: #2d3748;
+        }
+        .modal-content .tier-add-btn:hover { background: #edf2f7; }
+        body.dark-mode .modal-content .tier-add-btn { background: #1c1c1e; border-color: #3a3a3a; color: #e8e8e8; }
 
         .modal-buttons {
             display: flex;
@@ -1402,6 +1442,82 @@
             color: #a0aec0;
             font-size: 1em;
         }
+
+        /* Skeleton loader — placeholders animados mientras carga desde la nube */
+        @keyframes skeleton-pulse {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        .skeleton-block {
+            background: linear-gradient(90deg, #edf1f5 25%, #f7fafc 37%, #edf1f5 63%);
+            background-size: 400px 100%;
+            animation: skeleton-pulse 1.4s ease-in-out infinite;
+            border-radius: 6px;
+        }
+        body.dark-mode .skeleton-block {
+            background: linear-gradient(90deg, #1a1a1a 25%, #242424 37%, #1a1a1a 63%);
+            background-size: 400px 100%;
+        }
+        .skeleton-card {
+            border-radius: 14px;
+            padding: 16px;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        body.dark-mode .skeleton-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+
+        /* ============================================
+           DASHBOARD
+        ============================================ */
+        .dash-range-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 7px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .dash-range-btn:hover { background: rgba(255,255,255,0.25); }
+        .dash-range-btn.active { background: white; color: var(--primary); }
+
+        .dash-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin: 18px 0;
+        }
+        .dash-kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
+            animation: fadeIn 0.4s ease;
+        }
+        body.dark-mode .dash-kpi-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+        .dash-kpi-label { font-size: 0.8em; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+        .dash-kpi-valor { font-size: 1.8em; font-weight: 800; color: var(--primary); margin-top: 6px; letter-spacing: -0.02em; }
+
+        .dash-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .dash-chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
+            animation: fadeIn 0.5s ease;
+        }
+        body.dark-mode .dash-chart-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+        .dash-chart-title { font-weight: 700; margin-bottom: 12px; color: var(--primary); font-size: 1.02em; }
         .historial-list { display: flex; flex-direction: column; gap: 10px; }
 
         .historial-card {
@@ -2175,19 +2291,14 @@
                     <label class="form-label">Nombre del Producto</label>
                     <input type="text" class="form-input" id="editProductoNombre" required>
                 </div>
-                <div class="price-grid">
-                    <div class="form-group">
-                        <label class="form-label">Precio Por Menor (S/)</label>
-                        <input type="number" step="0.01" min="0" class="form-input" id="editProductoMenor" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Precio Por Mayor (S/)</label>
-                        <input type="number" step="0.01" min="0" class="form-input" id="editProductoMayor" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Costo — precio de compra (S/) <span style="font-weight:400; color:#718096;">— opcional, para calcular margen de ganancia</span></label>
+                    <input type="number" step="0.01" min="0" class="form-input" id="editProductoCosto" placeholder="Ej: 15.00">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Costo (S/) <span style="font-weight:400; color:#718096;">— opcional, para calcular margen de ganancia</span></label>
-                    <input type="number" step="0.01" min="0" class="form-input" id="editProductoCosto" placeholder="Ej: 15.00">
+                    <label class="form-label">Niveles de precio de venta</label>
+                    <div id="editProductoTiers"></div>
+                    <button type="button" class="tier-add-btn" onclick="crearFilaTier('editProductoTiers')">+ Agregar nivel de precio</button>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-danger" onclick="closeEditProductoModal()">Cancelar</button>
@@ -2311,6 +2422,7 @@
                 <button class="tab active" onclick="switchTab('cotizar')">📋 Cotizar</button>
                 <button class="tab" onclick="switchTab('sucursales')">🚚 Sucursales</button>
                 <button class="tab" onclick="switchTab('historial')">🕓 Historial</button>
+                <button class="tab" onclick="switchTab('dashboard')">📊 Dashboard</button>
                 <button class="tab" onclick="switchTab('productos')">📦 Productos</button>
                 <button class="tab" onclick="switchTab('gestionsucursales')">🏢 Gestión Sucursales</button>
                 <button class="tab" onclick="switchTab('fichas')">📄 Fichas Técnicas</button>
@@ -2492,18 +2604,24 @@
                             <label class="form-label" style="color: white;">Nombre del Producto</label>
                             <input type="text" class="form-input" id="newProductNombre" placeholder="Ej: Toalla Premium..." required>
                         </div>
-                        <div class="price-grid">
-                            <div class="form-group">
-                                <label class="form-label" style="color: white;">Precio Por Menor (S/)</label>
-                                <input type="number" step="0.01" min="0" class="form-input" id="newProductMenor" placeholder="0.00" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" style="color: white;">Precio Por Mayor (S/)</label>
-                                <input type="number" step="0.01" min="0" class="form-input" id="newProductMayor" placeholder="0.00" required>
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label" style="color: white;">Costo — precio de compra (S/) <span style="font-weight:400; opacity:0.85;">— opcional, para calcular tu ganancia</span></label>
+                            <input type="number" step="0.01" min="0" class="form-input" id="newProductCosto" placeholder="Ej: 15.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="color: white;">Niveles de precio de venta</label>
+                            <div id="newProductTiers"></div>
+                            <button type="button" class="tier-add-btn" onclick="crearFilaTier('newProductTiers')">+ Agregar nivel de precio</button>
                         </div>
                         <button type="submit" class="btn btn-success" style="width: 100%;">💾 Agregar Producto</button>
                     </form>
+                </div>
+
+                <!-- AVISO DE MIGRACIÓN (solo si el catálogo en la nube está vacío) -->
+                <div class="add-product-section" id="migracionCatalogoAviso" style="display:none;">
+                    <div class="add-product-title">☁️ Aún no tienes productos en la nube</div>
+                    <p style="font-size:0.9em; opacity:0.9; margin-bottom:12px;">Puedes empezar desde cero, o subir un catálogo de arranque con los productos típicos de línea hotelera (podrás editar todo después).</p>
+                    <button type="button" class="btn btn-warning" onclick="migrarCatalogoALaNube()">☁️ Subir catálogo de arranque</button>
                 </div>
 
                 <!-- LISTA DE PRODUCTOS -->
@@ -2516,8 +2634,8 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Producto</th>
-                                <th>Menor</th>
-                                <th>Mayor</th>
+                                <th>Niveles de precio</th>
+                                <th>Costo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -2650,6 +2768,75 @@
             <div class="historial-empty">No hay plantillas guardadas.<br><br>Arma una cotización y haz clic en <strong>"📋 Plantilla"</strong> para guardarla como reutilizable.</div>
         </div>
     </div>
+</div>
+
+<!-- TAB: DASHBOARD -->
+<div class="tab-content" id="tab-dashboard">
+    <div class="ios-section-header">
+        <div>
+            <div class="ios-section-title">Dashboard</div>
+            <div class="ios-section-subtitle">Basado en tus órdenes de compra confirmadas (ventas reales, no cotizaciones sueltas)</div>
+        </div>
+    </div>
+
+    <!-- FILTRO DE FECHAS -->
+    <div class="add-product-section">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;" id="dashRangoBotones">
+            <button class="dash-range-btn active" data-rango="mes" onclick="cambiarRangoDashboard('mes')">Este mes</button>
+            <button class="dash-range-btn" data-rango="3m" onclick="cambiarRangoDashboard('3m')">Últimos 3 meses</button>
+            <button class="dash-range-btn" data-rango="anio" onclick="cambiarRangoDashboard('anio')">Este año</button>
+            <button class="dash-range-btn" data-rango="todo" onclick="cambiarRangoDashboard('todo')">Todo</button>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <div>
+                <label class="form-label" style="color:white; font-size:0.85em;">Desde</label>
+                <input type="date" class="form-input" id="dashDesde" onchange="cambiarRangoDashboard('custom')">
+            </div>
+            <div>
+                <label class="form-label" style="color:white; font-size:0.85em;">Hasta</label>
+                <input type="date" class="form-input" id="dashHasta" onchange="cambiarRangoDashboard('custom')">
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="dash-kpi-grid">
+        <div class="dash-kpi-card">
+            <div class="dash-kpi-label">Órdenes de compra</div>
+            <div class="dash-kpi-valor" id="kpiCotizaciones">0</div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="dash-kpi-label">Monto total vendido</div>
+            <div class="dash-kpi-valor" id="kpiMontoTotal">S/ 0</div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="dash-kpi-label">Ticket promedio</div>
+            <div class="dash-kpi-valor" id="kpiTicketProm">S/ 0</div>
+        </div>
+        <div class="dash-kpi-card">
+            <div class="dash-kpi-label">Departamento top</div>
+            <div class="dash-kpi-valor" id="kpiDeptoTop" style="font-size:1.3em;">—</div>
+        </div>
+        <div class="dash-kpi-card" id="kpiGananciaWrap" style="display:none; border-left:4px solid #38a169;">
+            <div class="dash-kpi-label">💰 Ganancia estimada</div>
+            <div class="dash-kpi-valor" id="kpiGanancia" style="color:#38a169;">S/ 0</div>
+            <div style="font-size:0.72em; color:#8e8e93; margin-top:4px;" id="kpiGananciaNota"></div>
+        </div>
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div class="dash-charts-grid">
+        <div class="dash-chart-card">
+            <div class="dash-chart-title">Cotizaciones por departamento</div>
+            <div style="position:relative; height:280px;"><canvas id="chartDepartamentos"></canvas></div>
+        </div>
+        <div class="dash-chart-card">
+            <div class="dash-chart-title">Tendencia en el tiempo</div>
+            <div style="position:relative; height:280px;"><canvas id="chartTendencia"></canvas></div>
+        </div>
+    </div>
+
+    <div id="dashVacio" style="display:none;" class="historial-empty">Aún no hay cotizaciones guardadas en este rango de fechas.</div>
 </div>
 
 <div class="tab-content" id="tab-fichas">
@@ -2860,7 +3047,7 @@
 </div>
 
 <!-- SUCURSALES POR PROVINCIA — PARA IMAGEN -->
-<div id="sucursalesProvinciaPrint" style="position: fixed; left: -9999px; top: 0; background: white; padding: 40px; width: 900px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;">
+<div id="sucursalesProvinciaPrint" style="position: fixed; left: -9999px; top: 0; background: white; padding: 40px; width: 1300px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
         <div>
             <div style="font-size:1.6em; font-weight:800; color:var(--primary);">Sucursales — <span id="spImgProvinciaNombre"></span></div>
@@ -2870,7 +3057,7 @@
             <div><strong id="spImgCantidad"></strong> sucursales</div>
         </div>
     </div>
-    <div id="spImgLista" style="display:flex; flex-direction:column; gap:12px;"></div>
+    <div id="spImgLista" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; align-content:start;"></div>
 </div>
 
 <!-- FICHA TÉCNICA PARA IMPRESIÓN -->
@@ -3176,7 +3363,7 @@ async function generarFichaPDF() {
             heightLeft -= pageHeight;
         }
 
-        pdf.save(`FichaTecnica_${codigo}_${Date.now()}.pdf`);
+        await descargarOCompartirPDF(pdf, `FichaTecnica_${codigo}_${Date.now()}.pdf`);
 
         showLoading(false);
         mostrarNotificacion('✅ Ficha técnica generada exitosamente', 'success');
@@ -3322,7 +3509,12 @@ async function generarFichaPDF() {
         // ============================================
 
         // BASE DE DATOS DE PRODUCTOS (editable)
-        const productosDB = [
+        // Catálogo de arranque: solo se usa para "sembrar" la nube la
+        // primera vez (botón "Subir catálogo a la nube"). Una vez migrado,
+        // el catálogo real vive en Back4App y productosDB se llena desde
+        // ahí en cada login — así cada usuario tiene sus propios productos
+        // y precios, en vez de compartir este catálogo fijo.
+        const productosDBSemilla = [
             { codigo: "TOA-001", nombre: "Toalla Cuerpo 120x60 - 380gr", menor: 31.00, mayor: 25.00 },
             { codigo: "TOA-002", nombre: "Toalla Cuerpo 120x60 - 450gr", menor: 35.00, mayor: 29.00 },
             { codigo: "TOA-003", nombre: "Toalla Cuerpo 140x70 - 450gr", menor: 48.00, mayor: 39.00 },
@@ -3381,6 +3573,10 @@ async function generarFichaPDF() {
             { codigo: "PRM-010", nombre: "Frazada polar + Juegos de sabanas Queen 300 HILOS", menor: 350, mayor: 350 }
 
         ];
+
+        // El catálogo real y editable — se llena desde Back4App al iniciar
+        // sesión (cargarProductosDesdeNube). Empieza vacío a propósito.
+        let productosDB = [];
 
         // BASE DE DATOS COMPLETA DE SUCURSALES SHALOM (TODAS LAS SUCURSALES DEL DOCUMENTO)
         const sucursalesDB = [
@@ -3896,11 +4092,45 @@ async function generarFichaPDF() {
         }
 
         // Obtener precio correcto según configuración
-        function obtenerPrecio(producto, cantidad) {
-            if (forzarPorMayor) {
-                return producto.mayor; // Siempre por mayor
+        // Devuelve los niveles de precio de un producto. Si el producto no
+        // tiene "tiers" (catálogo antiguo o recién creado sin niveles),
+        // se arma uno equivalente a partir de menor/mayor, para que todo
+        // lo demás del sistema (tabla, PDF, Excel, margen) siga funcionando
+        // igual sin importar si el producto usa el sistema viejo o nuevo.
+        function obtenerTiersProducto(producto) {
+            if (producto.tiers && producto.tiers.length > 0) {
+                return [...producto.tiers].sort((a, b) => a.cantidadMinima - b.cantidadMinima);
             }
-            return cantidad >= 6 ? producto.mayor : producto.menor;
+            return [
+                { etiqueta: 'Por menor', cantidadMinima: 1, precio: producto.menor || 0 },
+                { etiqueta: 'Por mayor', cantidadMinima: 6, precio: producto.mayor || producto.menor || 0 }
+            ];
+        }
+
+        function obtenerPrecio(producto, cantidad) {
+            const tiers = obtenerTiersProducto(producto);
+
+            if (forzarPorMayor) {
+                return tiers[tiers.length - 1].precio; // el nivel más alto disponible
+            }
+
+            let elegido = tiers[0];
+            for (const t of tiers) {
+                if (cantidad >= t.cantidadMinima) elegido = t;
+            }
+            return elegido.precio;
+        }
+
+        // Nombre del nivel de precio aplicado (para mostrar en la tabla,
+        // ej. "Docena" en vez de solo el número).
+        function obtenerEtiquetaNivel(producto, cantidad) {
+            const tiers = obtenerTiersProducto(producto);
+            if (forzarPorMayor) return tiers[tiers.length - 1].etiqueta;
+            let elegido = tiers[0];
+            for (const t of tiers) {
+                if (cantidad >= t.cantidadMinima) elegido = t;
+            }
+            return elegido.etiqueta;
         }
 
         // Toggle de IGV
@@ -4033,7 +4263,6 @@ async function generarFichaPDF() {
             const estado = {
                 productos: productosEnTabla,
                 sucursal: sucursalSeleccionada,
-                productosDB: productosDB,
                 sucursalesDB: sucursalesDB,
                 fecha: new Date().toISOString()
             };
@@ -4056,9 +4285,6 @@ async function generarFichaPDF() {
                     if (diferencia < 24) {
                         productosEnTabla = estado.productos || [];
                         sucursalSeleccionada = estado.sucursal || null;
-                        if (estado.productosDB) {
-                            productosDB = estado.productosDB;
-                        }
                         if (estado.sucursalesDB) {
                             sucursalesDB = estado.sucursalesDB;
                         }
@@ -4101,6 +4327,8 @@ async function generarFichaPDF() {
                 renderHistorial();
             } else if (tab === 'shalom') {
                 cargarEnviosShalom();
+            } else if (tab === 'dashboard') {
+                cargarDashboard();
             }
 
             if (tab !== 'shalom' && typeof detenerCamaraQR === 'function') {
@@ -4142,16 +4370,21 @@ async function generarFichaPDF() {
             );
 
             if (resultados.length > 0) {
-                autocompleteDropdown.innerHTML = resultados.map(producto => `
+                autocompleteDropdown.innerHTML = resultados.map(producto => {
+                    const tiers = obtenerTiersProducto(producto);
+                    const tiersHtml = tiers.map(t => {
+                        const precioMostrado = mostrarConIGV ? calcularPrecioConIGV(t.precio) : t.precio;
+                        return `<span class="price-tag price-menor">${t.etiqueta}: S/ ${precioMostrado.toFixed(2)}</span>`;
+                    }).join('');
+                    return `
                     <div class="autocomplete-item" data-codigo="${producto.codigo}">
                         <div class="product-name">${producto.nombre}</div>
                         <div class="product-prices">
-                            <span class="price-tag price-menor">Menor: ${mostrarConIGV ? `S/ ${calcularPrecioConIGV(producto.menor).toFixed(2)}` : `S/ ${producto.menor.toFixed(2)}`}</span>
-                            <span class="price-tag price-mayor">Mayor: ${mostrarConIGV ? `S/ ${calcularPrecioConIGV(producto.mayor).toFixed(2)}` : `S/ ${producto.mayor.toFixed(2)}`}</span>
+                            ${tiersHtml}
                             <span style="margin-left: 10px; color: #a0aec0;">${producto.codigo}</span>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
                 autocompleteDropdown.style.display = 'block';
 
                 document.querySelectorAll('.autocomplete-item').forEach(item => {
@@ -4238,7 +4471,7 @@ async function generarFichaPDF() {
                     const total = cantidad * precioConDesc;
                     const hasOverride = producto.precioOverride !== undefined;
                     const hasDesc = descPct > 0;
-                    let tipoPrecio = hasOverride ? 'Personalizado' : (forzarPorMayor ? 'Por Mayor (Forzado)' : (cantidad >= 6 ? 'Por Mayor' : 'Por Menor'));
+                    let tipoPrecio = hasOverride ? 'Personalizado' : obtenerEtiquetaNivel(producto, cantidad);
 
                     const colorTag = producto.color ? `<div><span class="color-tag">🎨 ${producto.color}</span></div>` : '';
 
@@ -4479,70 +4712,79 @@ async function generarFichaPDF() {
         // GESTIÓN DE PRODUCTOS
         // ============================================
 
-        function agregarNuevoProducto(event) {
+        async function agregarNuevoProducto(event) {
             event.preventDefault();
-            
+
             const codigo = document.getElementById('newProductCodigo').value.trim();
             const nombre = document.getElementById('newProductNombre').value.trim();
-            const menor = parseFloat(document.getElementById('newProductMenor').value);
-            const mayor = parseFloat(document.getElementById('newProductMayor').value);
-            
+            const costoInput = document.getElementById('newProductCosto').value;
+            const costo = costoInput !== '' ? parseFloat(costoInput) : undefined;
+            const tiers = leerTiersDesde('newProductTiers');
+
+            if (tiers.length === 0) {
+                mostrarNotificacion('⚠️ Agrega al menos un nivel de precio', 'warning');
+                return;
+            }
+
             const existe = productosDB.find(p => p.codigo === codigo);
             if (existe) {
                 mostrarNotificacion('⚠️ El código ya existe', 'warning');
                 return;
             }
-            
-            productosDB.push({ codigo, nombre, menor, mayor });
-            guardarEstado();
-            renderProductList();
-            
-            document.getElementById('newProductForm').reset();
-            mostrarNotificacion('✅ Producto agregado correctamente', 'success');
+
+            try {
+                await parseFetch(PRODUCTO_CLASE, 'POST', null, {
+                    codigo, nombre, tiers,
+                    costo: costo !== undefined ? costo : null,
+                    ACL: aclSoloUsuario()
+                });
+                await cargarProductosDesdeNube();
+                document.getElementById('newProductForm').reset();
+                document.getElementById('newProductTiers').innerHTML = '';
+                mostrarNotificacion('✅ Producto agregado correctamente', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al guardar: ' + err.message, 'warning');
+            }
         }
 
         function renderProductList() {
             const tbody = document.getElementById('productListBody');
             document.getElementById('productCount').textContent = productosDB.length;
-            
-            tbody.innerHTML = productosDB.map((producto, index) => `
+
+            tbody.innerHTML = productosDB.map((producto, index) => {
+                const tiers = obtenerTiersProducto(producto);
+                const tiersTexto = tiers.map(t => {
+                    const precioMostrado = mostrarConIGV ? calcularPrecioConIGV(t.precio) : t.precio;
+                    return `<div style="font-size:0.82em; white-space:nowrap;">${t.etiqueta} (≥${t.cantidadMinima}): <strong>S/ ${precioMostrado.toFixed(2)}</strong></div>`;
+                }).join('');
+                return `
                 <tr>
                     <td class="codigo-cell">${producto.codigo}</td>
                     <td class="producto-cell">${producto.nombre}</td>
-                    <td class="precio-cell">
-                        ${mostrarConIGV ? `
-                            <div style="font-size: 0.85em;">
-                                <div>S/ ${calcularPrecioConIGV(producto.menor).toFixed(2)}</div>
-                                <div class="igv-info">Sin IGV: S/ ${producto.menor.toFixed(2)}</div>
-                            </div>
-                        ` : `S/ ${producto.menor.toFixed(2)}`}
-                    </td>
-                    <td class="precio-cell">
-                        ${mostrarConIGV ? `
-                            <div style="font-size: 0.85em;">
-                                <div>S/ ${calcularPrecioConIGV(producto.mayor).toFixed(2)}</div>
-                                <div class="igv-info">Sin IGV: S/ ${producto.mayor.toFixed(2)}</div>
-                            </div>
-                        ` : `S/ ${producto.mayor.toFixed(2)}`}
-                    </td>
+                    <td class="precio-cell">${tiersTexto}</td>
+                    <td class="precio-cell">${producto.costo != null ? 'S/ ' + Number(producto.costo).toFixed(2) : '<span style="color:#a0aec0;">—</span>'}</td>
                     <td>
                         <button class="btn-edit" onclick="editarProducto(${index})">✏️</button>
                         <button class="btn-remove" onclick="eliminarProducto(${index})">🗑️</button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
         }
 
         function editarProducto(index) {
             productoEditandoIndex = index;
             const producto = productosDB[index];
-            
+
             document.getElementById('editProductoCodigo').value = producto.codigo;
             document.getElementById('editProductoNombre').value = producto.nombre;
-            document.getElementById('editProductoMenor').value = producto.menor;
-            document.getElementById('editProductoMayor').value = producto.mayor;
-            document.getElementById('editProductoCosto').value = producto.costo !== undefined ? producto.costo : '';
-            
+            document.getElementById('editProductoCosto').value = producto.costo != null ? producto.costo : '';
+
+            const contenedorTiers = document.getElementById('editProductoTiers');
+            contenedorTiers.innerHTML = '';
+            obtenerTiersProducto(producto).forEach(t => {
+                crearFilaTier('editProductoTiers', t.etiqueta, t.cantidadMinima, t.precio);
+            });
+
             document.getElementById('editProductoModal').classList.add('active');
         }
 
@@ -4551,59 +4793,57 @@ async function generarFichaPDF() {
             productoEditandoIndex = -1;
         }
 
-        document.getElementById('editProductoForm').addEventListener('submit', function(e) {
+        document.getElementById('editProductoForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             if (productoEditandoIndex === -1) return;
 
             const nuevoNombre = document.getElementById('editProductoNombre').value.trim();
-            const nuevoPrecioMenor = parseFloat(document.getElementById('editProductoMenor').value);
-            const nuevoPrecioMayor = parseFloat(document.getElementById('editProductoMayor').value);
             const costoInput = document.getElementById('editProductoCosto').value;
             const nuevoCosto = costoInput !== '' ? parseFloat(costoInput) : undefined;
+            const nuevosTiers = leerTiersDesde('editProductoTiers');
 
-            if (!nuevoNombre || nuevoPrecioMenor <= 0 || nuevoPrecioMayor <= 0) {
-                mostrarNotificacion('Por favor completa todos los campos', 'warning');
+            if (!nuevoNombre || nuevosTiers.length === 0) {
+                mostrarNotificacion('Completa el nombre y al menos un nivel de precio', 'warning');
                 return;
             }
-
             if (nuevoCosto !== undefined && (isNaN(nuevoCosto) || nuevoCosto < 0)) {
                 mostrarNotificacion('El costo debe ser un número válido mayor o igual a 0', 'warning');
                 return;
             }
 
-            productosDB[productoEditandoIndex].nombre = nuevoNombre;
-            productosDB[productoEditandoIndex].menor = nuevoPrecioMenor;
-            productosDB[productoEditandoIndex].mayor = nuevoPrecioMayor;
-            if (nuevoCosto !== undefined) {
-                productosDB[productoEditandoIndex].costo = nuevoCosto;
-            } else {
-                delete productosDB[productoEditandoIndex].costo;
-            }
+            const producto = productosDB[productoEditandoIndex];
 
-            // Actualizar en cotización si existe
-            const enTabla = productosEnTabla.find(p => p.codigo === productosDB[productoEditandoIndex].codigo);
-            if (enTabla) {
-                enTabla.nombre = nuevoNombre;
-                enTabla.menor = nuevoPrecioMenor;
-                enTabla.mayor = nuevoPrecioMayor;
-                enTabla.costo = nuevoCosto;
-            }
+            try {
+                await parseFetch(PRODUCTO_CLASE, 'PUT', producto.objectId, {
+                    nombre: nuevoNombre,
+                    tiers: nuevosTiers,
+                    costo: nuevoCosto !== undefined ? nuevoCosto : null
+                });
 
-            renderProductList();
-            renderTable();
-            closeEditProductoModal();
-            guardarEstado();
-            mostrarNotificacion('✅ Producto actualizado', 'success');
+                // Actualizar en la cotización actual si ese producto ya está agregado
+                const enTabla = productosEnTabla.find(p => p.codigo === producto.codigo);
+                if (enTabla) {
+                    enTabla.nombre = nuevoNombre;
+                    enTabla.tiers = nuevosTiers;
+                    enTabla.costo = nuevoCosto;
+                    enTabla.menor = nuevosTiers[0].precio;
+                    enTabla.mayor = nuevosTiers[nuevosTiers.length - 1].precio;
+                }
+
+                await cargarProductosDesdeNube();
+                renderTable();
+                closeEditProductoModal();
+                guardarEstado();
+                mostrarNotificacion('✅ Producto actualizado', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al actualizar: ' + err.message, 'warning');
+            }
         });
 
         function eliminarProducto(index) {
-            if (confirm('¿Eliminar este producto permanentemente?')) {
-                productosDB.splice(index, 1);
-                guardarEstado();
-                renderProductList();
-                mostrarNotificacion('🗑️ Producto eliminado', 'success');
-            }
+            const producto = productosDB[index];
+            eliminarProductoNube(producto.objectId);
         }
 
         // ============================================
@@ -4800,7 +5040,7 @@ async function generarFichaPDF() {
                     backgroundColor: '#ffffff',
                     logging: false,
                     useCORS: true,
-                    width: 900,
+                    width: 1300,
                     height: elemento.scrollHeight
                 });
 
@@ -4907,19 +5147,19 @@ async function generarFichaPDF() {
         // ============================================
 
         // ============================================
-        // Descargar/compartir una imagen (canvas) de forma que funcione
-        // igual en PC y en celular. El truco de <a download> con data URL
-        // NO funciona en muchos navegadores móviles (sobre todo iPhone:
-        // Safari simplemente abre la imagen en vez de descargarla, o no
-        // hace nada). La solución real es usar la Web Share API cuando
-        // está disponible — abre el panel nativo de "Compartir/Guardar"
-        // del celular — y si no está disponible, caer al método clásico.
+        // Descargar/compartir un archivo (Blob) de forma que funcione igual
+        // en PC y en celular. El truco de <a download> con data URL NO
+        // funciona en muchos navegadores móviles (sobre todo iPhone: Safari
+        // simplemente abre el archivo en vez de descargarlo, o no hace
+        // nada). La solución real es usar la Web Share API cuando está
+        // disponible — abre el panel nativo de "Compartir/Guardar" del
+        // celular — y si no está disponible, caer al método clásico.
+        // Sirve tanto para imágenes (PNG) como para PDFs.
         // ============================================
-        async function descargarOCompartirCanvas(canvas, nombreArchivo) {
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            if (!blob) throw new Error('No se pudo generar la imagen');
+        async function descargarOCompartirBlob(blob, nombreArchivo, tipoMime) {
+            if (!blob) throw new Error('No se pudo generar el archivo');
 
-            const archivo = new File([blob], nombreArchivo, { type: 'image/png' });
+            const archivo = new File([blob], nombreArchivo, { type: tipoMime });
 
             // Camino 1 (ideal en celular): panel nativo de compartir/guardar.
             if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
@@ -4944,6 +5184,16 @@ async function generarFichaPDF() {
             setTimeout(() => URL.revokeObjectURL(url), 4000);
 
             return 'descargado';
+        }
+
+        async function descargarOCompartirCanvas(canvas, nombreArchivo) {
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            return descargarOCompartirBlob(blob, nombreArchivo, 'image/png');
+        }
+
+        async function descargarOCompartirPDF(pdf, nombreArchivo) {
+            const blob = pdf.output('blob');
+            return descargarOCompartirBlob(blob, nombreArchivo, 'application/pdf');
         }
 
         async function generarImagen() {
@@ -5151,7 +5401,7 @@ async function generarFichaPDF() {
                     heightLeft -= pageHeight;
                 }
 
-                pdf.save(`Cotizacion_LineaHotelera_${Date.now()}.pdf`);
+                await descargarOCompartirPDF(pdf, `Cotizacion_LineaHotelera_${Date.now()}.pdf`);
 
                 showLoading(false);
                 mostrarNotificacion('✅ PDF generado exitosamente', 'success');
@@ -5512,6 +5762,118 @@ async function generarFichaPDF() {
         // ============================================
 
         // ============================================
+        // CATÁLOGO DE PRODUCTOS (Back4App, atado al usuario)
+        // ============================================
+
+        const PRODUCTO_CLASE = 'Producto';
+
+        // Trae el catálogo del usuario actual desde la nube y llena
+        // productosDB (agregando menor/mayor calculados para que el resto
+        // del código que aún los use directamente — tarjetas, tablas de
+        // exportación — siga funcionando sin cambios).
+        async function cargarProductosDesdeNube() {
+            if (!sesionUsuario) return;
+            try {
+                const resultado = await parseFetch(PRODUCTO_CLASE, 'GET', null, null, { order: 'nombre', limit: 1000 });
+                const productos = resultado.results || [];
+
+                productosDB = productos.map(p => {
+                    const tiers = (p.tiers && p.tiers.length > 0) ? p.tiers : [];
+                    const ordenados = [...tiers].sort((a, b) => a.cantidadMinima - b.cantidadMinima);
+                    return {
+                        objectId: p.objectId,
+                        codigo: p.codigo,
+                        nombre: p.nombre,
+                        costo: p.costo,
+                        tiers: ordenados,
+                        menor: ordenados.length > 0 ? ordenados[0].precio : 0,
+                        mayor: ordenados.length > 0 ? ordenados[ordenados.length - 1].precio : 0
+                    };
+                });
+
+                renderProductList();
+                renderMigracionCatalogoUI();
+            } catch (err) {
+                console.error('Error cargando productos:', err);
+                mostrarNotificacion('❌ Error al cargar tu catálogo: ' + err.message, 'warning');
+            }
+        }
+
+        // Botón de migración: solo aparece si el catálogo en la nube está
+        // vacío, para subir el catálogo de arranque como punto de partida.
+        // Es manual a propósito — así nunca duplica productos por accidente.
+        function renderMigracionCatalogoUI() {
+            const el = document.getElementById('migracionCatalogoAviso');
+            if (!el) return;
+            el.style.display = productosDB.length === 0 ? 'block' : 'none';
+        }
+
+        async function migrarCatalogoALaNube() {
+            if (!confirm(`Esto va a subir ${productosDBSemilla.length} productos de arranque a tu catálogo en la nube. ¿Continuar?`)) return;
+            showLoading(true);
+            try {
+                for (const p of productosDBSemilla) {
+                    await parseFetch(PRODUCTO_CLASE, 'POST', null, {
+                        codigo: p.codigo,
+                        nombre: p.nombre,
+                        tiers: [
+                            { etiqueta: 'Por menor', cantidadMinima: 1, precio: p.menor },
+                            { etiqueta: 'Por mayor', cantidadMinima: 6, precio: p.mayor }
+                        ],
+                        ACL: aclSoloUsuario()
+                    });
+                }
+                await cargarProductosDesdeNube();
+                mostrarNotificacion('✅ Catálogo subido a la nube', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al migrar: ' + err.message, 'warning');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ---------- Filas dinámicas de niveles de precio (usado en el
+        // formulario de nuevo producto y en el modal de edición) ----------
+
+        function crearFilaTier(contenedorId, etiqueta = '', cantidadMinima = '', precio = '') {
+            const contenedor = document.getElementById(contenedorId);
+            const fila = document.createElement('div');
+            fila.className = 'tier-row';
+            fila.innerHTML = `
+                <input type="text" class="form-input tier-etiqueta" placeholder="Ej: Docena" value="${etiqueta}">
+                <input type="number" class="form-input tier-cantidad" placeholder="Cant. mín." min="1" value="${cantidadMinima}">
+                <input type="number" class="form-input tier-precio" placeholder="Precio S/" min="0" step="0.01" value="${precio}">
+                <button type="button" class="tier-del-btn" onclick="this.parentElement.remove()">✕</button>
+            `;
+            contenedor.appendChild(fila);
+        }
+
+        function leerTiersDesde(contenedorId) {
+            const filas = document.querySelectorAll(`#${contenedorId} .tier-row`);
+            const tiers = [];
+            filas.forEach(fila => {
+                const etiqueta = fila.querySelector('.tier-etiqueta').value.trim();
+                const cantidadMinima = parseInt(fila.querySelector('.tier-cantidad').value);
+                const precio = parseFloat(fila.querySelector('.tier-precio').value);
+                if (etiqueta && cantidadMinima > 0 && precio >= 0) {
+                    tiers.push({ etiqueta, cantidadMinima, precio });
+                }
+            });
+            return tiers.sort((a, b) => a.cantidadMinima - b.cantidadMinima);
+        }
+
+        async function eliminarProductoNube(objectId) {
+            if (!confirm('¿Eliminar este producto de tu catálogo?')) return;
+            try {
+                await parseFetch(PRODUCTO_CLASE, 'DELETE', objectId);
+                await cargarProductosDesdeNube();
+                mostrarNotificacion('🗑️ Producto eliminado', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+            }
+        }
+
+        // ============================================
         // HISTORIAL DE COTIZACIONES (Back4App, atado al usuario)
         // ============================================
 
@@ -5523,10 +5885,17 @@ async function generarFichaPDF() {
             const cliente = getClienteData();
             const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
             let subtotal = 0;
+            let gananciaEstimada = 0;
+            let hayCosto = false;
             productosEnTabla.forEach(p => {
                 const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
                 const desc = p.descuento || 0;
-                subtotal += p.cantidad * precio * (1 - desc/100);
+                const precioConDesc = precio * (1 - desc / 100);
+                subtotal += p.cantidad * precioConDesc;
+                if (p.costo !== undefined && p.costo !== null && !isNaN(p.costo)) {
+                    hayCosto = true;
+                    gananciaEstimada += p.cantidad * (precioConDesc - p.costo);
+                }
             });
             const descMonto = subtotal * globalDescPct / 100;
             const totalFinal = mostrarConIGV ? calcularPrecioConIGV(subtotal - descMonto) : (subtotal - descMonto);
@@ -5550,7 +5919,11 @@ async function generarFichaPDF() {
                     empresa: entrada.empresa,
                     total: entrada.total,
                     numProductos: entrada.productos.length,
+                    provincia: sucursalSeleccionada ? (sucursalSeleccionada.provincia || null) : null,
+                    ganancia: hayCosto ? gananciaEstimada : null,
+                    estado: 'cotizada',
                     datos: JSON.stringify(entrada),
+                    creadoPorUsername: sesionUsuario.username,
                     ACL: aclSoloUsuario()
                 });
                 renderHistorial();
@@ -5568,11 +5941,28 @@ async function generarFichaPDF() {
             renderHistorial();
         }
 
+        // Muestra tarjetas "esqueleto" animadas mientras se espera la
+        // respuesta de la nube, en vez de dejar la lista vacía o con el
+        // contenido anterior (se siente más rápido y más pulido).
+        function mostrarSkeletonCards(contenedorId, cantidad = 3, alto = 70) {
+            const el = document.getElementById(contenedorId);
+            if (!el) return;
+            el.innerHTML = Array.from({ length: cantidad }).map(() => `
+                <div class="skeleton-card">
+                    <div class="skeleton-block" style="width:60%; height:16px;"></div>
+                    <div class="skeleton-block" style="width:40%; height:12px;"></div>
+                    <div class="skeleton-block" style="width:90%; height:${alto}px;"></div>
+                </div>
+            `).join('');
+        }
+
         async function renderHistorial() {
             if (!sesionUsuario) return;
             const listEl = document.getElementById('historialList');
             const countEl = document.getElementById('historialCount');
             if (!listEl) return;
+
+            mostrarSkeletonCards('historialList', 3, 40);
 
             try {
                 const resultado = await parseFetch(COTIZACION_CLASE, 'GET', null, null, { order: '-createdAt', limit: 100 });
@@ -5614,6 +6004,10 @@ async function generarFichaPDF() {
 
             listEl.innerHTML = `<div class="historial-list">${historial.map(entry => {
                 const fecha = new Date(entry.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                const esOrden = entry.estado === 'orden_compra';
+                const badgeEstado = esOrden
+                    ? `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#e8f9ee; color:#38a169;">✅ Orden de compra</span>`
+                    : `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#f0f0f0; color:#718096;">📝 Cotización</span>`;
                 return `
                     <div class="historial-card">
                         <div class="historial-card-left">
@@ -5621,12 +6015,18 @@ async function generarFichaPDF() {
                             <div class="historial-card-meta">
                                 <span>📅 ${fecha}</span>
                                 <span>📦 ${entry.numProductos || 0} producto${entry.numProductos!==1?'s':''}</span>
+                                ${(entry.creadoPorUsername && entry.creadoPorUsername !== sesionUsuario.username) ? `<span>👤 ${entry.creadoPorUsername}</span>` : ''}
                             </div>
+                            <div style="margin-top:6px;">${badgeEstado}</div>
                         </div>
                         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                             <div class="historial-card-total">S/ ${(entry.total || 0).toFixed(2)}</div>
                             <div class="historial-card-actions">
                                 <button class="btn-historial-load" onclick="cargarDesdeHistorial('${entry.objectId}')">📂 Cargar</button>
+                                ${esOrden
+                                    ? `<button class="btn-historial-load" style="background:#f0f0f0; color:#718096;" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'cotizada')">↩ Desmarcar</button>`
+                                    : `<button class="btn-historial-load" style="background:#e8f9ee; color:#38a169;" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'orden_compra')">✅ Marcar venta</button>`
+                                }
                                 <button class="btn-historial-del" onclick="eliminarDeHistorial('${entry.objectId}')">🗑️</button>
                             </div>
                         </div>
@@ -5663,6 +6063,22 @@ async function generarFichaPDF() {
                 renderHistorial();
             } catch (err) {
                 mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+            }
+        }
+
+        // Al marcar una cotización como "orden_compra" se considera una
+        // venta real y confirmada — el Dashboard mide ganancia/ingresos
+        // solo sobre estas, no sobre cotizaciones que quedaron en propuesta.
+        async function cambiarEstadoCotizacion(objectId, nuevoEstado) {
+            try {
+                await parseFetch(COTIZACION_CLASE, 'PUT', objectId, { estado: nuevoEstado });
+                renderHistorial();
+                mostrarNotificacion(
+                    nuevoEstado === 'orden_compra' ? '✅ Marcada como venta confirmada' : '↩ Vuelta a cotización',
+                    'success'
+                );
+            } catch (err) {
+                mostrarNotificacion('❌ Error al actualizar: ' + err.message, 'warning');
             }
         }
 
@@ -5832,9 +6248,16 @@ async function generarFichaPDF() {
             return data;
         }
 
+        // El dueño del registro siempre puede leer/escribir el suyo, y el
+        // rol "Admin" (configurado una vez en Back4App) puede leer/escribir
+        // TODO — así el administrador ve las cotizaciones y envíos de
+        // todos los usuarios, y cada usuario normal solo ve los suyos.
         function aclSoloUsuario() {
             if (!sesionUsuario) return undefined;
-            return { [sesionUsuario.userId]: { read: true, write: true } };
+            return {
+                [sesionUsuario.userId]: { read: true, write: true },
+                'role:Admin': { read: true, write: true }
+            };
         }
 
         // ---------- Pantalla de acceso: config inicial + login/registro ----------
@@ -5999,6 +6422,7 @@ async function generarFichaPDF() {
         // Todo lo que dependía de la nube (Shalom + historial) se inicializa
         // recién aquí, una vez que sabemos que hay sesión válida.
         function inicializarAppPostLogin() {
+            cargarProductosDesdeNube();
             cargarEnviosShalom();
             renderHistorial();
             verificarNotificacionesShalomGlobal();
@@ -6186,6 +6610,7 @@ async function generarFichaPDF() {
                     destino: destino || null,
                     estado: 'pendiente',
                     notificado: false,
+                    creadoPorUsername: sesionUsuario.username,
                     ACL: aclSoloUsuario()
                 });
                 mostrarNotificacion(`✅ Guía ${guia} registrada para seguimiento`, 'success');
@@ -6224,6 +6649,8 @@ async function generarFichaPDF() {
             if (!sesionUsuario) return;
             const listEl = document.getElementById('shalomList');
             const bannerEl = document.getElementById('shalomNotifBanner');
+
+            mostrarSkeletonCards('shalomList', 3, 30);
 
             try {
                 const resultado = await parseFetch(SHALOM_CLASE, 'GET', null, null, { order: '-createdAt' });
@@ -6303,7 +6730,7 @@ async function generarFichaPDF() {
                         ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
                         <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
                         ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
-                        <div class="shalom-card-fecha">${ultima}</div>
+                        <div class="shalom-card-fecha">${ultima}${(e.creadoPorUsername && e.creadoPorUsername !== sesionUsuario.username) ? ' · por ' + e.creadoPorUsername : ''}</div>
                     </div>`;
             }).join('');
         }
@@ -6323,6 +6750,197 @@ async function generarFichaPDF() {
         }
 
 
+        // ============================================
+        // DASHBOARD
+        // ============================================
+
+        let dashRango = 'mes';
+        let chartDepartamentosInstancia = null;
+        let chartTendenciaInstancia = null;
+
+        function calcularFechasRango(rango) {
+            const ahora = new Date();
+            let desde, hasta;
+
+            if (rango === 'mes') {
+                desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+                hasta = ahora;
+            } else if (rango === '3m') {
+                desde = new Date(ahora.getFullYear(), ahora.getMonth() - 2, 1);
+                hasta = ahora;
+            } else if (rango === 'anio') {
+                desde = new Date(ahora.getFullYear(), 0, 1);
+                hasta = ahora;
+            } else if (rango === 'todo') {
+                desde = new Date(2000, 0, 1);
+                hasta = ahora;
+            } else { // custom
+                const desdeInput = document.getElementById('dashDesde').value;
+                const hastaInput = document.getElementById('dashHasta').value;
+                desde = desdeInput ? new Date(desdeInput + 'T00:00:00') : new Date(2000, 0, 1);
+                hasta = hastaInput ? new Date(hastaInput + 'T23:59:59') : ahora;
+            }
+            return { desde, hasta };
+        }
+
+        function cambiarRangoDashboard(rango) {
+            dashRango = rango;
+            document.querySelectorAll('.dash-range-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.rango === rango);
+            });
+            cargarDashboard();
+        }
+
+        // Cuenta animada de 0 al valor final — el toque "vivo" tipo Power BI.
+        function animarNumero(elId, valorFinal, prefijo = '', decimales = 0) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const duracion = 700;
+            const inicio = performance.now();
+
+            function paso(ahora) {
+                const progreso = Math.min((ahora - inicio) / duracion, 1);
+                const suavizado = 1 - Math.pow(1 - progreso, 3); // ease-out
+                const valorActual = valorFinal * suavizado;
+                el.textContent = prefijo + valorActual.toLocaleString('es-PE', { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+                if (progreso < 1) requestAnimationFrame(paso);
+            }
+            requestAnimationFrame(paso);
+        }
+
+        async function cargarDashboard() {
+            if (!sesionUsuario) return;
+
+            try {
+                // Traemos hasta 1000 cotizaciones (de sobra para un negocio
+                // de este tamaño); el ACL ya filtra automáticamente según
+                // si el usuario es admin o no.
+                const resultado = await parseFetch(COTIZACION_CLASE, 'GET', null, null, { order: '-createdAt', limit: 1000 });
+                const todas = resultado.results || [];
+
+                // El Dashboard mide negocio real: solo cuenta las que se
+                // marcaron como "Orden de compra" (venta confirmada), no
+                // toda cotización que se generó sin concretarse.
+                const confirmadas = todas.filter(c => c.estado === 'orden_compra');
+
+                const { desde, hasta } = calcularFechasRango(dashRango);
+                const filtradas = confirmadas.filter(c => {
+                    const f = new Date(c.createdAt);
+                    return f >= desde && f <= hasta;
+                });
+
+                const vacioEl = document.getElementById('dashVacio');
+                vacioEl.style.display = filtradas.length === 0 ? 'block' : 'none';
+                if (filtradas.length === 0 && todas.length > 0) {
+                    vacioEl.innerHTML = 'No hay <strong>órdenes de compra confirmadas</strong> en este rango.<br><br>Recuerda: el Dashboard solo cuenta cotizaciones marcadas como "✅ Marcar venta" en el Historial — las cotizaciones sin confirmar no se contabilizan aquí.';
+                }
+
+                // ---- KPIs ----
+                const totalCotizaciones = filtradas.length;
+                const montoTotal = filtradas.reduce((a, c) => a + (c.total || 0), 0);
+                const ticketProm = totalCotizaciones > 0 ? montoTotal / totalCotizaciones : 0;
+                const conGanancia = filtradas.filter(c => c.ganancia !== null && c.ganancia !== undefined);
+                const gananciaTotal = conGanancia.reduce((a, c) => a + c.ganancia, 0);
+
+                const porDepto = {};
+                filtradas.forEach(c => {
+                    const depto = c.provincia || 'Sin especificar';
+                    porDepto[depto] = (porDepto[depto] || 0) + 1;
+                });
+                const deptoTopEntry = Object.entries(porDepto).sort((a, b) => b[1] - a[1])[0];
+                const deptoTop = deptoTopEntry ? `${deptoTopEntry[0]} (${deptoTopEntry[1]})` : '—';
+
+                animarNumero('kpiCotizaciones', totalCotizaciones);
+                animarNumero('kpiMontoTotal', montoTotal, 'S/ ', 2);
+                animarNumero('kpiTicketProm', ticketProm, 'S/ ', 2);
+                document.getElementById('kpiGananciaWrap').style.display = conGanancia.length > 0 ? 'block' : 'none';
+                if (conGanancia.length > 0) {
+                    animarNumero('kpiGanancia', gananciaTotal, 'S/ ', 2);
+                    document.getElementById('kpiGananciaNota').textContent = conGanancia.length < totalCotizaciones
+                        ? `Basado en ${conGanancia.length} de ${totalCotizaciones} órdenes (con costo registrado)`
+                        : 'Ganancia estimada sobre todas las órdenes del período';
+                }
+                document.getElementById('kpiDeptoTop').textContent = deptoTop;
+
+                // ---- Gráfico: cotizaciones por departamento ----
+                const deptosOrdenados = Object.entries(porDepto).sort((a, b) => b[1] - a[1]).slice(0, 8);
+                const coloresPaleta = ['#667eea', '#764ba2', '#38a169', '#3182ce', '#ed8936', '#e53e3e', '#805ad5', '#0d9488'];
+
+                const ctxDepto = document.getElementById('chartDepartamentos').getContext('2d');
+                if (chartDepartamentosInstancia) chartDepartamentosInstancia.destroy();
+                chartDepartamentosInstancia = new Chart(ctxDepto, {
+                    type: 'bar',
+                    data: {
+                        labels: deptosOrdenados.map(d => d[0]),
+                        datasets: [{
+                            data: deptosOrdenados.map(d => d[1]),
+                            backgroundColor: deptosOrdenados.map((_, i) => coloresPaleta[i % coloresPaleta.length]),
+                            borderRadius: 8,
+                            maxBarThickness: 40
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 800, easing: 'easeOutQuart' },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(128,128,128,0.1)' } },
+                            y: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // ---- Gráfico: tendencia en el tiempo (por mes) ----
+                const porMes = {};
+                filtradas.forEach(c => {
+                    const f = new Date(c.createdAt);
+                    const clave = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`;
+                    if (!porMes[clave]) porMes[clave] = { cantidad: 0, monto: 0 };
+                    porMes[clave].cantidad++;
+                    porMes[clave].monto += (c.total || 0);
+                });
+                const mesesOrdenados = Object.keys(porMes).sort();
+                const nombresMes = mesesOrdenados.map(m => {
+                    const [anio, mes] = m.split('-');
+                    return new Date(anio, mes - 1, 1).toLocaleDateString('es-PE', { month: 'short', year: '2-digit' });
+                });
+
+                const ctxTend = document.getElementById('chartTendencia').getContext('2d');
+                if (chartTendenciaInstancia) chartTendenciaInstancia.destroy();
+                chartTendenciaInstancia = new Chart(ctxTend, {
+                    type: 'line',
+                    data: {
+                        labels: nombresMes,
+                        datasets: [{
+                            label: 'Monto vendido (S/)',
+                            data: mesesOrdenados.map(m => porMes[m].monto),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102,126,234,0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#667eea'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 900, easing: 'easeOutQuart' },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(128,128,128,0.1)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Error cargando dashboard:', err);
+                mostrarNotificacion('❌ Error al cargar el dashboard: ' + err.message, 'warning');
+            }
+        }
+
         window.onload = async function() {
             // La pantalla de acceso (login/registro) se resuelve PRIMERO y
             // aislada en su propio try/catch — así, si algo más abajo falla,
@@ -6336,8 +6954,10 @@ async function generarFichaPDF() {
                 mostrarVista('vistaLogin');
             }
 
-            // El catálogo de productos, sucursales y preferencias locales
-            // no dependen de la nube, así que se cargan siempre.
+            // Sucursales y preferencias locales no dependen de la nube.
+            // El catálogo de productos SÍ depende de la nube (se carga en
+            // inicializarAppPostLogin) — aquí solo dejamos la lista en 0
+            // hasta que el login se resuelva.
             try {
                 cargarEstado();
                 cargarPreferencias(); // Cargar preferencias de IGV, Forzar Por Mayor y tema
@@ -6347,7 +6967,6 @@ async function generarFichaPDF() {
                 renderSucursalList();
                 renderPlantillas();
                 console.log('✅ Cotizador cargado correctamente');
-                console.log(`📦 ${productosDB.length} productos disponibles`);
                 console.log(`🚚 ${sucursalesDB.length} sucursales disponibles`);
             } catch (err) {
                 console.error('Error inicializando el catálogo local:', err);
