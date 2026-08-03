@@ -2316,6 +2316,24 @@
                 <button class="modal-close" onclick="cerrarPanelCuenta()">×</button>
             </div>
             <p style="font-size:0.9em; color:#718096;">Sesión activa: <strong id="panelCuentaUsuario">—</strong></p>
+
+            <div id="correlativosPanel" style="display:none; margin:15px 0; padding:12px; background:#f7fafc; border-radius:10px;">
+                <strong style="font-size:0.9em; color:#2d3748;">🔢 Correlativos (solo Admin)</strong>
+                <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:140px;">
+                        <label class="form-label" style="font-size:0.8em;">Cotización (COT-)</label>
+                        <input type="number" min="0" class="form-input" id="correlativoCotInput">
+                        <button type="button" class="btn btn-small" style="width:100%; margin-top:6px; background:var(--secondary);" onclick="guardarCorrelativoManual('cotizacion', 'correlativoCotInput')">Guardar</button>
+                    </div>
+                    <div style="flex:1; min-width:140px;">
+                        <label class="form-label" style="font-size:0.8em;">Orden de compra (OC-)</label>
+                        <input type="number" min="0" class="form-input" id="correlativoOcInput">
+                        <button type="button" class="btn btn-small" style="width:100%; margin-top:6px; background:var(--secondary);" onclick="guardarCorrelativoManual('orden_compra', 'correlativoOcInput')">Guardar</button>
+                    </div>
+                </div>
+                <p style="font-size:0.75em; color:#a0aec0; margin-top:8px;">El próximo documento usará el número siguiente al que guardes aquí.</p>
+            </div>
+
             <details style="margin:15px 0;">
                 <summary style="cursor:pointer; color:#718096; font-size:0.85em;">Datos de conexión a Back4App (avanzado)</summary>
                 <div class="form-group" style="margin-top:10px;">
@@ -2627,6 +2645,10 @@
                 <!-- LISTA DE PRODUCTOS -->
                 <div class="add-product-section">
                     <div class="add-product-title">📦 Lista de Productos (<span id="productCount">0</span>)</div>
+                </div>
+                <div class="ios-search-wrap" style="margin-top:12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" class="ios-search" id="buscadorGestionProductos" placeholder="Buscar por código o nombre..." oninput="renderProductList()">
                 </div>
                 <div class="products-table-container">
                     <table class="products-table">
@@ -4733,11 +4755,20 @@ async function generarFichaPDF() {
             }
 
             try {
-                await parseFetch(PRODUCTO_CLASE, 'POST', null, {
-                    codigo, nombre, tiers,
+                // 1) Producto base — compartido con el equipo (código, nombre, costo)
+                const base = await parseFetch(PRODUCTO_CLASE, 'POST', null, {
+                    codigo, nombre,
                     costo: costo !== undefined ? costo : null,
+                    ACL: aclEquipo()
+                });
+                // 2) Mi propio precio de venta para ese producto (solo mío)
+                await parseFetch(PRECIO_VENTA_CLASE, 'POST', null, {
+                    codigo,
+                    productoId: base.objectId,
+                    tiers,
                     ACL: aclSoloUsuario()
                 });
+
                 await cargarProductosDesdeNube();
                 document.getElementById('newProductForm').reset();
                 document.getElementById('newProductTiers').innerHTML = '';
@@ -4751,12 +4782,26 @@ async function generarFichaPDF() {
             const tbody = document.getElementById('productListBody');
             document.getElementById('productCount').textContent = productosDB.length;
 
-            tbody.innerHTML = productosDB.map((producto, index) => {
+            const buscadorEl = document.getElementById('buscadorGestionProductos');
+            const texto = buscadorEl ? buscadorEl.value.trim().toLowerCase() : '';
+
+            const filas = productosDB
+                .map((producto, index) => ({ producto, index }))
+                .filter(({ producto }) => !texto || producto.codigo.toLowerCase().includes(texto) || producto.nombre.toLowerCase().includes(texto));
+
+            if (texto && filas.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#a0aec0; padding:20px;">No se encontró ningún producto con "${texto}"</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filas.map(({ producto, index }) => {
                 const tiers = obtenerTiersProducto(producto);
-                const tiersTexto = tiers.map(t => {
-                    const precioMostrado = mostrarConIGV ? calcularPrecioConIGV(t.precio) : t.precio;
-                    return `<div style="font-size:0.82em; white-space:nowrap;">${t.etiqueta} (≥${t.cantidadMinima}): <strong>S/ ${precioMostrado.toFixed(2)}</strong></div>`;
-                }).join('');
+                const tiersTexto = producto.tengoMiPrecio
+                    ? tiers.map(t => {
+                        const precioMostrado = mostrarConIGV ? calcularPrecioConIGV(t.precio) : t.precio;
+                        return `<div style="font-size:0.82em; white-space:nowrap;">${t.etiqueta} (≥${t.cantidadMinima}): <strong>S/ ${precioMostrado.toFixed(2)}</strong></div>`;
+                      }).join('')
+                    : `<span style="color:var(--danger); font-size:0.82em; font-weight:600;">⚠️ Configura tu precio</span>`;
                 return `
                 <tr>
                     <td class="codigo-cell">${producto.codigo}</td>
@@ -4815,11 +4860,26 @@ async function generarFichaPDF() {
             const producto = productosDB[productoEditandoIndex];
 
             try {
+                // Nombre y costo son del catálogo BASE (compartido con el equipo)
                 await parseFetch(PRODUCTO_CLASE, 'PUT', producto.objectId, {
                     nombre: nuevoNombre,
-                    tiers: nuevosTiers,
                     costo: nuevoCosto !== undefined ? nuevoCosto : null
                 });
+
+                // Mis niveles de precio son solo míos — crea mi registro de
+                // precio si aún no tenía uno para este producto (caso de un
+                // producto que agregó otra persona del equipo), o actualiza
+                // el mío si ya existía.
+                if (producto.precioVentaObjectId) {
+                    await parseFetch(PRECIO_VENTA_CLASE, 'PUT', producto.precioVentaObjectId, { tiers: nuevosTiers });
+                } else {
+                    await parseFetch(PRECIO_VENTA_CLASE, 'POST', null, {
+                        codigo: producto.codigo,
+                        productoId: producto.objectId,
+                        tiers: nuevosTiers,
+                        ACL: aclSoloUsuario()
+                    });
+                }
 
                 // Actualizar en la cotización actual si ese producto ya está agregado
                 const enTabla = productosEnTabla.find(p => p.codigo === producto.codigo);
@@ -4841,9 +4901,17 @@ async function generarFichaPDF() {
             }
         });
 
+        // Elimina TU precio de venta para este producto (no el producto
+        // base compartido, que puede seguir usando el resto del equipo).
+        // Si el producto es tuyo y nadie más le puso precio, desaparece
+        // de tu lista pero sigue existiendo en el catálogo base.
         function eliminarProducto(index) {
             const producto = productosDB[index];
-            eliminarProductoNube(producto.objectId);
+            if (producto.precioVentaObjectId) {
+                eliminarPrecioVentaNube(producto.precioVentaObjectId);
+            } else {
+                mostrarNotificacion('Este producto no tiene precio tuyo configurado', 'info');
+            }
         }
 
         // ============================================
@@ -5765,29 +5833,124 @@ async function generarFichaPDF() {
         // CATÁLOGO DE PRODUCTOS (Back4App, atado al usuario)
         // ============================================
 
-        const PRODUCTO_CLASE = 'Producto';
+        // ============================================
+        // CORRELATIVOS (numeración consecutiva, en vivo)
+        // Cotización y Orden de compra tienen cada una su propio contador,
+        // compartido por todo el equipo (clase Contador en Back4App). Se
+        // incrementa de forma atómica (operación "Increment" de Parse) para
+        // evitar números repetidos aunque dos personas guarden a la vez.
+        // ============================================
 
-        // Trae el catálogo del usuario actual desde la nube y llena
-        // productosDB (agregando menor/mayor calculados para que el resto
-        // del código que aún los use directamente — tarjetas, tablas de
-        // exportación — siga funcionando sin cambios).
+        const CONTADOR_CLASE = 'Contador';
+        const contadorObjectIds = {}; // cache: { cotizacion: 'objectId', orden_compra: 'objectId' }
+
+        async function obtenerOCrearContador(tipo) {
+            if (contadorObjectIds[tipo]) return contadorObjectIds[tipo];
+
+            const existentes = await parseFetch(CONTADOR_CLASE, 'GET', null, null, { where: { tipo }, limit: 1 });
+            if (existentes.results && existentes.results.length > 0) {
+                contadorObjectIds[tipo] = existentes.results[0].objectId;
+                return contadorObjectIds[tipo];
+            }
+
+            const creado = await parseFetch(CONTADOR_CLASE, 'POST', null, {
+                tipo, valor: 0,
+                ACL: { 'role:Admin': { read: true, write: true } }
+            });
+            contadorObjectIds[tipo] = creado.objectId;
+            return creado.objectId;
+        }
+
+        // Incrementa el contador y devuelve el número asignado, ya
+        // formateado (ej. "COT-000123" / "OC-000045").
+        async function siguienteCorrelativo(tipo) {
+            const prefijos = { cotizacion: 'COT', orden_compra: 'OC' };
+            try {
+                const objectId = await obtenerOCrearContador(tipo);
+                await parseFetch(CONTADOR_CLASE, 'PUT', objectId, {
+                    valor: { __op: 'Increment', amount: 1 }
+                });
+                const actualizado = await parseFetch(CONTADOR_CLASE, 'GET', objectId);
+                const numero = actualizado.valor || 1;
+                return `${prefijos[tipo]}-${String(numero).padStart(6, '0')}`;
+            } catch (err) {
+                console.error('Error obteniendo correlativo:', err);
+                return null; // si falla, la cotización se guarda igual, solo sin número
+            }
+        }
+
+        // ---------- Panel de administración de correlativos (⚙️ Cuenta) ----------
+
+        async function cargarCorrelativosUI() {
+            const panel = document.getElementById('correlativosPanel');
+            if (!panel) return;
+            try {
+                const resultado = await parseFetch(CONTADOR_CLASE, 'GET', null, null, {});
+                const filas = resultado.results || [];
+                const cot = filas.find(f => f.tipo === 'cotizacion');
+                const oc = filas.find(f => f.tipo === 'orden_compra');
+                document.getElementById('correlativoCotInput').value = cot ? cot.valor : 0;
+                document.getElementById('correlativoOcInput').value = oc ? oc.valor : 0;
+                panel.style.display = 'block';
+            } catch (err) {
+                panel.style.display = 'none';
+            }
+        }
+
+        async function guardarCorrelativoManual(tipo, inputId) {
+            const nuevoValor = parseInt(document.getElementById(inputId).value);
+            if (isNaN(nuevoValor) || nuevoValor < 0) {
+                mostrarNotificacion('⚠️ Ingresa un número válido', 'warning');
+                return;
+            }
+            try {
+                const objectId = await obtenerOCrearContador(tipo);
+                await parseFetch(CONTADOR_CLASE, 'PUT', objectId, { valor: nuevoValor });
+                mostrarNotificacion('✅ Correlativo actualizado', 'success');
+            } catch (err) {
+                mostrarNotificacion('❌ Error al actualizar (¿tienes rol Admin?): ' + err.message, 'warning');
+            }
+        }
+
+        // ============================================
+        // CATÁLOGO DE PRODUCTOS (Back4App, atado al usuario)
+        // ============================================
+
+        // Producto = catálogo BASE, compartido por todo el equipo (código,
+        // nombre, costo). PrecioVenta = los niveles de precio de CADA
+        // usuario para ese producto — así dos personas pueden vender el
+        // mismo producto a precios distintos, sin duplicar el costo.
+        const PRODUCTO_CLASE = 'Producto';
+        const PRECIO_VENTA_CLASE = 'PrecioVenta';
+
+        // Trae el catálogo base (compartido) + mis propios precios de
+        // venta, y arma productosDB combinando ambos. Si un producto del
+        // equipo no tiene precio mío todavía, igual aparece (con tiers
+        // vacíos) para que lo pueda configurar desde "Editar".
         async function cargarProductosDesdeNube() {
             if (!sesionUsuario) return;
             try {
-                const resultado = await parseFetch(PRODUCTO_CLASE, 'GET', null, null, { order: 'nombre', limit: 1000 });
-                const productos = resultado.results || [];
+                const [resBase, resPrecios] = await Promise.all([
+                    parseFetch(PRODUCTO_CLASE, 'GET', null, null, { order: 'nombre', limit: 1000 }),
+                    parseFetch(PRECIO_VENTA_CLASE, 'GET', null, null, { limit: 1000 })
+                ]);
+                const base = resBase.results || [];
+                const misPrecios = {};
+                (resPrecios.results || []).forEach(p => { misPrecios[p.codigo] = p; });
 
-                productosDB = productos.map(p => {
-                    const tiers = (p.tiers && p.tiers.length > 0) ? p.tiers : [];
-                    const ordenados = [...tiers].sort((a, b) => a.cantidadMinima - b.cantidadMinima);
+                productosDB = base.map(p => {
+                    const miPrecio = misPrecios[p.codigo];
+                    const tiers = miPrecio ? [...(miPrecio.tiers || [])].sort((a, b) => a.cantidadMinima - b.cantidadMinima) : [];
                     return {
-                        objectId: p.objectId,
+                        objectId: p.objectId, // id del producto BASE (compartido)
+                        precioVentaObjectId: miPrecio ? miPrecio.objectId : null,
                         codigo: p.codigo,
                         nombre: p.nombre,
                         costo: p.costo,
-                        tiers: ordenados,
-                        menor: ordenados.length > 0 ? ordenados[0].precio : 0,
-                        mayor: ordenados.length > 0 ? ordenados[ordenados.length - 1].precio : 0
+                        tiers,
+                        tengoMiPrecio: !!miPrecio,
+                        menor: tiers.length > 0 ? tiers[0].precio : 0,
+                        mayor: tiers.length > 0 ? tiers[tiers.length - 1].precio : 0
                     };
                 });
 
@@ -5797,6 +5960,18 @@ async function generarFichaPDF() {
                 console.error('Error cargando productos:', err);
                 mostrarNotificacion('❌ Error al cargar tu catálogo: ' + err.message, 'warning');
             }
+        }
+
+        // ACL del catálogo BASE (compartido): todo el equipo puede leer y
+        // escribir código/nombre/costo. Requiere el Role "Equipo" en
+        // Back4App (ver instrucciones) — si no existe, cae a solo-yo.
+        function aclEquipo() {
+            if (!sesionUsuario) return undefined;
+            return {
+                [sesionUsuario.userId]: { read: true, write: true },
+                'role:Admin': { read: true, write: true },
+                'role:Equipo': { read: true, write: true }
+            };
         }
 
         // Botón de migración: solo aparece si el catálogo en la nube está
@@ -5813,9 +5988,15 @@ async function generarFichaPDF() {
             showLoading(true);
             try {
                 for (const p of productosDBSemilla) {
-                    await parseFetch(PRODUCTO_CLASE, 'POST', null, {
+                    const base = await parseFetch(PRODUCTO_CLASE, 'POST', null, {
                         codigo: p.codigo,
                         nombre: p.nombre,
+                        costo: null,
+                        ACL: aclEquipo()
+                    });
+                    await parseFetch(PRECIO_VENTA_CLASE, 'POST', null, {
+                        codigo: p.codigo,
+                        productoId: base.objectId,
                         tiers: [
                             { etiqueta: 'Por menor', cantidadMinima: 1, precio: p.menor },
                             { etiqueta: 'Por mayor', cantidadMinima: 6, precio: p.mayor }
@@ -5862,12 +6043,12 @@ async function generarFichaPDF() {
             return tiers.sort((a, b) => a.cantidadMinima - b.cantidadMinima);
         }
 
-        async function eliminarProductoNube(objectId) {
-            if (!confirm('¿Eliminar este producto de tu catálogo?')) return;
+        async function eliminarPrecioVentaNube(objectId) {
+            if (!confirm('¿Quitar tu precio de venta para este producto? (el producto sigue disponible para el resto del equipo)')) return;
             try {
-                await parseFetch(PRODUCTO_CLASE, 'DELETE', objectId);
+                await parseFetch(PRECIO_VENTA_CLASE, 'DELETE', objectId);
                 await cargarProductosDesdeNube();
-                mostrarNotificacion('🗑️ Producto eliminado', 'success');
+                mostrarNotificacion('🗑️ Tu precio fue eliminado', 'success');
             } catch (err) {
                 mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
             }
@@ -5914,6 +6095,7 @@ async function generarFichaPDF() {
             };
 
             try {
+                const numero = await siguienteCorrelativo('cotizacion');
                 await parseFetch(COTIZACION_CLASE, 'POST', null, {
                     cliente: entrada.cliente,
                     empresa: entrada.empresa,
@@ -5922,6 +6104,7 @@ async function generarFichaPDF() {
                     provincia: sucursalSeleccionada ? (sucursalSeleccionada.provincia || null) : null,
                     ganancia: hayCosto ? gananciaEstimada : null,
                     estado: 'cotizada',
+                    numeroCotizacion: numero,
                     datos: JSON.stringify(entrada),
                     creadoPorUsername: sesionUsuario.username,
                     ACL: aclSoloUsuario()
@@ -6005,13 +6188,14 @@ async function generarFichaPDF() {
             listEl.innerHTML = `<div class="historial-list">${historial.map(entry => {
                 const fecha = new Date(entry.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
                 const esOrden = entry.estado === 'orden_compra';
+                const numeroMostrado = esOrden && entry.numeroOrdenCompra ? entry.numeroOrdenCompra : (entry.numeroCotizacion || '');
                 const badgeEstado = esOrden
                     ? `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#e8f9ee; color:#38a169;">✅ Orden de compra</span>`
                     : `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#f0f0f0; color:#718096;">📝 Cotización</span>`;
                 return `
                     <div class="historial-card">
                         <div class="historial-card-left">
-                            <div class="historial-card-title">👤 ${entry.cliente}${entry.empresa ? ' — ' + entry.empresa : ''}</div>
+                            <div class="historial-card-title">${numeroMostrado ? `<span style="color:var(--secondary); font-weight:800;">${numeroMostrado}</span> · ` : ''}👤 ${entry.cliente}${entry.empresa ? ' — ' + entry.empresa : ''}</div>
                             <div class="historial-card-meta">
                                 <span>📅 ${fecha}</span>
                                 <span>📦 ${entry.numProductos || 0} producto${entry.numProductos!==1?'s':''}</span>
@@ -6071,7 +6255,19 @@ async function generarFichaPDF() {
         // solo sobre estas, no sobre cotizaciones que quedaron en propuesta.
         async function cambiarEstadoCotizacion(objectId, nuevoEstado) {
             try {
-                await parseFetch(COTIZACION_CLASE, 'PUT', objectId, { estado: nuevoEstado });
+                const cambios = { estado: nuevoEstado };
+
+                // Solo se asigna número de orden de compra la PRIMERA vez
+                // que se confirma — si ya tenía uno, se conserva (no se
+                // vuelve a numerar al desmarcar y volver a marcar).
+                if (nuevoEstado === 'orden_compra') {
+                    const registro = historialCache.find(e => e.objectId === objectId);
+                    if (!registro || !registro.numeroOrdenCompra) {
+                        cambios.numeroOrdenCompra = await siguienteCorrelativo('orden_compra');
+                    }
+                }
+
+                await parseFetch(COTIZACION_CLASE, 'PUT', objectId, cambios);
                 renderHistorial();
                 mostrarNotificacion(
                     nuevoEstado === 'orden_compra' ? '✅ Marcada como venta confirmada' : '↩ Vuelta a cotización',
@@ -6406,6 +6602,7 @@ async function generarFichaPDF() {
             document.getElementById('panelAppId').value = cloudConfig.appId || '';
             document.getElementById('panelJsKey').value = cloudConfig.jsKey || '';
             document.getElementById('panelCuentaModal').classList.add('active');
+            cargarCorrelativosUI();
         }
         function cerrarPanelCuenta() {
             document.getElementById('panelCuentaModal').classList.remove('active');
