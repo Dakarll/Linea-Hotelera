@@ -3418,6 +3418,7 @@ async function generarFichaPDF() {
 
         <div class="total-section">
             <div class="total-info-container">
+                <div id="correlativoEnCursoInfo" style="font-size:0.8em; font-weight:700; margin-bottom:6px;"></div>
                 <div id="totalInfo" style="font-size: 0.95em;">0 productos</div>
                 <div style="font-size: 0.8em; opacity: 0.8; margin-top: 5px;" id="itemsBreakdown"></div>
                 <div class="margen-info" id="margenInfo"></div>
@@ -4110,6 +4111,13 @@ async function generarFichaPDF() {
         let tipoFiltro = 'all';
         let productoEditandoIndex = -1;
         let sucursalEditandoIndex = -1;
+        // Si estoy editando/regenerando una cotización que YA se guardó,
+        // aquí queda su objectId — así "Guardar"/PDF/Imagen actualizan ESE
+        // mismo registro (mismo correlativo) en vez de crear uno nuevo
+        // cada vez que agregas o quitas un producto. Se resetea a null con
+        // "Limpiar" (ahí sí empieza una cotización — y un correlativo —
+        // completamente nuevos).
+        let cotizacionActualId = null;
 
         // ============================================
         // SISTEMA DE IGV Y FORZAR POR MAYOR
@@ -4489,7 +4497,22 @@ async function generarFichaPDF() {
         // RENDERIZAR TABLA COTIZACIÓN
         // ============================================
 
+        function actualizarIndicadorCorrelativo() {
+            const el = document.getElementById('correlativoEnCursoInfo');
+            if (!el) return;
+            if (!cotizacionActualId) {
+                el.textContent = '🆕 Cotización nueva (aún sin guardar)';
+                el.style.color = 'rgba(255,255,255,0.75)';
+                return;
+            }
+            const registro = historialCache.find(e => e.objectId === cotizacionActualId);
+            const numero = registro ? (registro.estado === 'orden_compra' ? registro.numeroOrdenCompra : registro.numeroCotizacion) : null;
+            el.textContent = numero ? `✏️ Editando ${numero}` : '✏️ Editando cotización guardada';
+            el.style.color = 'white';
+        }
+
         function renderTable() {
+            actualizarIndicadorCorrelativo();
             const tableBody = document.getElementById('tableBody');
             
             if (productosEnTabla.length === 0) {
@@ -4731,13 +4754,22 @@ async function generarFichaPDF() {
 
         function clearAll() {
             if (productosEnTabla.length === 0 && !sucursalSeleccionada) return;
-            if (confirm('¿Limpiar la cotización? Los datos del cliente se conservan.')) {
+            if (confirm('¿Limpiar todo? Se borran los productos y los datos del cliente — la próxima que guardes será una cotización nueva con su propio correlativo.')) {
                 productosEnTabla = [];
                 sucursalSeleccionada = null;
+                cotizacionActualId = null;
                 document.getElementById('globalDiscount').value = '';
                 document.getElementById('montoAdelanto').value = '';
                 document.getElementById('saldoPendienteLabel').textContent = '';
                 document.getElementById('pagoResumen').textContent = '';
+                document.getElementById('clienteNombre').value = '';
+                document.getElementById('clienteEmpresa').value = '';
+                document.getElementById('clienteRUC').value = '';
+                document.getElementById('clienteTelefono').value = '';
+                document.getElementById('clienteEmail').value = '';
+                document.getElementById('clienteDireccion').value = '';
+                document.getElementById('clienteNotas').value = '';
+                actualizarResumenCliente();
                 renderTable();
                 const sucSel = document.getElementById('sucursalSeleccionada');
                 if (sucSel) sucSel.style.display = 'none';
@@ -6123,22 +6155,40 @@ async function generarFichaPDF() {
             };
 
             try {
-                const numero = await siguienteCorrelativo('cotizacion');
-                await parseFetch(COTIZACION_CLASE, 'POST', null, {
-                    cliente: entrada.cliente,
-                    empresa: entrada.empresa,
-                    total: entrada.total,
-                    numProductos: entrada.productos.length,
-                    provincia: sucursalSeleccionada ? (sucursalSeleccionada.provincia || null) : null,
-                    ganancia: hayCosto ? gananciaEstimada : null,
-                    estado: 'cotizada',
-                    numeroCotizacion: numero,
-                    datos: JSON.stringify(entrada),
-                    creadoPorUsername: sesionUsuario.username,
-                    ACL: aclSoloUsuario()
-                });
+                if (cotizacionActualId) {
+                    // Ya existe un registro para esta cotización en curso
+                    // (se guardó/generó antes en esta misma sesión de
+                    // edición) — se actualiza EL MISMO, sin tocar su
+                    // correlativo ni crear uno nuevo.
+                    await parseFetch(COTIZACION_CLASE, 'PUT', cotizacionActualId, {
+                        cliente: entrada.cliente,
+                        empresa: entrada.empresa,
+                        total: entrada.total,
+                        numProductos: entrada.productos.length,
+                        provincia: sucursalSeleccionada ? (sucursalSeleccionada.provincia || null) : null,
+                        ganancia: hayCosto ? gananciaEstimada : null,
+                        datos: JSON.stringify(entrada)
+                    });
+                    mostrarNotificacion('✅ Cotización actualizada (mismo correlativo)', 'success');
+                } else {
+                    const numero = await siguienteCorrelativo('cotizacion');
+                    const creado = await parseFetch(COTIZACION_CLASE, 'POST', null, {
+                        cliente: entrada.cliente,
+                        empresa: entrada.empresa,
+                        total: entrada.total,
+                        numProductos: entrada.productos.length,
+                        provincia: sucursalSeleccionada ? (sucursalSeleccionada.provincia || null) : null,
+                        ganancia: hayCosto ? gananciaEstimada : null,
+                        estado: 'cotizada',
+                        numeroCotizacion: numero,
+                        datos: JSON.stringify(entrada),
+                        creadoPorUsername: sesionUsuario.username,
+                        ACL: aclSoloUsuario()
+                    });
+                    cotizacionActualId = creado.objectId;
+                    mostrarNotificacion(`✅ Cotización ${numero} guardada en historial`, 'success');
+                }
                 renderHistorial();
-                mostrarNotificacion('✅ Cotización guardada en historial', 'success');
             } catch (err) {
                 mostrarNotificacion('❌ Error al guardar en la nube: ' + err.message, 'warning');
                 console.error(err);
@@ -6262,7 +6312,7 @@ async function generarFichaPDF() {
             const esOrden = registro.estado === 'orden_compra';
             const numero = esOrden ? registro.numeroOrdenCompra : registro.numeroCotizacion;
 
-            document.getElementById('verCotTitulo').textContent = `${numero || ''} ${entry.cliente}`.trim();
+            document.getElementById('verCotTitulo').textContent = entry.cliente;
 
             const filasProductos = entry.productos.map(p => {
                 const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
@@ -6278,6 +6328,10 @@ async function generarFichaPDF() {
             }).join('');
 
             document.getElementById('verCotContenido').innerHTML = `
+                ${numero ? `<div style="text-align:center; padding:10px; margin-bottom:14px; border-radius:10px; background:${esOrden ? '#e8f9ee' : '#eef2ff'};">
+                    <div style="font-size:0.75em; color:#718096; font-weight:600; letter-spacing:0.04em;">N° DE ${esOrden ? 'ORDEN DE COMPRA' : 'COTIZACIÓN'}</div>
+                    <div style="font-size:1.6em; font-weight:800; color:${esOrden ? '#38a169' : 'var(--secondary)'}; letter-spacing:0.02em;">${numero}</div>
+                </div>` : ''}
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
                     <span style="padding:3px 10px; border-radius:12px; font-size:0.78em; font-weight:700; background:${esOrden ? '#e8f9ee' : '#f0f0f0'}; color:${esOrden ? '#38a169' : '#718096'};">${esOrden ? '✅ Orden de compra' : '📝 Cotización'}</span>
                     ${entry.sucursal ? `<span style="padding:3px 10px; border-radius:12px; font-size:0.78em; background:#ebf8ff; color:#3182ce;">📍 ${entry.sucursal.nombre}</span>` : ''}
@@ -6307,6 +6361,7 @@ async function generarFichaPDF() {
             if (!confirm(`¿Cargar cotización de "${entry.cliente}"? Se reemplazará la cotización actual.`)) return;
             productosEnTabla = JSON.parse(JSON.stringify(entry.productos));
             sucursalSeleccionada = entry.sucursal || null;
+            cotizacionActualId = objectId; // seguir editando ESTE registro, mismo correlativo
             document.getElementById('globalDiscount').value = entry.globalDescPct || '';
             document.getElementById('clienteNombre').value = entry.cliente === 'Sin nombre' ? '' : entry.cliente;
             document.getElementById('clienteEmpresa').value = entry.empresa || '';
