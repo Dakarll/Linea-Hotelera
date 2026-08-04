@@ -2309,6 +2309,17 @@
     </div>
 
     <!-- MODAL PANEL DE CUENTA / CONFIGURACIÓN -->
+    <!-- MODAL VISTA RÁPIDA DE COTIZACIÓN / ORDEN -->
+    <div class="modal" id="verCotizacionModal">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="verCotTitulo">Cotización</h2>
+                <button class="modal-close" onclick="document.getElementById('verCotizacionModal').classList.remove('active')">×</button>
+            </div>
+            <div id="verCotContenido"></div>
+        </div>
+    </div>
+
     <div class="modal" id="panelCuentaModal">
         <div class="modal-content" style="max-width:420px;">
             <div class="modal-header">
@@ -3017,8 +3028,13 @@
             <input type="text" class="form-input" id="shalomCodigoManual" maxlength="4" placeholder="Código (4 díg.)" style="max-width:150px;">
             <input type="text" class="form-input" id="shalomClienteManual" placeholder="Cliente (opcional)" style="max-width:200px;">
             <input type="text" class="form-input" id="shalomDestinoManual" placeholder="Destino (opcional)" style="max-width:200px;">
-            <button type="button" class="btn btn-success" onclick="registrarGuiaManual()">➕ Registrar</button>
         </div>
+        <div style="margin-top:10px;">
+            <label class="form-label" style="font-size:0.85em;">Vincular a una orden de compra (opcional)</label>
+            <input type="text" class="form-input" id="shalomOcManual" list="listaOrdenesCompra" placeholder="Busca por número OC o cliente..." style="max-width:320px;">
+            <datalist id="listaOrdenesCompra"></datalist>
+        </div>
+        <button type="button" class="btn btn-success" style="margin-top:12px;" onclick="registrarGuiaManual()">➕ Registrar</button>
 
         <!-- Escanear QR: opcional. El QR de Shalom NO trae el N° de Orden
              público ni el código — trae un ID interno que solo la app
@@ -5047,6 +5063,18 @@ async function generarFichaPDF() {
             datalist.innerHTML = provincias.map(p => `<option value="${p}"></option>`).join('');
         }
 
+        // Llena el buscador de "vincular a orden de compra" en Shalom, a
+        // partir de las órdenes de compra confirmadas que ya están en
+        // historialCache (se actualiza cada vez que se abre Historial).
+        function poblarListaOrdenesCompra() {
+            const datalist = document.getElementById('listaOrdenesCompra');
+            if (!datalist) return;
+            const ordenes = historialCache.filter(e => e.estado === 'orden_compra' && e.numeroOrdenCompra);
+            datalist.innerHTML = ordenes.map(o =>
+                `<option value="${o.numeroOrdenCompra} — ${o.cliente}"></option>`
+            ).join('');
+        }
+
         async function generarImagenSucursalesPorProvincia() {
             const input = document.getElementById('provinciaImagenInput');
             const statusEl = document.getElementById('provinciaImagenStatus');
@@ -6157,6 +6185,7 @@ async function generarFichaPDF() {
             }
 
             if (countEl) countEl.textContent = historialCache.length;
+            poblarListaOrdenesCompra();
 
             const filtroTextoEl = document.getElementById('historialFiltroTexto');
             const filtroDesdeEl = document.getElementById('historialFiltroDesde');
@@ -6206,6 +6235,7 @@ async function generarFichaPDF() {
                         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                             <div class="historial-card-total">S/ ${(entry.total || 0).toFixed(2)}</div>
                             <div class="historial-card-actions">
+                                <button class="btn-historial-load" style="background:var(--secondary);" onclick="verCotizacionDetalle('${entry.objectId}')">👁️ Ver</button>
                                 <button class="btn-historial-load" onclick="cargarDesdeHistorial('${entry.objectId}')">📂 Cargar</button>
                                 ${esOrden
                                     ? `<button class="btn-historial-load" style="background:#f0f0f0; color:#718096;" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'cotizada')">↩ Desmarcar</button>`
@@ -6216,6 +6246,55 @@ async function generarFichaPDF() {
                         </div>
                     </div>`;
             }).join('')}</div>`;
+        }
+
+        // Vista rápida de solo lectura — no toca productosEnTabla ni nada
+        // de la cotización que estés armando ahora mismo. Ideal para
+        // solo mirar rápido sin usar "Cargar" (que sí reemplaza tu
+        // trabajo actual).
+        function verCotizacionDetalle(objectId) {
+            const registro = historialCache.find(e => e.objectId === objectId);
+            if (!registro) return;
+            let entry;
+            try { entry = JSON.parse(registro.datos); }
+            catch (e) { mostrarNotificacion('❌ No se pudo leer esta cotización guardada.', 'warning'); return; }
+
+            const esOrden = registro.estado === 'orden_compra';
+            const numero = esOrden ? registro.numeroOrdenCompra : registro.numeroCotizacion;
+
+            document.getElementById('verCotTitulo').textContent = `${numero || ''} ${entry.cliente}`.trim();
+
+            const filasProductos = entry.productos.map(p => {
+                const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
+                const desc = p.descuento || 0;
+                const totalLinea = p.cantidad * precio * (1 - desc / 100);
+                return `
+                    <tr>
+                        <td>${p.nombre}${p.color ? ' (' + p.color + ')' : ''}</td>
+                        <td style="text-align:center;">${p.cantidad}</td>
+                        <td style="text-align:right;">S/ ${precio.toFixed(2)}</td>
+                        <td style="text-align:right; font-weight:600;">S/ ${totalLinea.toFixed(2)}</td>
+                    </tr>`;
+            }).join('');
+
+            document.getElementById('verCotContenido').innerHTML = `
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+                    <span style="padding:3px 10px; border-radius:12px; font-size:0.78em; font-weight:700; background:${esOrden ? '#e8f9ee' : '#f0f0f0'}; color:${esOrden ? '#38a169' : '#718096'};">${esOrden ? '✅ Orden de compra' : '📝 Cotización'}</span>
+                    ${entry.sucursal ? `<span style="padding:3px 10px; border-radius:12px; font-size:0.78em; background:#ebf8ff; color:#3182ce;">📍 ${entry.sucursal.nombre}</span>` : ''}
+                </div>
+                <p style="font-size:0.9em; color:#718096; margin-bottom:14px;">
+                    ${entry.empresa ? entry.empresa + ' · ' : ''}${entry.telefono || 'Sin teléfono'} · ${new Date(registro.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })}
+                </p>
+                <table class="products-table" style="width:100%;">
+                    <thead><tr><th>Producto</th><th style="text-align:center;">Cant.</th><th style="text-align:right;">Precio</th><th style="text-align:right;">Total</th></tr></thead>
+                    <tbody>${filasProductos}</tbody>
+                </table>
+                <div style="text-align:right; margin-top:14px; font-size:1.3em; font-weight:800; color:var(--primary);">
+                    Total: S/ ${(registro.total || 0).toFixed(2)}
+                </div>
+            `;
+
+            document.getElementById('verCotizacionModal').classList.add('active');
         }
 
         function cargarDesdeHistorial(objectId) {
@@ -6781,14 +6860,17 @@ async function generarFichaPDF() {
             const codigo = document.getElementById('shalomCodigoManual').value.trim();
             const cliente = document.getElementById('shalomClienteManual').value.trim();
             const destino = document.getElementById('shalomDestinoManual').value.trim();
-            await crearRegistroShalom(guia, codigo, cliente, destino);
+            const ocTexto = document.getElementById('shalomOcManual').value.trim();
+            const numeroOrdenCompra = ocTexto.includes(' — ') ? ocTexto.split(' — ')[0].trim() : (ocTexto || null);
+            await crearRegistroShalom(guia, codigo, cliente, destino, numeroOrdenCompra);
             document.getElementById('shalomGuiaManual').value = '';
             document.getElementById('shalomCodigoManual').value = '';
             document.getElementById('shalomClienteManual').value = '';
             document.getElementById('shalomDestinoManual').value = '';
+            document.getElementById('shalomOcManual').value = '';
         }
 
-        async function crearRegistroShalom(guia, codigo, cliente, destino) {
+        async function crearRegistroShalom(guia, codigo, cliente, destino, numeroOrdenCompra) {
             if (!guia || !codigo) {
                 mostrarNotificacion('⚠️ Shalom necesita el N° de Orden Y el Código de Orden (4 dígitos) para poder rastrear', 'warning');
                 return;
@@ -6805,6 +6887,7 @@ async function generarFichaPDF() {
                     codigo,
                     cliente: cliente || null,
                     destino: destino || null,
+                    numeroOrdenCompra: numeroOrdenCompra || null,
                     estado: 'pendiente',
                     notificado: false,
                     creadoPorUsername: sesionUsuario.username,
@@ -6894,7 +6977,7 @@ async function generarFichaPDF() {
 
             const filtrados = !texto ? shalomEnviosCache : shalomEnviosCache.filter(e => {
                 const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
-                const campo = [e.guia, e.codigo, e.oseId, e.cliente, e.destino, e.detalleEstado, info.texto]
+                const campo = [e.guia, e.codigo, e.oseId, e.cliente, e.destino, e.detalleEstado, e.numeroOrdenCompra, info.texto]
                     .filter(Boolean).join(' ').toLowerCase();
                 return campo.includes(texto);
             });
@@ -6925,6 +7008,7 @@ async function generarFichaPDF() {
                             <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">✕</button>
                         </div>
                         ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
+                        ${e.numeroOrdenCompra ? `<div style="font-size:0.78em; font-weight:700; color:var(--secondary);">🔗 ${e.numeroOrdenCompra}</div>` : ''}
                         <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
                         ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
                         <div class="shalom-card-fecha">${ultima}${(e.creadoPorUsername && e.creadoPorUsername !== sesionUsuario.username) ? ' · por ' + e.creadoPorUsername : ''}</div>
