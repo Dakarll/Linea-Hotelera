@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -61,6 +62,18 @@
         .header .subtitle {
             opacity: 0.9;
             font-size: 0.85em;
+        }
+
+        .correlativo-header-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.01em;
         }
 
         /* INFO BANNER */
@@ -1745,6 +1758,23 @@
                 padding: 15px;
             }
 
+            /* Formularios con varios campos en fila (Shalom, Envío Lima,
+               fichas técnicas) traían anchos fijos pensados para
+               escritorio (150-200px). En un teléfono angosto eso deja
+               2-3 campos apretados por línea con el texto/placeholder
+               cortado — aquí se fuerza cada campo a ocupar toda la fila
+               para que se lea completo y sea fácil de tocar. */
+            .add-product-section input[style*="max-width"],
+            .add-product-section select[style*="max-width"] {
+                max-width: 100% !important;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .add-product-title {
+                font-size: 1em;
+            }
+
             /* Tarjetas de Historial / Envíos: en escritorio van en fila
                (info a la izquierda, total y acciones a la derecha). En
                móvil eso aprieta demasiado — se apilan en columna y el
@@ -2506,11 +2536,12 @@
         <div class="header">
             <h1>🏨 Línea Hotelera - Cotizador Profesional</h1>
             <div class="subtitle">Sistema Integrado de Cotización y Envíos a Provincias · v3.0 — Historial · WhatsApp · Descuentos · Multi-color · Clientes DB</div>
+            <div id="correlativoHeaderInfo" class="correlativo-header-badge">🔖 Cargando correlativos...</div>
         </div>
 
         <div class="info-banner">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <span style="flex: 1; min-width: 200px;"></span>
+                <span style="flex: 1; min-width: 200px;">⚡ Precio automático: 6+ unidades = Por Mayor | Menos de 6 = Por Menor</span>
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
                     <!-- Toggle IGV -->
                     <div class="igv-toggle-container">
@@ -3208,11 +3239,31 @@
         </details>
     </div>
 
+    <!-- REGISTRAR ENVÍO LIMA (entrega local, sin guía Shalom) -->
+    <div class="add-product-section" style="margin-top:18px; border-color:#3182ce;">
+        <div class="add-product-title">🏙️ Registrar envío Lima</div>
+        <p style="font-size:0.85em; opacity:0.9; margin-bottom:15px;">Para entregas dentro de Lima (moto propia, delivery local, recojo en tienda, etc.) que no pasan por Shalom — no necesitan N° de guía ni código. Como no hay rastreo automático, el estado se actualiza a mano desde la tarjeta del envío.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <input type="text" class="form-input" id="limaClienteManual" placeholder="Cliente (opcional)" style="flex:1 1 180px; min-width:150px;">
+            <input type="text" class="form-input" id="limaDireccionManual" placeholder="Dirección / referencia (opcional)" style="flex:1 1 200px; min-width:150px;">
+            <input type="text" class="form-input" id="limaRepartidorManual" placeholder="Repartidor / moto (opcional)" style="flex:1 1 180px; min-width:150px;">
+            <select class="form-input" id="limaEstadoManual" style="flex:1 1 160px; min-width:150px;">
+                <option value="pendiente">⏳ Pendiente de entrega</option>
+                <option value="entregado">✅ Ya entregado</option>
+            </select>
+        </div>
+        <div style="margin-top:10px;">
+            <label class="form-label" style="font-size:0.85em;">Vincular a una orden de compra (opcional)</label>
+            <input type="text" class="form-input" id="limaOcManual" list="listaOrdenesCompra" placeholder="Busca por número OC o cliente..." style="max-width:320px; width:100%;">
+        </div>
+        <button type="button" class="btn btn-success" style="margin-top:12px; background:#3182ce;" onclick="registrarEnvioLima()">🏙️ Registrar envío Lima</button>
+    </div>
+
     <!-- LISTA DE ENVÍOS RASTREADOS -->
     <div class="ios-section-header">
         <div>
             <div class="ios-section-title">Envíos <span id="shalomCount" style="color:#8e8e93; font-weight:600;">0</span></div>
-            <div class="ios-section-subtitle">Actualizado cada 30 min por el robot, incluso con el navegador cerrado</div>
+            <div class="ios-section-subtitle">Shalom se actualiza cada 30 min por el robot · Lima se actualiza a mano</div>
         </div>
         <button class="ios-link-btn" onclick="cargarEnviosShalom()">Actualizar</button>
     </div>
@@ -6044,10 +6095,33 @@ async function generarFichaPDF() {
                 });
                 const actualizado = await parseFetch(CONTADOR_CLASE, 'GET', objectId);
                 const numero = actualizado.valor || 1;
+                cargarCorrelativoHeaderInfo(); // el "próximo N°" del header queda desactualizado tras asignar este — se refresca solo
                 return `${prefijos[tipo]}-${String(numero).padStart(6, '0')}`;
             } catch (err) {
                 console.error('Error obteniendo correlativo:', err);
                 return null; // si falla, la cotización se guarda igual, solo sin número
+            }
+        }
+
+        // Badge del header (arriba a la izquierda) con el próximo N° que
+        // se asignará a la siguiente cotización y a la siguiente orden de
+        // compra. Es de solo lectura — solo consulta el contador, nunca
+        // lo incrementa (eso solo lo hace siguienteCorrelativo() al
+        // guardar de verdad), así que no compromete la numeración.
+        async function cargarCorrelativoHeaderInfo() {
+            const el = document.getElementById('correlativoHeaderInfo');
+            if (!el || !sesionUsuario) return;
+            try {
+                const resultado = await parseFetch(CONTADOR_CLASE, 'GET', null, null, {});
+                const filas = resultado.results || [];
+                const cot = filas.find(f => f.tipo === 'cotizacion');
+                const oc = filas.find(f => f.tipo === 'orden_compra');
+                const proximaCot = String((cot ? cot.valor : 0) + 1).padStart(6, '0');
+                const proximaOc = String((oc ? oc.valor : 0) + 1).padStart(6, '0');
+                el.innerHTML = `🔖 Próximo N°: <strong>COT-${proximaCot}</strong> · <strong>OC-${proximaOc}</strong>`;
+            } catch (err) {
+                el.style.display = 'none';
+                console.error('No se pudo cargar el correlativo del header:', err.message);
             }
         }
 
@@ -6079,6 +6153,7 @@ async function generarFichaPDF() {
                 const objectId = await obtenerOCrearContador(tipo);
                 await parseFetch(CONTADOR_CLASE, 'PUT', objectId, { valor: nuevoValor });
                 mostrarNotificacion('✅ Correlativo actualizado', 'success');
+                cargarCorrelativoHeaderInfo();
             } catch (err) {
                 mostrarNotificacion('❌ Error al actualizar (¿tienes rol Admin?): ' + err.message, 'warning');
             }
@@ -7167,6 +7242,7 @@ async function generarFichaPDF() {
             cargarEnviosShalom();
             renderHistorial();
             verificarNotificacionesShalomGlobal();
+            cargarCorrelativoHeaderInfo();
         }
 
         // ============================================
@@ -7335,36 +7411,73 @@ async function generarFichaPDF() {
             document.getElementById('shalomOcManual').value = '';
         }
 
-        async function crearRegistroShalom(guia, codigo, cliente, destino, numeroOrdenCompra) {
-            if (!guia || !codigo) {
-                mostrarNotificacion('⚠️ Shalom necesita el N° de Orden Y el Código de Orden (4 dígitos) para poder rastrear', 'warning');
-                return;
+        async function crearRegistroShalom(guia, codigo, cliente, destino, numeroOrdenCompra, tipo = 'shalom', estadoInicial = 'pendiente') {
+            if (tipo === 'shalom') {
+                if (!guia || !codigo) {
+                    mostrarNotificacion('⚠️ Shalom necesita el N° de Orden Y el Código de Orden (4 dígitos) para poder rastrear', 'warning');
+                    return;
+                }
+            } else {
+                // Envío Lima: no pasa por Shalom, así que no necesita guía
+                // ni código — pero sí algo que lo identifique.
+                if (!cliente && !numeroOrdenCompra) {
+                    mostrarNotificacion('⚠️ Ingresa al menos el cliente o la orden de compra para registrar el envío Lima', 'warning');
+                    return;
+                }
+                if (!guia) guia = `LIMA-${Date.now().toString().slice(-8)}`;
             }
             try {
-                const existentes = await parseFetch(SHALOM_CLASE, 'GET', null, null, { where: { guia }, limit: 1 });
-                if (existentes.results && existentes.results.length > 0) {
-                    mostrarNotificacion(`ℹ️ La guía ${guia} ya estaba registrada`, 'info');
-                    return;
+                if (guia) {
+                    const existentes = await parseFetch(SHALOM_CLASE, 'GET', null, null, { where: { guia }, limit: 1 });
+                    if (existentes.results && existentes.results.length > 0) {
+                        mostrarNotificacion(`ℹ️ Ya había un envío registrado con esa referencia (${guia})`, 'info');
+                        return;
+                    }
                 }
 
                 await parseFetch(SHALOM_CLASE, 'POST', null, {
                     guia,
-                    codigo,
+                    codigo: codigo || null,
                     cliente: cliente || null,
-                    destino: destino || null,
+                    destino: destino || (tipo === 'lima' ? 'Lima' : null),
                     numeroOrdenCompra: numeroOrdenCompra || null,
-                    estado: 'pendiente',
+                    estado: estadoInicial,
+                    tipo,
                     notificado: false,
                     creadoPorUsername: sesionUsuario.username,
                     ACL: aclSoloUsuario()
                 });
-                mostrarNotificacion(`✅ Guía ${guia} registrada para seguimiento`, 'success');
+                mostrarNotificacion(tipo === 'lima' ? '✅ Envío Lima registrado' : `✅ Guía ${guia} registrada para seguimiento`, 'success');
                 document.getElementById('shalomQrResultado').style.display = 'none';
                 cargarEnviosShalom();
             } catch (err) {
                 mostrarNotificacion('❌ Error al registrar: ' + err.message, 'warning');
                 console.error(err);
             }
+        }
+
+        // Envío Lima: entregas locales (moto propia, delivery, recojo en
+        // tienda) que no pasan por Shalom. No hay robot que las
+        // actualice — el estado se cambia a mano desde la tarjeta del
+        // envío. Reutiliza la misma tabla y los mismos badges/filtros que
+        // Shalom para no duplicar lógica ni arriesgar el resto del
+        // sistema; solo se distingue con el campo "tipo".
+        async function registrarEnvioLima() {
+            const cliente = document.getElementById('limaClienteManual').value.trim();
+            const direccion = document.getElementById('limaDireccionManual').value.trim();
+            const repartidor = document.getElementById('limaRepartidorManual').value.trim();
+            const estadoInicial = document.getElementById('limaEstadoManual').value || 'pendiente';
+            const ocTexto = document.getElementById('limaOcManual').value.trim();
+            const numeroOrdenCompra = ocTexto.includes(' — ') ? ocTexto.split(' — ')[0].trim() : (ocTexto || null);
+            const destino = [direccion, repartidor ? `Repartidor: ${repartidor}` : ''].filter(Boolean).join(' · ');
+
+            await crearRegistroShalom(null, null, cliente, destino, numeroOrdenCompra, 'lima', estadoInicial);
+
+            document.getElementById('limaClienteManual').value = '';
+            document.getElementById('limaDireccionManual').value = '';
+            document.getElementById('limaRepartidorManual').value = '';
+            document.getElementById('limaOcManual').value = '';
+            document.getElementById('limaEstadoManual').value = 'pendiente';
         }
 
         async function eliminarEnvioShalom(objectId) {
@@ -7469,11 +7582,14 @@ async function generarFichaPDF() {
 
             listEl.innerHTML = filtrados.map(e => {
                 const info = ETIQUETAS_ESTADO_SHALOM[e.estado] || ETIQUETAS_ESTADO_SHALOM.pendiente;
-                const ultima = e.ultimaConsulta ? new Date(e.ultimaConsulta).toLocaleString('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Aún no consultado';
+                const esLima = e.tipo === 'lima';
+                const ultima = esLima
+                    ? 'Actualización manual'
+                    : (e.ultimaConsulta ? new Date(e.ultimaConsulta).toLocaleString('es-PE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Aún no consultado');
                 const nombreMostrado = e.cliente || (e.guia ? `Guía ${e.guia}` : '🤖 QR sin resolver aún');
-                const subinfo = e.guia
-                    ? `Guía ${e.guia}${e.codigo ? ' · Código ' + e.codigo : ''}`
-                    : `Registrado por QR — el robot intentará resolverlo`;
+                const subinfo = esLima
+                    ? '🏙️ Envío Lima (entrega local)'
+                    : (e.guia ? `Guía ${e.guia}${e.codigo ? ' · Código ' + e.codigo : ''}` : `Registrado por QR — el robot intentará resolverlo`);
                 return `
                     <div class="shalom-card">
                         <div class="shalom-card-top">
@@ -7488,8 +7604,26 @@ async function generarFichaPDF() {
                         <span class="shalom-card-estado-badge" style="color:${info.color}; background:${info.bg};">${info.texto}</span>
                         ${e.detalleEstado ? `<div class="shalom-card-detalle">${e.detalleEstado}</div>` : ''}
                         <div class="shalom-card-fecha">${ultima}${(e.creadoPorUsername && e.creadoPorUsername !== sesionUsuario.username) ? ' · por ' + e.creadoPorUsername : ''}</div>
+                        ${esLima ? `<div style="margin-top:8px;">
+                            ${e.estado === 'entregado'
+                                ? `<button type="button" class="btn btn-small" style="background:#f0f0f0; color:#718096; width:100%;" onclick="cambiarEstadoLima('${e.objectId}', 'pendiente')">↩ Marcar pendiente</button>`
+                                : `<button type="button" class="btn btn-small" style="background:#38a169; color:white; width:100%;" onclick="cambiarEstadoLima('${e.objectId}', 'entregado')">✅ Marcar entregado</button>`
+                            }
+                        </div>` : ''}
                     </div>`;
             }).join('');
+        }
+
+        // Los envíos Lima no tienen robot que los actualice (no pasan por
+        // la API de Shalom), así que el estado se cambia a mano con este
+        // botón. Nunca toca envíos tipo "shalom".
+        async function cambiarEstadoLima(objectId, nuevoEstado) {
+            try {
+                await parseFetch(SHALOM_CLASE, 'PUT', objectId, { estado: nuevoEstado, notificado: nuevoEstado !== 'entregado' ? true : false });
+                cargarEnviosShalom();
+            } catch (err) {
+                mostrarNotificacion('❌ Error al actualizar: ' + err.message, 'warning');
+            }
         }
 
         async function verificarNotificacionesShalomGlobal() {
