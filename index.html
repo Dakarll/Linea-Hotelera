@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1358,53 +1359,7 @@
             .print-client-grid { grid-template-columns: 1fr; }
         }
 
-        /* ================================================
-           DESCUENTOS
-        ================================================ */
-        .descuento-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #a0aec0;
-            font-size: 0.85em;
-            padding: 2px 5px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .descuento-btn:hover { color: #ed8936; background: #fff7ed; }
-        .descuento-badge {
-            display: inline-block;
-            padding: 1px 6px;
-            background: #fed7aa;
-            color: #9a3412;
-            border-radius: 4px;
-            font-size: 0.72em;
-            font-weight: 700;
-            margin-left: 3px;
-        }
-        .descuento-inline {
-            display: none;
-            align-items: center;
-            gap: 4px;
-            margin-top: 4px;
-        }
-        .descuento-inline.visible { display: flex; }
-        .descuento-input {
-            width: 55px;
-            padding: 3px 6px;
-            border: 2px solid #ed8936;
-            border-radius: 6px;
-            font-size: 0.88em;
-            font-weight: 700;
-            text-align: center;
-        }
-        .precio-original {
-            text-decoration: line-through;
-            color: #a0aec0;
-            font-size: 0.82em;
-            margin-right: 3px;
-        }
-        .global-discount-row {
+        .doc-tipo-row {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -1412,26 +1367,6 @@
             font-size: 0.88em;
             opacity: 0.9;
         }
-        .global-discount-input {
-            width: 60px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            border: 1.5px solid rgba(255,255,255,0.4);
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-weight: 700;
-            text-align: center;
-            font-size: 0.95em;
-        }
-        .global-discount-input::placeholder { color: rgba(255,255,255,0.5); }
-        .subtotal-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75em;
-            opacity: 0.75;
-            margin-bottom: 2px;
-        }
-
         /* ================================================
            WHATSAPP BUTTON
         ================================================ */
@@ -2535,7 +2470,7 @@
     <div class="container">
         <div class="header">
             <h1>🏨 Línea Hotelera - Cotizador Profesional</h1>
-            <div class="subtitle">Sistema Integrado de Cotización y Envíos a Provincias · v3.0 — Historial · WhatsApp · Descuentos · Multi-color · Clientes DB</div>
+            <div class="subtitle">Sistema Integrado de Cotización y Envíos a Provincias · v3.0 — Historial · WhatsApp · Multi-color · Clientes DB</div>
             <div id="correlativoHeaderInfo" class="correlativo-header-badge">🔖 Cargando correlativos...</div>
         </div>
 
@@ -2675,14 +2610,13 @@
                                 <th>Producto / Color</th>
                                 <th>Cant.</th>
                                 <th>Precio Unit.</th>
-                                <th>Desc. %</th>
                                 <th>Total</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
                             <tr class="empty-state">
-                                <td colspan="7">📋 No hay productos agregados</td>
+                                <td colspan="6">📋 No hay productos agregados</td>
                             </tr>
                         </tbody>
                     </table>
@@ -3615,11 +3549,8 @@ async function generarFichaPDF() {
                 <div style="font-size: 0.8em; opacity: 0.8; margin-top: 5px;" id="itemsBreakdown"></div>
                 <div class="margen-info" id="margenInfo"></div>
                 <div id="envioInfo" style="font-size: 0.85em; margin-top: 10px;"></div>
-                <div class="global-discount-row">
-                    <span>🏷️ Desc.:</span>
-                    <input type="number" class="global-discount-input" id="globalDiscount" min="0" max="100" step="0.5" placeholder="0" value="" oninput="renderTable()">
-                    <span>%</span>
-                    <span style="margin-left:10px;">📄</span>
+                <div class="doc-tipo-row">
+                    <span>📄</span>
                     <select id="tipoDocumento" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.35);border-radius:6px;padding:3px 7px;font-size:0.85em;font-weight:700;cursor:pointer;">
                         <option value="cotizacion">Cotización</option>
                         <option value="ORDEN DE COMPRA">ORDEN DE COMPRA</option>
@@ -3638,13 +3569,12 @@ async function generarFichaPDF() {
                 </div>
             </div>
             <div style="text-align: right;">
-                <div id="subtotalRows"></div>
                 <div class="total-amount" id="totalAmount">S/ 0.00</div>
                 <div class="action-buttons">
                     <button class="btn btn-danger" onclick="clearAll()">🗑️ Limpiar</button>
                     <button class="btn btn-primary" id="btnGuardarHistorial" disabled onclick="guardarEnHistorial()">💾 Guardar</button>
                     <button class="btn btn-success" id="btnGenerateImage" disabled onclick="generarImagen()">🖼️ Imagen</button>
-                    <button class="btn btn-success" id="btnGeneratePDF" disabled onclick="generarPDF()">📄 PDF</button>
+                    <button class="btn btn-success" id="btnCopyImage" disabled onclick="generarImagenYCopiar()">📋 Copiar imagen</button>
                     <button class="btn btn-warning" id="btnGenerateExcel" disabled onclick="exportarExcel()" style="display:none;">📊 Excel</button>
                     <button class="btn btn-primary" id="btnGuardarPlantilla" disabled onclick="guardarComoPlantilla()" style="display:none;">📋 Plantilla</button>
                 </div>
@@ -4679,9 +4609,9 @@ async function generarFichaPDF() {
             const tableBody = document.getElementById('tableBody');
             
             if (productosEnTabla.length === 0) {
-                tableBody.innerHTML = '<tr class="empty-state"><td colspan="7">📋 No hay productos agregados</td></tr>';
+                tableBody.innerHTML = '<tr class="empty-state"><td colspan="6">📋 No hay productos agregados</td></tr>';
                 document.getElementById('btnGenerateImage').disabled = true;
-                document.getElementById('btnGeneratePDF').disabled = true;
+                document.getElementById('btnCopyImage').disabled = true;
                 document.getElementById('btnGuardarHistorial').disabled = true;
                 document.getElementById('btnGenerateExcel').disabled = true;
                 document.getElementById('btnGuardarPlantilla').disabled = true;
@@ -4690,24 +4620,19 @@ async function generarFichaPDF() {
                     const cantidad = producto.cantidad;
                     const precioBase = obtenerPrecio(producto, cantidad);
                     const precioUnitario = producto.precioOverride !== undefined ? producto.precioOverride : precioBase;
-                    const descPct = producto.descuento || 0;
-                    const precioConDesc = precioUnitario * (1 - descPct / 100);
-                    const total = cantidad * precioConDesc;
+                    const total = cantidad * precioUnitario;
                     const hasOverride = producto.precioOverride !== undefined;
-                    const hasDesc = descPct > 0;
                     let tipoPrecio = hasOverride ? 'Personalizado' : obtenerEtiquetaNivel(producto, cantidad);
 
                     const colorTag = producto.color ? `<div><span class="color-tag">🎨 ${producto.color}</span></div>` : '';
 
                     const precioDisplay = mostrarConIGV ? `
                         <div>
-                            ${hasDesc ? `<span class="precio-original">S/ ${calcularPrecioConIGV(precioUnitario).toFixed(2)}</span>` : ''}
-                            <span class="precio-con-igv">S/ ${calcularPrecioConIGV(precioConDesc).toFixed(2)}</span>
+                            <span class="precio-con-igv">S/ ${calcularPrecioConIGV(precioUnitario).toFixed(2)}</span>
                             ${hasOverride ? '<span class="precio-override-badge">✏️</span>' : ''}
                         </div>
                     ` : `<div>
-                            ${hasDesc ? `<span class="precio-original">S/ ${precioUnitario.toFixed(2)}</span>` : ''}
-                            S/ ${precioConDesc.toFixed(2)}
+                            S/ ${precioUnitario.toFixed(2)}
                             ${hasOverride ? '<span class="precio-override-badge">✏️</span>' : ''}
                         </div>`;
 
@@ -4741,18 +4666,6 @@ async function generarFichaPDF() {
                                     ${hasOverride ? `<button class="precio-inline-cancel" title="Restaurar" onclick="restaurarPrecio(${index})" style="color:#e53e3e;">↩</button>` : ''}
                                 </div>
                             </td>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:3px;">
-                                    ${hasDesc ? `<span class="descuento-badge">-${descPct}%</span>` : ''}
-                                    <button class="descuento-btn" title="Aplicar descuento" onclick="toggleDescuento(${index})">%</button>
-                                </div>
-                                <div class="descuento-inline" id="descEdit_${index}">
-                                    <input class="descuento-input" type="number" step="0.5" min="0" max="100"
-                                        id="descInput_${index}" value="${descPct}" placeholder="0">
-                                    <button class="precio-inline-save" onclick="guardarDescuento(${index})">✔</button>
-                                    <button class="precio-inline-cancel" onclick="cerrarDescuento(${index})">✕</button>
-                                </div>
-                            </td>
                             <td class="total-cell">${totalDisplay}</td>
                             <td>
                                 <button class="btn-remove" onclick="removeProduct(${index})">✕</button>
@@ -4761,7 +4674,7 @@ async function generarFichaPDF() {
                     `;
                 }).join('');
                 document.getElementById('btnGenerateImage').disabled = false;
-                document.getElementById('btnGeneratePDF').disabled = false;
+                document.getElementById('btnCopyImage').disabled = false;
                 document.getElementById('btnGuardarHistorial').disabled = false;
                 document.getElementById('btnGenerateExcel').disabled = false;
                 document.getElementById('btnGuardarPlantilla').disabled = false;
@@ -4804,9 +4717,7 @@ async function generarFichaPDF() {
                 const cantidad = producto.cantidad;
                 const precioBase = obtenerPrecio(producto, cantidad);
                 const precioUnitario = producto.precioOverride !== undefined ? producto.precioOverride : precioBase;
-                const descPct = producto.descuento || 0;
-                const precioConDesc = precioUnitario * (1 - descPct / 100);
-                totalBruto += cantidad * precioConDesc;
+                totalBruto += cantidad * precioUnitario;
                 totalUnidades += cantidad;
                 if (forzarPorMayor || cantidad >= 6) itemsMayor++;
                 else itemsMenor++;
@@ -4816,23 +4727,7 @@ async function generarFichaPDF() {
                 }
             });
 
-            // Descuento global
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
-            const descGlobalMonto = totalBruto * globalDescPct / 100;
-            const totalFinal = totalBruto - descGlobalMonto;
-
-            // Subtotal rows
-            const subtotalEl = document.getElementById('subtotalRows');
-            if (globalDescPct > 0) {
-                const subtotalDisplay = mostrarConIGV ? calcularPrecioConIGV(totalBruto) : totalBruto;
-                const descDisplay = mostrarConIGV ? calcularPrecioConIGV(descGlobalMonto) : descGlobalMonto;
-                subtotalEl.innerHTML = `
-                    <div class="subtotal-row"><span>Subtotal:</span><span>S/ ${subtotalDisplay.toFixed(2)}</span></div>
-                    <div class="subtotal-row"><span>Desc. global (${globalDescPct}%):</span><span>-S/ ${descDisplay.toFixed(2)}</span></div>
-                `;
-            } else {
-                subtotalEl.innerHTML = '';
-            }
+            const totalFinal = totalBruto;
 
             const totalElement = document.getElementById('totalAmount');
             if (mostrarConIGV) {
@@ -4865,8 +4760,7 @@ async function generarFichaPDF() {
             // Margen de ganancia (solo si al menos un producto tiene costo definido)
             const margenEl = document.getElementById('margenInfo');
             if (productosConCosto > 0) {
-                const costoConDescProporcional = costoTotal; // el costo no se ve afectado por descuentos al cliente
-                const gananciaEstimada = totalFinal - costoConDescProporcional;
+                const gananciaEstimada = totalFinal - costoTotal;
                 const margenPct = totalFinal > 0 ? (gananciaEstimada / totalFinal) * 100 : 0;
                 const cobertura = productosConCosto === productosEnTabla.length ? '' : ` (${productosConCosto}/${productosEnTabla.length} con costo)`;
                 margenEl.innerHTML = `📈 Margen estimado: S/ ${gananciaEstimada.toFixed(2)} (${margenPct.toFixed(1)}%)${cobertura}`;
@@ -4902,13 +4796,9 @@ async function generarFichaPDF() {
             let totalBruto = 0;
             productosEnTabla.forEach(p => {
                 const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
-                const desc = p.descuento || 0;
-                totalBruto += p.cantidad * precio * (1 - desc / 100);
+                totalBruto += p.cantidad * precio;
             });
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
-            const totalFinal = mostrarConIGV
-                ? calcularPrecioConIGV(totalBruto * (1 - globalDescPct / 100))
-                : totalBruto * (1 - globalDescPct / 100);
+            const totalFinal = mostrarConIGV ? calcularPrecioConIGV(totalBruto) : totalBruto;
 
             const saldo = Math.max(0, totalFinal - adelanto);
             saldoEl.innerHTML = `&nbsp;·&nbsp; <span style="color:#fbbf24;font-weight:700;">Saldo: S/ ${saldo.toFixed(2)}</span>`;
@@ -4921,7 +4811,6 @@ async function generarFichaPDF() {
                 productosEnTabla = [];
                 sucursalSeleccionada = null;
                 cotizacionActualId = null;
-                document.getElementById('globalDiscount').value = '';
                 document.getElementById('montoAdelanto').value = '';
                 document.getElementById('saldoPendienteLabel').textContent = '';
                 document.getElementById('pagoResumen').textContent = '';
@@ -5487,6 +5376,52 @@ async function generarFichaPDF() {
             return descargarOCompartirBlob(blob, nombreArchivo, 'application/pdf');
         }
 
+        // Copia una imagen (Blob PNG) al portapapeles del sistema, si el
+        // navegador lo permite (requiere contexto seguro/HTTPS). Devuelve
+        // true si se copió, false si no fue posible (no bloquea el flujo).
+        async function copiarImagenAlPortapapeles(blob) {
+            try {
+                if (!blob || !navigator.clipboard || !navigator.clipboard.write || typeof ClipboardItem === 'undefined') {
+                    return false;
+                }
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                return true;
+            } catch (err) {
+                console.error('No se pudo copiar la imagen al portapapeles:', err);
+                return false;
+            }
+        }
+
+        // Dibuja la cotización y devuelve el PNG resultante como Blob, sin
+        // decidir todavía qué hacer con él (descargar o copiar) — eso lo
+        // decide cada botón por separado. Comparte el guardado del
+        // correlativo real y el renderizado de html2canvas entre ambos.
+        async function generarImagenCotizacionBlob() {
+            // Se guarda/asigna el correlativo ANTES de dibujar la
+            // cotización, para que el N° que aparece en la imagen sea el
+            // correlativo real (COT-/OC-), no un número inventado.
+            await guardarEnHistorial({ silencioso: true });
+
+            await prepararCotizacion();
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const element = document.getElementById('cotizacionPrint');
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                allowTaint: false,
+                width: 900,
+                height: element.scrollHeight
+            });
+
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        }
+
+        // Botón "🖼️ Imagen": genera y DESCARGA (o abre el panel de
+        // compartir/guardar en celular). No toca el portapapeles.
         async function generarImagen() {
             if (productosEnTabla.length === 0) {
                 mostrarNotificacion('Agrega productos primero', 'warning');
@@ -5494,29 +5429,40 @@ async function generarFichaPDF() {
             }
 
             showLoading(true);
-            
-            try {
-                await prepararCotizacion();
-                await new Promise(resolve => setTimeout(resolve, 800));
-                
-                const element = document.getElementById('cotizacionPrint');
-                
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    useCORS: true,
-                    allowTaint: false,
-                    width: 900,
-                    height: element.scrollHeight
-                });
 
+            try {
+                const blob = await generarImagenCotizacionBlob();
                 const nombreArchivo = `Cotizacion_LineaHotelera_${Date.now()}.png`;
-                await descargarOCompartirCanvas(canvas, nombreArchivo);
+                await descargarOCompartirBlob(blob, nombreArchivo, 'image/png');
 
                 showLoading(false);
-                mostrarNotificacion('✅ Imagen generada exitosamente', 'success');
-                guardarEnHistorial();
+                mostrarNotificacion('✅ Imagen generada y descargada', 'success');
+            } catch (error) {
+                console.error('Error al generar imagen:', error);
+                showLoading(false);
+                mostrarNotificacion('❌ Error al generar imagen', 'error');
+            }
+        }
+
+        // Botón "📋 Copiar imagen": genera y COPIA al portapapeles. No
+        // descarga ni abre ningún panel de compartir.
+        async function generarImagenYCopiar() {
+            if (productosEnTabla.length === 0) {
+                mostrarNotificacion('Agrega productos primero', 'warning');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const blob = await generarImagenCotizacionBlob();
+                const copiada = await copiarImagenAlPortapapeles(blob);
+
+                showLoading(false);
+                mostrarNotificacion(
+                    copiada ? '✅ Imagen copiada al portapapeles' : '⚠️ Tu navegador no permite copiar automáticamente — usa el botón "Imagen" para descargarla',
+                    copiada ? 'success' : 'warning'
+                );
             } catch (error) {
                 console.error('Error al generar imagen:', error);
                 showLoading(false);
@@ -5535,14 +5481,11 @@ async function generarFichaPDF() {
             }
 
             const cliente = getClienteData();
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
 
             const filas = productosEnTabla.map(p => {
                 const precioBase = obtenerPrecio(p, p.cantidad);
                 const precioUnitario = p.precioOverride !== undefined ? p.precioOverride : precioBase;
-                const descPct = p.descuento || 0;
-                const precioConDesc = precioUnitario * (1 - descPct / 100);
-                const totalLinea = p.cantidad * precioConDesc;
+                const totalLinea = p.cantidad * precioUnitario;
                 const tipoPrecio = p.precioOverride !== undefined ? 'Personalizado' : (forzarPorMayor ? 'Por Mayor (Forzado)' : (p.cantidad >= 6 ? 'Por Mayor' : 'Por Menor'));
                 return {
                     'Código': p.codigo,
@@ -5551,25 +5494,18 @@ async function generarFichaPDF() {
                     'Cantidad': p.cantidad,
                     'Tipo Precio': tipoPrecio,
                     'Precio Unit. (S/)': Number(precioUnitario.toFixed(2)),
-                    'Descuento %': descPct,
                     'Total Línea (S/)': Number((mostrarConIGV ? calcularPrecioConIGV(totalLinea) : totalLinea).toFixed(2))
                 };
             });
 
             let subtotal = filas.reduce((a, f) => a + f['Total Línea (S/)'], 0);
-            const descMonto = subtotal * globalDescPct / 100;
-            const totalFinal = subtotal - descMonto;
 
             filas.push({});
-            filas.push({ 'Código': '', 'Producto': 'Subtotal', 'Total Línea (S/)': Number(subtotal.toFixed(2)) });
-            if (globalDescPct > 0) {
-                filas.push({ 'Código': '', 'Producto': `Descuento global (${globalDescPct}%)`, 'Total Línea (S/)': Number((-descMonto).toFixed(2)) });
-            }
-            filas.push({ 'Código': '', 'Producto': `TOTAL ${mostrarConIGV ? '(IGV incl.)' : '(sin IGV)'}`, 'Total Línea (S/)': Number(totalFinal.toFixed(2)) });
+            filas.push({ 'Código': '', 'Producto': `TOTAL ${mostrarConIGV ? '(IGV incl.)' : '(sin IGV)'}`, 'Total Línea (S/)': Number(subtotal.toFixed(2)) });
 
             const wb = XLSX.utils.book_new();
             const wsData = XLSX.utils.json_to_sheet(filas);
-            wsData['!cols'] = [{ wch: 12 }, { wch: 35 }, { wch: 15 }, { wch: 10 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 16 }];
+            wsData['!cols'] = [{ wch: 12 }, { wch: 35 }, { wch: 15 }, { wch: 10 }, { wch: 18 }, { wch: 16 }, { wch: 16 }];
             XLSX.utils.book_append_sheet(wb, wsData, 'Cotización');
 
             const wsCliente = XLSX.utils.json_to_sheet([{
@@ -5610,8 +5546,7 @@ async function generarFichaPDF() {
                 id: Date.now(),
                 nombre: nombre.trim(),
                 fecha: new Date().toISOString(),
-                productos: JSON.parse(JSON.stringify(productosEnTabla)),
-                globalDescPct: parseFloat(document.getElementById('globalDiscount').value) || 0
+                productos: JSON.parse(JSON.stringify(productosEnTabla))
             };
             plantillas.unshift(plantilla);
             if (plantillas.length > 50) plantillas.pop();
@@ -5626,7 +5561,6 @@ async function generarFichaPDF() {
             if (!plantilla) return;
             if (productosEnTabla.length > 0 && !confirm(`¿Cargar plantilla "${plantilla.nombre}"? Se reemplazarán los productos actuales.`)) return;
             productosEnTabla = JSON.parse(JSON.stringify(plantilla.productos));
-            document.getElementById('globalDiscount').value = plantilla.globalDescPct || '';
             renderTable();
             guardarEstado();
             switchTabById('cotizar');
@@ -5641,70 +5575,6 @@ async function generarFichaPDF() {
         }
 
         // ============================================
-        // GENERACIÓN DE PDF
-        // ============================================
-
-        async function generarPDF() {
-            if (productosEnTabla.length === 0) {
-                mostrarNotificacion('Agrega productos primero', 'warning');
-                return;
-            }
-
-            showLoading(true);
-            
-            try {
-                await prepararCotizacion();
-                await new Promise(resolve => setTimeout(resolve, 800));
-                
-                const element = document.getElementById('cotizacionPrint');
-                
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    useCORS: true,
-                    allowTaint: false,
-                    width: 900,
-                    height: element.scrollHeight
-                });
-
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
-                const imgWidth = 210;
-                const pageHeight = 297;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-
-                await descargarOCompartirPDF(pdf, `Cotizacion_LineaHotelera_${Date.now()}.pdf`);
-
-                showLoading(false);
-                mostrarNotificacion('✅ PDF generado exitosamente', 'success');
-                guardarEnHistorial();
-            } catch (error) {
-                console.error('Error al generar PDF:', error);
-                showLoading(false);
-                mostrarNotificacion('❌ Error al generar PDF', 'error');
-            }
-        }
-
-        // ============================================
         // PREPARAR COTIZACIÓN PARA IMPRESIÓN
         // ============================================
 
@@ -5712,7 +5582,17 @@ async function generarFichaPDF() {
             const fecha = new Date();
             const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
             const fechaStr = fecha.toLocaleDateString('es-PE', opciones);
-            const numDoc = `N° ${String(Date.now()).slice(-6)}`;
+
+            // N° de documento: el correlativo REAL asignado al guardar
+            // (COT-000123 / OC-000045), nunca un número inventado. Si por
+            // algún motivo aún no hay uno asignado (p.ej. falló el guardado
+            // en la nube), se muestra como pendiente en vez de un número al
+            // azar que confundiría al cliente.
+            const registroActual = cotizacionActualId ? historialCache.find(e => e.objectId === cotizacionActualId) : null;
+            const numeroCorrelativo = registroActual
+                ? (registroActual.estado === 'orden_compra' ? registroActual.numeroOrdenCompra : registroActual.numeroCotizacion)
+                : null;
+            const numDoc = numeroCorrelativo ? `N° ${numeroCorrelativo}` : 'N° pendiente';
 
             // TIPO DE DOCUMENTO
             const tipodoc = document.getElementById('tipoDocumento').value;
@@ -5788,51 +5668,39 @@ async function generarFichaPDF() {
             // TABLA DE PRODUCTOS
             const printTableBody = document.getElementById('printTableBody');
             let totalSinIGV = 0;
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
 
             printTableBody.innerHTML = productosEnTabla.map(producto => {
                 const cantidad = producto.cantidad;
                 const precioBase = obtenerPrecio(producto, cantidad);
                 const precioUnitario = producto.precioOverride !== undefined ? producto.precioOverride : precioBase;
-                const descPct = producto.descuento || 0;
-                const precioConDesc = precioUnitario * (1 - descPct / 100);
-                const subtotal = cantidad * precioConDesc;
+                const subtotal = cantidad * precioUnitario;
                 totalSinIGV += subtotal;
                 let tipoPrecio = producto.precioOverride !== undefined ? 'Personalizado' : (forzarPorMayor ? 'Mayor' : (cantidad >= 6 ? 'Mayor' : 'Menor'));
 
-                const precioMostrar = mostrarConIGV ? calcularPrecioConIGV(precioConDesc) : precioConDesc;
+                const precioMostrar = mostrarConIGV ? calcularPrecioConIGV(precioUnitario) : precioUnitario;
                 const subtotalMostrar = mostrarConIGV ? calcularPrecioConIGV(subtotal) : subtotal;
                 const colorInfo = producto.color ? ` <span style="background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:8px;font-size:0.75em;font-weight:600;margin-left:3px;">🎨 ${producto.color}</span>` : '';
-                const descInfo = descPct > 0 ? ` <span style="background:#fed7aa;color:#9a3412;padding:1px 5px;border-radius:4px;font-size:0.75em;">-${descPct}%</span>` : '';
 
                 return `
                     <tr>
                         <td style="font-size:0.82em;color:#718096;font-family:monospace;">${producto.codigo}</td>
                         <td style="font-size:0.88em;">${producto.nombre}${colorInfo}</td>
                         <td style="text-align:center;font-size:0.88em;">${cantidad}</td>
-                        <td style="text-align:right;font-size:0.85em;">S/ ${precioMostrar.toFixed(2)}${descInfo}<br><span style="font-size:0.8em;color:#a0aec0;">${tipoPrecio}</span></td>
+                        <td style="text-align:right;font-size:0.85em;">S/ ${precioMostrar.toFixed(2)}<br><span style="font-size:0.8em;color:#a0aec0;">${tipoPrecio}</span></td>
                         <td style="text-align:right;font-weight:700;font-size:0.9em;">S/ ${subtotalMostrar.toFixed(2)}</td>
                     </tr>
                 `;
             }).join('');
 
             // TOTALES
-            const descGlobalMonto = totalSinIGV * globalDescPct / 100;
-            const totalFinalSinIGV = totalSinIGV - descGlobalMonto;
-            const totalMostrar = mostrarConIGV ? calcularPrecioConIGV(totalFinalSinIGV) : totalFinalSinIGV;
+            const totalMostrar = mostrarConIGV ? calcularPrecioConIGV(totalSinIGV) : totalSinIGV;
             document.getElementById('printTotal').textContent = `S/ ${totalMostrar.toFixed(2)}`;
 
             // Detalle de totales
             let detalleHTML = '';
-            if (globalDescPct > 0) {
-                const subtotalDisp = mostrarConIGV ? calcularPrecioConIGV(totalSinIGV) : totalSinIGV;
-                const descDisp = mostrarConIGV ? calcularPrecioConIGV(descGlobalMonto) : descGlobalMonto;
-                detalleHTML += `<div style="display:flex;justify-content:space-between;"><span>Subtotal:</span><span>S/ ${subtotalDisp.toFixed(2)}</span></div>`;
-                detalleHTML += `<div style="display:flex;justify-content:space-between;"><span>Desc. global (${globalDescPct}%):</span><span>-S/ ${descDisp.toFixed(2)}</span></div>`;
-            }
             if (mostrarConIGV) {
-                const soloIGV = calcularIGV(totalFinalSinIGV);
-                detalleHTML += `<div style="display:flex;justify-content:space-between;"><span>Base imponible:</span><span>S/ ${totalFinalSinIGV.toFixed(2)}</span></div>`;
+                const soloIGV = calcularIGV(totalSinIGV);
+                detalleHTML += `<div style="display:flex;justify-content:space-between;"><span>Base imponible:</span><span>S/ ${totalSinIGV.toFixed(2)}</span></div>`;
                 detalleHTML += `<div style="display:flex;justify-content:space-between;"><span>IGV (18%):</span><span>S/ ${soloIGV.toFixed(2)}</span></div>`;
             }
             document.getElementById('printTotalesDetalle').innerHTML = detalleHTML;
@@ -5967,33 +5835,6 @@ async function generarFichaPDF() {
         }
 
         // ============================================
-        // DESCUENTOS POR LÍNEA
-        // ============================================
-
-        function toggleDescuento(index) {
-            const div = document.getElementById(`descEdit_${index}`);
-            div.classList.toggle('visible');
-            if (div.classList.contains('visible')) {
-                document.getElementById(`descInput_${index}`).focus();
-                document.getElementById(`descInput_${index}`).select();
-            }
-        }
-
-        function guardarDescuento(index) {
-            const val = parseFloat(document.getElementById(`descInput_${index}`).value) || 0;
-            if (val < 0 || val > 100) { mostrarNotificacion('Descuento entre 0 y 100%', 'warning'); return; }
-            productosEnTabla[index].descuento = val;
-            guardarEstado();
-            renderTable();
-            if (val > 0) mostrarNotificacion(`🏷️ Descuento de ${val}% aplicado`, 'success');
-        }
-
-        function cerrarDescuento(index) {
-            const div = document.getElementById(`descEdit_${index}`);
-            if (div) div.classList.remove('visible');
-        }
-
-        // ============================================
         // WHATSAPP
         // ============================================
 
@@ -6002,7 +5843,6 @@ async function generarFichaPDF() {
 
             const cliente = getClienteData();
             const fecha = new Date().toLocaleDateString('es-PE', { year:'numeric', month:'long', day:'numeric' });
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
 
             let msg = `🏨 *LÍNEA HOTELERA*\n`;
             msg += `📋 *COTIZACIÓN — ${fecha}*\n`;
@@ -6013,25 +5853,15 @@ async function generarFichaPDF() {
             let subtotal = 0;
             productosEnTabla.forEach((p, i) => {
                 const precioBase = obtenerPrecio(p, p.cantidad);
-                const precio = p.precioOverride !== undefined ? p.precioOverride : precioBase;
-                const descPct = p.descuento || 0;
-                const precioFinal = precio * (1 - descPct / 100);
+                const precioFinal = p.precioOverride !== undefined ? p.precioOverride : precioBase;
                 const total = p.cantidad * precioFinal;
                 subtotal += total;
                 const colorStr = p.color ? ` (${p.color})` : '';
-                const descStr = descPct > 0 ? ` -${descPct}%` : '';
                 msg += `• ${p.nombre}${colorStr}\n`;
-                msg += `  ${p.cantidad} unid. × S/ ${precioFinal.toFixed(2)}${descStr} = *S/ ${total.toFixed(2)}*\n`;
+                msg += `  ${p.cantidad} unid. × S/ ${precioFinal.toFixed(2)} = *S/ ${total.toFixed(2)}*\n`;
             });
 
             msg += `\n`;
-
-            if (globalDescPct > 0) {
-                const descMonto = subtotal * globalDescPct / 100;
-                msg += `💰 Subtotal: S/ ${subtotal.toFixed(2)}\n`;
-                msg += `🏷️ Descuento global (${globalDescPct}%): -S/ ${descMonto.toFixed(2)}\n`;
-                subtotal -= descMonto;
-            }
 
             const totalFinal = mostrarConIGV ? calcularPrecioConIGV(subtotal) : subtotal;
             const igvLabel = mostrarConIGV ? ' (incl. IGV 18%)' : '';
@@ -6308,39 +6138,45 @@ async function generarFichaPDF() {
         const COTIZACION_CLASE = 'Cotizacion';
         let historialCache = []; // último listado traído del servidor
 
-        async function guardarEnHistorial() {
-            if (productosEnTabla.length === 0) { mostrarNotificacion('Agrega productos primero', 'warning'); return; }
+        // opts.silencioso: omite la notificación (se usa cuando el guardado
+        // es automático, p.ej. justo antes de generar la imagen, para
+        // asegurar el correlativo real sin interrumpir con un aviso extra).
+        // Devuelve el N° de correlativo (COT-/OC-) ya asignado a esta
+        // cotización, o null si el guardado falló.
+        async function guardarEnHistorial(opts = {}) {
+            const silencioso = !!opts.silencioso;
+            if (productosEnTabla.length === 0) { mostrarNotificacion('Agrega productos primero', 'warning'); return null; }
             const cliente = getClienteData();
-            const globalDescPct = parseFloat(document.getElementById('globalDiscount').value) || 0;
             let subtotal = 0;
             let gananciaEstimada = 0;
             let hayCosto = false;
             productosEnTabla.forEach(p => {
                 const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
-                const desc = p.descuento || 0;
-                const precioConDesc = precio * (1 - desc / 100);
-                subtotal += p.cantidad * precioConDesc;
+                subtotal += p.cantidad * precio;
                 if (p.costo !== undefined && p.costo !== null && !isNaN(p.costo)) {
                     hayCosto = true;
-                    gananciaEstimada += p.cantidad * (precioConDesc - p.costo);
+                    gananciaEstimada += p.cantidad * (precio - p.costo);
                 }
             });
-            const descMonto = subtotal * globalDescPct / 100;
-            const totalFinal = mostrarConIGV ? calcularPrecioConIGV(subtotal - descMonto) : (subtotal - descMonto);
+            const totalFinal = mostrarConIGV ? calcularPrecioConIGV(subtotal) : subtotal;
 
             const entrada = {
                 fecha: new Date().toISOString(),
                 cliente: cliente.nombre || 'Sin nombre',
                 empresa: cliente.empresa || '',
+                ruc: cliente.ruc || '',
                 telefono: cliente.telefono || '',
+                email: cliente.email || '',
+                direccion: cliente.direccion || '',
+                notas: cliente.notas || '',
                 productos: JSON.parse(JSON.stringify(productosEnTabla)),
                 sucursal: sucursalSeleccionada ? { ...sucursalSeleccionada } : null,
-                globalDescPct,
                 total: totalFinal,
                 mostrarConIGV,
                 forzarPorMayor
             };
 
+            let numeroAsignado = null;
             try {
                 if (cotizacionActualId) {
                     // Ya existe un registro para esta cotización en curso
@@ -6356,7 +6192,9 @@ async function generarFichaPDF() {
                         ganancia: hayCosto ? gananciaEstimada : null,
                         datos: JSON.stringify(entrada)
                     });
-                    mostrarNotificacion('✅ Cotización actualizada (mismo correlativo)', 'success');
+                    const registro = historialCache.find(e => e.objectId === cotizacionActualId);
+                    numeroAsignado = registro ? (registro.estado === 'orden_compra' ? registro.numeroOrdenCompra : registro.numeroCotizacion) : null;
+                    if (!silencioso) mostrarNotificacion('✅ Cotización actualizada (mismo correlativo)', 'success');
                 } else {
                     const numero = await siguienteCorrelativo('cotizacion');
                     const creado = await parseFetch(COTIZACION_CLASE, 'POST', null, {
@@ -6373,12 +6211,15 @@ async function generarFichaPDF() {
                         ACL: aclSoloUsuario()
                     });
                     cotizacionActualId = creado.objectId;
-                    mostrarNotificacion(`✅ Cotización ${numero} guardada en historial`, 'success');
+                    numeroAsignado = numero;
+                    if (!silencioso) mostrarNotificacion(`✅ Cotización ${numero} guardada en historial`, 'success');
                 }
-                renderHistorial();
+                await renderHistorial();
+                return numeroAsignado;
             } catch (err) {
                 mostrarNotificacion('❌ Error al guardar en la nube: ' + err.message, 'warning');
                 console.error(err);
+                return null;
             }
         }
 
@@ -6798,8 +6639,7 @@ async function generarFichaPDF() {
 
             const filasProductos = entry.productos.map(p => {
                 const precio = p.precioOverride !== undefined ? p.precioOverride : obtenerPrecio(p, p.cantidad);
-                const desc = p.descuento || 0;
-                const totalLinea = p.cantidad * precio * (1 - desc / 100);
+                const totalLinea = p.cantidad * precio;
                 return `
                     <tr>
                         <td>${p.nombre}${p.color ? ' (' + p.color + ')' : ''}</td>
@@ -6808,6 +6648,15 @@ async function generarFichaPDF() {
                         <td style="text-align:right; font-weight:600;">S/ ${totalLinea.toFixed(2)}</td>
                     </tr>`;
             }).join('');
+
+            // Todos los datos del cliente que se guardaron con esta
+            // cotización (no solo nombre/empresa/teléfono).
+            const detallesCliente = [
+                entry.ruc ? `📄 RUC: ${entry.ruc}` : null,
+                entry.telefono ? `📞 ${entry.telefono}` : null,
+                entry.email ? `✉️ ${entry.email}` : null,
+                entry.direccion ? `📍 ${entry.direccion}` : null
+            ].filter(Boolean);
 
             document.getElementById('verCotContenido').innerHTML = `
                 ${numero ? `<div style="text-align:center; padding:10px; margin-bottom:14px; border-radius:10px; background:${esOrden ? '#e8f9ee' : '#eef2ff'};">
@@ -6819,9 +6668,12 @@ async function generarFichaPDF() {
                     ${entry.sucursal ? `<span style="padding:3px 10px; border-radius:12px; font-size:0.78em; background:#ebf8ff; color:#3182ce;">📍 ${entry.sucursal.nombre}</span>` : ''}
                     ${envio ? badgeEnvioHtml(envio) : ''}
                 </div>
-                <p style="font-size:0.9em; color:#718096; margin-bottom:14px; word-break:break-word;">
-                    ${entry.empresa ? entry.empresa + ' · ' : ''}${entry.telefono || 'Sin teléfono'} · ${new Date(registro.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })}
-                </p>
+                <div style="margin-bottom:14px; word-break:break-word;">
+                    ${entry.empresa ? `<div style="font-size:0.9em; color:#2d3748; font-weight:600;">${entry.empresa}</div>` : ''}
+                    ${detallesCliente.length ? `<div style="font-size:0.85em; color:#718096; margin-top:5px; line-height:1.7;">${detallesCliente.join('<br>')}</div>` : ''}
+                    <div style="font-size:0.8em; color:#a0aec0; margin-top:5px;">${new Date(registro.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })}</div>
+                    ${entry.notas ? `<div style="font-size:0.8em; color:#92400e; background:#fef3c7; padding:6px 9px; border-radius:6px; margin-top:6px;">📝 ${entry.notas}</div>` : ''}
+                </div>
                 <div class="products-table-container" style="margin-top:0;">
                     <table class="products-table" style="width:100%;">
                         <thead><tr><th>Producto</th><th style="text-align:center;">Cant.</th><th style="text-align:right;">Precio</th><th style="text-align:right;">Total</th></tr></thead>
@@ -6847,10 +6699,13 @@ async function generarFichaPDF() {
             productosEnTabla = JSON.parse(JSON.stringify(entry.productos));
             sucursalSeleccionada = entry.sucursal || null;
             cotizacionActualId = objectId; // seguir editando ESTE registro, mismo correlativo
-            document.getElementById('globalDiscount').value = entry.globalDescPct || '';
             document.getElementById('clienteNombre').value = entry.cliente === 'Sin nombre' ? '' : entry.cliente;
             document.getElementById('clienteEmpresa').value = entry.empresa || '';
+            document.getElementById('clienteRUC').value = entry.ruc || '';
             document.getElementById('clienteTelefono').value = entry.telefono || '';
+            document.getElementById('clienteEmail').value = entry.email || '';
+            document.getElementById('clienteDireccion').value = entry.direccion || '';
+            document.getElementById('clienteNotas').value = entry.notas || '';
             actualizarResumenCliente();
             renderTable();
             guardarEstado();
