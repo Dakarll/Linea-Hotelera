@@ -32,7 +32,33 @@
             --danger: #f56565;
             --border: #e2e8f0;
             --bg-light: #f7fafc;
+            /* Texto secundario/atenuado reutilizado en decenas de estilos
+               inline (JS). Igual que --primary, se re-apunta dentro de
+               body.dark-mode más abajo — así basta con usar
+               color:var(--text-muted) / var(--text-faint) en vez de un
+               hex suelto para que el texto responda al tema. */
+            --text-muted: #718096;
+            --text-faint: #a0aec0;
+            /* Fondo de "chip"/badge neutro (estado inactivo, botones
+               secundarios tipo "Desmarcar"/"Ver en Shalom"): se usa
+               siempre junto con --text-muted. */
+            --chip-neutral-bg: #f0f0f0;
+            /* Fondo del recuadro grande de N° de cotización/orden en el
+               modal "Ver detalle" (historial/envíos) — es un bloque más
+               prominente que un chip, no un badge chico. */
+            --tint-ok-bg: #e8f9ee;
+            --tint-info-bg: #eef2ff;
+            /* Fondo "sin color de botón" del botón Aceptar del modal de
+               confirmación (decisión explícita: debe verse neutro, no
+               verde/rojo). En oscuro pasa a superficie elevada en vez
+               de quedar como un rectángulo claro flotando. */
+            --btn-neutral-bg: #edf2f7;
         }
+
+        /* Clases utilitarias de texto atenuado — para marcado nuevo o
+           donde no aplique reemplazar directamente el color inline. */
+        .text-muted { color: var(--text-muted); }
+        .text-faint { color: var(--text-faint); }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, Tahoma, Geneva, Verdana, sans-serif;
@@ -109,7 +135,7 @@
             background: none;
             border: none;
             border-bottom: 3px solid transparent;
-            color: #718096;
+            color:var(--text-muted);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -183,7 +209,7 @@
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #a0aec0;
+            color:var(--text-faint);
             font-size: 1.2em;
         }
 
@@ -223,7 +249,7 @@
 
         .product-prices {
             font-size: 0.8em;
-            color: #718096;
+            color:var(--text-muted);
         }
 
         .price-tag {
@@ -349,7 +375,7 @@
         }
 
         .codigo-cell {
-            color: #718096;
+            color:var(--text-muted);
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
         }
@@ -375,7 +401,7 @@
 
         .precio-aplicado {
             font-size: 0.8em;
-            color: #718096;
+            color:var(--text-muted);
             display: block;
             margin-top: 3px;
         }
@@ -425,7 +451,7 @@
         .empty-state {
             text-align: center;
             padding: 40px 20px;
-            color: #718096;
+            color:var(--text-muted);
         }
 
         /* TOTAL SECTION */
@@ -544,7 +570,7 @@
         }
 
         .sucursal-direccion {
-            color: #718096;
+            color:var(--text-muted);
             font-size: 0.85em;
             margin-bottom: 5px;
             line-height: 1.4;
@@ -566,7 +592,7 @@
             padding-top: 15px;
             border-top: 1px solid var(--border);
             font-size: 0.85em;
-            color: #718096;
+            color:var(--text-muted);
         }
 
         .deselect-hint {
@@ -635,7 +661,7 @@
             border: none;
             font-size: 1.5em;
             cursor: pointer;
-            color: #718096;
+            color:var(--text-muted);
             padding: 0;
             width: 30px;
             height: 30px;
@@ -718,10 +744,10 @@
         }
         .tier-add-btn:hover { background: rgba(255,255,255,0.25); }
         .modal-content .tier-add-btn {
-            background: #f7fafc; border: 1.5px dashed #cbd5e0; color: #2d3748;
+            background: #f7fafc; border: 1.5px dashed #cbd5e0; color:var(--primary);
         }
         .modal-content .tier-add-btn:hover { background: #edf2f7; }
-        body.dark-mode .modal-content .tier-add-btn { background: #1c1c1e; border-color: #3a3a3a; color: #e8e8e8; }
+        body.dark-mode .modal-content .tier-add-btn { background: var(--dm-surface-2); border-color: var(--dm-border); color: var(--dm-text-primary); }
 
         .modal-buttons {
             display: flex;
@@ -761,6 +787,18 @@
             width: 900px;
         }
 
+        /* Los navegadores móviles (Chrome/Safari Android/iOS) agrandan el
+           texto automáticamente ("font boosting") dentro de bloques anchos
+           como este, aunque esté fuera de pantalla con ancho fijo — por
+           eso la imagen generada desde el celular salía con letras más
+           grandes que desde PC. Se desactiva ese autoajuste para que el
+           tamaño sea siempre el mismo, sin importar el dispositivo. */
+        .cotizacion-print, .cotizacion-print * {
+            -webkit-text-size-adjust: 100%;
+            -moz-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
         .print-header {
             display: flex;
             justify-content: space-between;
@@ -792,7 +830,7 @@
         }
 
         .print-date {
-            color: #718096;
+            color:var(--text-muted);
             font-size: 0.95em;
         }
 
@@ -891,7 +929,7 @@
             text-align: center;
             padding-top: 20px;
             border-top: 2px solid var(--border);
-            color: #718096;
+            color:var(--text-muted);
             font-size: 0.9em;
         }
 
@@ -1051,7 +1089,7 @@
             display: block;
             font-size: 0.8em;
             font-weight: 600;
-            color: #718096;
+            color:var(--text-muted);
             margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.03em;
@@ -1073,6 +1111,7 @@
         .cliente-field textarea:focus {
             outline: none;
             border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .cliente-summary {
@@ -1126,6 +1165,7 @@
         .extra-field input:focus {
             outline: none;
             border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         /* Color swatch chips */
@@ -1152,6 +1192,8 @@
             border-color: var(--secondary);
             background: #eef2ff;
         }
+        body.dark-mode .color-chip { background: var(--dm-surface-2); }
+        body.dark-mode .color-chip:hover { background: var(--dm-surface-3); }
 
         /* Color tag in table */
         .color-tag {
@@ -1183,7 +1225,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: #a0aec0;
+            color:var(--text-faint);
             font-size: 0.9em;
             padding: 2px 5px;
             border-radius: 4px;
@@ -1291,12 +1333,12 @@
 
         .igv-info {
             font-size: 0.8em;
-            color: #718096;
+            color:var(--text-muted);
         }
 
         .precio-sin-igv {
             text-decoration: line-through;
-            color: #a0aec0;
+            color:var(--text-faint);
             font-size: 0.85em;
             margin-right: 4px;
         }
@@ -1343,7 +1385,7 @@
         .print-client-item label {
             display: block;
             font-size: 0.75em;
-            color: #718096;
+            color:var(--text-muted);
             font-weight: 600;
         }
 
@@ -1353,11 +1395,6 @@
             color: var(--primary);
         }
 
-        @media (max-width: 600px) {
-            .cliente-grid { grid-template-columns: 1fr; }
-            .cliente-grid .full-row { grid-column: 1; }
-            .print-client-grid { grid-template-columns: 1fr; }
-        }
 
         .doc-tipo-row {
             display: flex;
@@ -1387,7 +1424,7 @@
         .historial-empty {
             text-align: center;
             padding: 50px 20px;
-            color: #a0aec0;
+            color:var(--text-faint);
             font-size: 1em;
         }
 
@@ -1403,7 +1440,7 @@
             border-radius: 6px;
         }
         body.dark-mode .skeleton-block {
-            background: linear-gradient(90deg, #1a1a1a 25%, #242424 37%, #1a1a1a 63%);
+            background: linear-gradient(90deg, var(--dm-surface-1) 25%, var(--dm-surface-2) 37%, var(--dm-surface-1) 63%);
             background-size: 400px 100%;
         }
         .skeleton-card {
@@ -1415,7 +1452,7 @@
             flex-direction: column;
             gap: 10px;
         }
-        body.dark-mode .skeleton-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+        body.dark-mode .skeleton-card { background: var(--dm-surface-1); box-shadow: 0 0 0 1px var(--dm-border); }
 
         /* ============================================
            DASHBOARD
@@ -1447,7 +1484,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
             animation: fadeIn 0.4s ease;
         }
-        body.dark-mode .dash-kpi-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+        body.dark-mode .dash-kpi-card { background: var(--dm-surface-1); box-shadow: 0 0 0 1px var(--dm-border); }
         .dash-kpi-label { font-size: 0.8em; color: #8e8e93; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
         .dash-kpi-valor { font-size: 1.8em; font-weight: 800; color: var(--primary); margin-top: 6px; letter-spacing: -0.02em; }
 
@@ -1464,7 +1501,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.06);
             animation: fadeIn 0.5s ease;
         }
-        body.dark-mode .dash-chart-card { background: #121212; box-shadow: 0 0 0 1px #262626; }
+        body.dark-mode .dash-chart-card { background: var(--dm-surface-1); box-shadow: 0 0 0 1px var(--dm-border); }
         .dash-chart-title { font-weight: 700; margin-bottom: 12px; color: var(--primary); font-size: 1.02em; }
         .historial-list { display: flex; flex-direction: column; gap: 10px; }
 
@@ -1489,7 +1526,7 @@
         }
         .historial-card-meta {
             font-size: 0.8em;
-            color: #718096;
+            color:var(--text-muted);
             display: flex;
             gap: 14px;
             flex-wrap: wrap;
@@ -1569,7 +1606,7 @@
         }
         .cliente-db-item:hover { background: #eef2ff; }
         .cliente-db-item-name { font-weight: 700; color: var(--primary); }
-        .cliente-db-item-sub { font-size: 0.8em; color: #718096; margin-top: 1px; }
+        .cliente-db-item-sub { font-size: 0.8em; color:var(--text-muted); margin-top: 1px; }
         .cliente-save-btn {
             padding: 6px 14px;
             background: var(--secondary);
@@ -1600,10 +1637,37 @@
             color: #22543d;
         }
 
-        /* RESPONSIVE MÓVIL */
+        /* ============================================
+           RESPONSIVE MÓVIL — sistema mobile-first consolidado
+           Antes había 6 bloques @media dispersos por todo el archivo
+           (768px, 600px x3, 480px, 420px), varios de ellos repitiendo
+           el mismo breakpoint y unos pocos con selectores compartidos
+           entre breakpoints distintos (.header h1, .total-amount,
+           .cantidad-input, .modal-content, .products-table th/td,
+           .dash-kpi-grid). Se unificaron en un solo lugar, en ORDEN
+           DESCENDENTE de ancho (768 → 600 → 480 → 420) — el mismo orden
+           relativo que ya tenían en el archivo original — para que la
+           cascada resuelva exactamente igual que antes en los
+           selectores compartidos (la regla del breakpoint más angosto
+           sigue ganando en pantallas muy chicas, por venir después en
+           el código). No se cambió ningún valor ni selector, solo se
+           reordenó y se juntó todo en un solo lugar.
+
+           (El @media (max-width: 768px) del bloque <style> de Fichas
+           Técnicas —más abajo, junto a .form-row/.ficha-grid— se dejó
+           donde está: es un bloque de estilos autocontenido para ese
+           formulario, sin selectores en común con nada de aquí, así
+           que no había nada real que "se pisara".)
+        ============================================ */
+
+        /* ---------- ≤768px ---------- */
         @media (max-width: 768px) {
             body {
                 padding: 5px;
+            }
+
+            .header {
+                padding: 15px;
             }
 
             .header h1 {
@@ -1612,10 +1676,6 @@
 
             .header .subtitle {
                 font-size: 0.75em;
-            }
-
-            .header {
-                padding: 15px;
             }
 
             .content {
@@ -1788,14 +1848,92 @@
             .modal.active {
                 padding: 8px;
             }
-        }
 
-        @media (max-width: 420px) {
-            .dash-kpi-grid {
-                grid-template-columns: 1fr;
+            /* ---- Touch targets mínimos (WCAG 2.5.5/2.5.8, ~44px) ----
+               Solo dentro de este media query — el tamaño de escritorio
+               no cambia. Los controles muy chicos que viven DENTRO de
+               una celda de tabla ya angosta (editar precio en línea,
+               quitar un nivel de precio en el modal) se dejaron fuera a
+               propósito: llevarlos a 44px ahí desbordaría la fila/celda
+               en vez de mejorar el toque — es la excepción explícita
+               que pide la consigna cuando 44px "rompe el layout". */
+            .btn,
+            .tab {
+                min-height: 44px;
+            }
+
+            .modal-close {
+                width: 44px;
+                height: 44px;
+            }
+
+            .btn-edit,
+            .btn-remove {
+                min-height: 44px;
+                min-width: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .shalom-card-del-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .filter-btn,
+            .dash-range-btn {
+                min-height: 44px;
+            }
+
+            .color-chip {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .form-input,
+            .search-input,
+            .cantidad-input,
+            .cliente-field input,
+            .cliente-field textarea,
+            .extra-field input {
+                min-height: 44px;
             }
         }
 
+        /* ---------- ≤600px ---------- */
+        @media (max-width: 600px) {
+            .cliente-grid { grid-template-columns: 1fr; }
+            .cliente-grid .full-row { grid-column: 1; }
+            .print-client-grid { grid-template-columns: 1fr; }
+
+            .add-product-section .add-product-title,
+            .shalom-card-nombre {
+                font-size: 1em;
+            }
+
+            /* evita zoom automático en iOS al enfocar un input */
+            .search-input, .form-input {
+                font-size: 16px;
+            }
+            .cantidad-input {
+                width: 50px;
+                font-size: 16px;
+            }
+            .action-buttons .btn {
+                min-width: 100%;
+            }
+            .modal-content {
+                padding: 20px 15px;
+            }
+            .products-table th, .products-table td {
+                padding: 8px 6px;
+                font-size: 0.8em;
+            }
+        }
+
+        /* ---------- ≤480px ---------- */
         @media (max-width: 480px) {
             .header h1 {
                 font-size: 1em;
@@ -1834,12 +1972,13 @@
             }
         }
 
-        @media (max-width: 600px) {
-            .add-product-section .add-product-title,
-            .shalom-card-nombre {
-                font-size: 1em;
+        /* ---------- ≤420px ---------- */
+        @media (max-width: 420px) {
+            .dash-kpi-grid {
+                grid-template-columns: 1fr;
             }
         }
+
 
         /* ============================================
            MODO OSCURO — negro real, apto para pantallas OLED
@@ -1851,11 +1990,40 @@
            siempre legible.
         ============================================ */
         body.dark-mode {
-            --primary: #d4d4d8;
-            --border: #2a2a2a;
-            --bg-light: #121212;
-            background: #000000;
-            color: #e8e8e8;
+            /* ============================================
+               TOKENS DE MODO OSCURO — estilo Windows 11 / Fluent
+               Design: grises graduados, NO negro puro. Todo el
+               resto del CSS de dark-mode (y los estilos inline
+               generados por JS) deben usar estas variables, no
+               valores hex sueltos, para que un solo lugar controle
+               la paleta completa.
+            ============================================ */
+            --dm-bg-base: #202020;      /* fondo general de la app */
+            --dm-surface-1: #2c2c2c;    /* tarjetas, paneles */
+            --dm-surface-2: #333333;    /* headers de panel, hover, elementos elevados */
+            --dm-surface-3: #3d3d3d;    /* modales/popovers elevados, estados disabled */
+            --dm-border: #3f3f3f;
+            --dm-border-soft: #4a4a4a;
+            --dm-text-primary: #ffffff;
+            --dm-text-secondary: #c5c5c5;
+            --dm-text-disabled: #7a7a7a;
+
+            /* Re-apunta las variables globales del tema claro (usadas
+               en todo el resto del CSS) a los tokens de arriba, para
+               que los componentes que ya usan var(--primary) /
+               var(--border) / var(--bg-light) hereden el modo oscuro
+               automáticamente sin necesitar su propio override. */
+            --primary: var(--dm-text-primary);
+            --border: var(--dm-border);
+            --bg-light: var(--dm-surface-1);
+            --text-muted: var(--dm-text-secondary);
+            --text-faint: var(--dm-text-disabled);
+            --chip-neutral-bg: var(--dm-surface-2);
+            --tint-ok-bg: var(--dm-surface-2);
+            --tint-info-bg: var(--dm-surface-2);
+            --btn-neutral-bg: var(--dm-surface-3);
+            background: var(--dm-bg-base);
+            color: var(--dm-text-primary);
         }
 
         body.dark-mode .content,
@@ -1874,34 +2042,36 @@
         body.dark-mode .cliente-panel,
         body.dark-mode .cliente-db-dropdown,
         body.dark-mode .cliente-db-item {
-            background: #121212;
-            color: #e8e8e8;
-            border-color: #2a2a2a;
+            background: var(--dm-surface-1);
+            color: var(--dm-text-primary);
+            border-color: var(--dm-border);
         }
 
         body.dark-mode .form-label {
-            color: #d4d4d8;
+            color: var(--dm-text-primary);
         }
 
         body.dark-mode .add-product-section {
-            background: #161616;
-            border-color: #2a2a2a;
+            background: var(--dm-surface-1);
+            border-color: var(--dm-border);
         }
 
         body.dark-mode .products-table td,
         body.dark-mode .products-table th {
-            border-color: #2a2a2a;
+            border-color: var(--dm-border);
         }
 
         body.dark-mode .products-table tbody tr:hover {
-            background: #1a1a1a;
+            background: var(--dm-surface-2);
         }
 
         body.dark-mode .autocomplete-item:hover,
         body.dark-mode .cliente-db-item:hover {
-            background: #1e1e1e;
+            background: var(--dm-surface-2);
         }
 
+        /* Verde de "sucursal seleccionada": color de estado (éxito),
+           no un tono neutro — se deja igual que antes a propósito. */
         body.dark-mode .sucursal-card.selected {
             background: #0f2418;
         }
@@ -1915,55 +2085,73 @@
         body.dark-mode .empty-state,
         body.dark-mode .historial-empty,
         body.dark-mode .cliente-db-item-sub {
-            color: #9a9a9a;
+            color: var(--dm-text-secondary);
         }
 
         body.dark-mode .tab {
-            color: #9a9a9a;
+            color: var(--dm-text-secondary);
         }
 
+        /* Color de tab activo/hover: variante del accent (--secondary),
+           no un tono neutro — se deja igual que antes a propósito. */
         body.dark-mode .tab.active,
         body.dark-mode .tab:hover {
             color: #a5b4fc;
         }
 
         body.dark-mode .tabs {
-            border-bottom-color: #2a2a2a;
+            border-bottom-color: var(--dm-border);
         }
 
-        /* La pantalla de acceso (login/registro) y el panel de cuenta
-           siempre usan su propia paleta clara y legible, sin importar
-           si el modo oscuro está activo — evita texto invisible
-           (blanco sobre blanco) heredado del tema. */
-        #pantallaAcceso, #pantallaAcceso * ,
-        #panelCuentaModal .modal-content, #panelCuentaModal .modal-content * {
+        /* La pantalla de acceso (login/registro) siempre usa su propia
+           paleta clara y legible, sin importar si el modo oscuro está
+           activo — evita texto invisible (blanco sobre blanco) heredado
+           del tema. #panelCuentaModal se sacó de aquí a propósito: es un
+           modal normal y debe verse en modo oscuro como cualquier otro
+           (antes forzaba texto oscuro sobre el fondo oscuro del modal,
+           dejándolo ilegible — ver comentario de huérfanos al final del
+           bloque de modo oscuro). */
+        #pantallaAcceso {
+            --primary: #2d3748;
+            --text-muted: #718096;
+            --text-faint: #a0aec0;
+            --border: #e2e8f0;
+            --bg-light: #f7fafc;
+        }
+        #pantallaAcceso, #pantallaAcceso * {
             color: #2d3748;
         }
         #pantallaAcceso h2 { color: #1a202c; }
-        #pantallaAcceso .form-input, #panelCuentaModal .form-input {
+        #pantallaAcceso .form-input {
             background: white;
             color: #2d3748;
             border-color: #cbd5e0;
         }
 
-        /* Las zonas de impresión/vista previa (cotización y ficha técnica)
-           deben verse siempre igual sin importar el modo oscuro — si no,
-           la variable --primary (un "plomo" oscuro) se vuelve gris claro
-           en modo oscuro y el texto blanco sobre esas zonas se vuelve
-           casi invisible. Se re-fija aquí a su valor de modo claro. */
+        /* Las zonas de impresión/vista previa (cotización, ficha técnica
+           y sucursales por provincia) deben verse siempre igual sin
+           importar el modo oscuro — si no, la variable --primary (un
+           "plomo" oscuro) se vuelve gris claro/blanco en modo oscuro y
+           el texto se vuelve casi invisible sobre estos fondos, que son
+           siempre blancos (se exportan como imagen/PDF). Se re-fija
+           aquí a su valor de modo claro. */
         #fichaPreview, #fichaPreview *,
         .cotizacion-print, .cotizacion-print *,
-        .ficha-print, .ficha-print * {
+        .ficha-print, .ficha-print *,
+        #sucursalesProvinciaPrint, #sucursalesProvinciaPrint * {
             --primary: #2d3748;
             --border: #e2e8f0;
             --bg-light: #f7fafc;
+            --text-muted: #718096;
+            --text-faint: #a0aec0;
+            --chip-neutral-bg: #f0f0f0;
         }
 
         body.dark-mode .loading-content,
         body.dark-mode .extra-field input {
-            background: #121212;
-            color: #e8e8e8;
-            border-color: #2a2a2a;
+            background: var(--dm-surface-1);
+            color: var(--dm-text-primary);
+            border-color: var(--dm-border);
         }
 
         /* Toggle de tema */
@@ -2058,9 +2246,9 @@
         .ios-banner-icon { font-size: 1.4em; line-height: 1; flex-shrink: 0; }
         .ios-banner-body { flex: 1; min-width: 0; }
         .ios-banner-title { font-weight: 600; font-size: 0.95em; color: #1c1c1e; }
-        body.dark-mode .ios-banner-title { color: #e8e8e8; }
+        body.dark-mode .ios-banner-title { color: var(--dm-text-primary); }
         .ios-banner-text { font-size: 0.85em; color: #636366; margin-top: 2px; }
-        body.dark-mode .ios-banner-text { color: #9a9a9a; }
+        body.dark-mode .ios-banner-text { color: var(--dm-text-secondary); }
         .ios-banner-dismiss {
             background: rgba(0,0,0,0.06);
             border: none;
@@ -2074,7 +2262,7 @@
             white-space: nowrap;
         }
         .ios-banner-dismiss:hover { background: rgba(0,0,0,0.12); }
-        body.dark-mode .ios-banner-dismiss { background: rgba(255,255,255,0.1); color: #e8e8e8; }
+        body.dark-mode .ios-banner-dismiss { background: rgba(255,255,255,0.1); color: var(--dm-text-primary); }
         body.dark-mode .ios-banner-dismiss:hover { background: rgba(255,255,255,0.18); }
 
         .ios-search-wrap {
@@ -2104,10 +2292,11 @@
         .ios-search:focus {
             outline: none;
             background: #e9e9ee;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        body.dark-mode .ios-search { background: #1c1c1e; color: #e8e8e8; }
-        body.dark-mode .ios-search:focus { background: #262626; }
-        body.dark-mode .ios-search-wrap svg { color: #6d6d70; }
+        body.dark-mode .ios-search { background: var(--dm-surface-2); color: var(--dm-text-primary); }
+        body.dark-mode .ios-search:focus { background: var(--dm-surface-3); }
+        body.dark-mode .ios-search-wrap svg { color: var(--dm-text-disabled); }
 
         .shalom-cards-grid {
             display: grid;
@@ -2131,8 +2320,8 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 8px 20px rgba(0,0,0,0.09);
         }
         body.dark-mode .shalom-card {
-            background: #121212;
-            box-shadow: 0 0 0 1px #262626, 0 4px 14px rgba(0,0,0,0.4);
+            background: var(--dm-surface-1);
+            box-shadow: 0 0 0 1px var(--dm-border), 0 4px 14px rgba(0,0,0,0.4);
         }
         .shalom-card-top {
             display: flex;
@@ -2149,7 +2338,7 @@
             line-height: 1.25;
             overflow-wrap: break-word;
         }
-        body.dark-mode .shalom-card-nombre { color: #f2f2f2; }
+        body.dark-mode .shalom-card-nombre { color: var(--dm-text-primary); }
         .shalom-card-subinfo { font-size: 0.8em; color: #8e8e93; margin-top: 2px; }
         .shalom-card-destino { font-size: 0.85em; color: #8e8e93; }
         .shalom-card-estado-badge {
@@ -2174,7 +2363,7 @@
             color: #c7c7cc;
             margin-top: 6px;
         }
-        body.dark-mode .shalom-card-fecha { color: #6d6d70; }
+        body.dark-mode .shalom-card-fecha { color: var(--dm-text-disabled); }
         .shalom-card-del-btn {
             background: #f2f2f7;
             border: none;
@@ -2191,29 +2380,164 @@
             transition: background 0.15s;
         }
         .shalom-card-del-btn:hover { background: #ffe5e5; color: #ff3b30; }
-        body.dark-mode .shalom-card-del-btn { background: #1c1c1e; color: #9a9a9a; }
+        body.dark-mode .shalom-card-del-btn { background: var(--dm-surface-2); color: var(--dm-text-secondary); }
+        /* Hover rojo de "eliminar": color de estado, se deja igual. */
         body.dark-mode .shalom-card-del-btn:hover { background: #3a1414; color: #ff453a; }
 
-        /* Mejora responsive móvil adicional */
-        @media (max-width: 600px) {
-            .search-input, .form-input {
-                font-size: 16px; /* evita zoom automático en iOS */
-            }
-            .cantidad-input {
-                width: 50px;
-                font-size: 16px;
-            }
-            .action-buttons .btn {
-                min-width: 100%;
-            }
-            .modal-content {
-                padding: 20px 15px;
-            }
-            .products-table th, .products-table td {
-                padding: 8px 6px;
-                font-size: 0.8em;
-            }
+        /* ============================================
+           MODO OSCURO — COMPONENTES HUÉRFANOS
+           Estos elementos tenían background/color fijos SIN contraparte
+           en body.dark-mode, lo que producía bloques claros "flotando"
+           sobre fondo oscuro o texto ilegible. Encontrados al auditar
+           el CSS completo (no solo las líneas que ya tenían
+           body.dark-mode) comparando cada selector con fondo/color fijo
+           contra la lista de selectores ya cubiertos:
+
+           - .header / .total-section: su gradiente usaba
+             var(--primary), que en modo oscuro pasó a ser blanco (texto
+             blanco sobre gradiente que ahora EMPIEZA en blanco = título
+             invisible). Es el bug más visible: aparece en TODAS las
+             pestañas (.header) y en la barra de acciones de Cotizar
+             (.total-section).
+           - .info-banner / .sucursal-tipo: fondo fijo color --accent
+             (amarillo, no cambia con el tema) + texto var(--primary)
+             (ahora blanco) = texto blanco sobre amarillo, contraste muy
+             pobre. Se fija el texto a oscuro siempre.
+           - .dash-range-btn.active: mismo problema — fondo blanco fijo
+             (el estado "seleccionado") + texto var(--primary) blanco =
+             texto invisible sobre el chip activo del Dashboard.
+           - .cliente-panel-header (+ hover) y .cliente-summary: el
+             header de "Datos del Cliente" tenía fondo claro fijo
+             (#f8faff) flotando sobre el panel oscuro; su texto de
+             resumen (#555) también quedaba casi invisible.
+           - .cliente-field label / input / textarea: las etiquetas y
+             los campos de texto del panel Cliente no tenían ningún
+             override — los inputs quedaban con el fondo blanco por
+             defecto del navegador y texto claro heredado (blanco sobre
+             blanco).
+           - #panelCuentaModal: tenía una regla fuera de body.dark-mode
+             que forzaba SIEMPRE texto oscuro (#2d3748) en su
+             modal-content, chocando con el fondo oscuro que sí le
+             aplica el modo oscuro (texto oscuro sobre fondo oscuro).
+             Se quitó esa regla — ver más arriba, sección "pantalla de
+             acceso" — para que el modal use el mismo tratamiento que
+             cualquier otro .modal-content.
+           - #sucursalesProvinciaPrint: el área de generar imagen de
+             "Sucursales por provincia" no estaba en la lista de zonas
+             de impresión siempre-claras (junto a .cotizacion-print /
+             .ficha-print / #fichaPreview), así que su texto con
+             var(--primary) se volvía blanco sobre su propio fondo
+             blanco fijo. Se agregó a esa lista (ver arriba).
+           - .btn-primary:disabled / .btn-whatsapp:disabled: fondo gris
+             claro fijo (#cbd5e0) + texto blanco heredado del botón =
+             botón deshabilitado ilegible y "flotando" en claro.
+           - .tier-del-btn: fondo rosa muy claro (#fff5f5) usado dentro
+             de los modales de edición de producto/sucursal — flotaba
+             como un bloque blanco sobre el modal oscuro.
+           - .modal-close, .historial-card-meta, .dash-kpi-label,
+             .ios-section-subtitle, .shalom-card-subinfo/destino/detalle:
+             no eran ilegibles (contraste límite ~4.5:1), pero usaban
+             grises sueltos (#718096/#8e8e93) en vez del token de texto
+             secundario — se armonizan aquí por consistencia.
+
+           PUNTO 4 (estilos inline del JS) — en vez de convertir cada
+           uno de los ~90 casos de style="color:#718096..." a una clase,
+           se crearon variables globales --text-muted (#718096) y
+           --text-faint (#a0aec0) en :root (ver arriba), re-apuntadas
+           dentro de body.dark-mode. Así los estilos inline solo
+           cambiaron el valor hex por var(--text-muted)/var(--text-faint)
+           sin tocar el resto de cada style="..." (más seguro que armar
+           una clase .text-muted y tener que editar también el atributo
+           class de cada elemento). La clase .text-muted/.text-faint
+           igual se dejó creada por si se necesita en marcado nuevo.
+           Mismo criterio para #2d3748 → var(--primary) (ya existente).
+
+           Huérfanos encontrados DESPUÉS del reemplazo masivo (efectos
+           secundarios del propio reemplazo, no del código original):
+           - .cliente-panel-header (arriba) y varios "chips" grises
+             (badge "Cotización", botones "Desmarcar"/"Ver en
+             Shalom"/"Marcar pendiente") tenían fondo #f0f0f0 FIJO
+             emparejado con el texto que se acababa de volver
+             var(--text-muted) (claro en oscuro) → texto claro sobre
+             fondo claro fijo. Se creó --chip-neutral-bg (#f0f0f0 →
+             var(--dm-surface-2)) para que fondo y texto se muevan
+             juntos.
+           - El recuadro "N° DE COTIZACIÓN/ORDEN DE COMPRA" del modal
+             "Ver detalle" (verCotizacionDetalle) tenía el mismo
+             problema con sus fondos verde/lila fijos (#e8f9ee/#eef2ff)
+             — se creó --tint-ok-bg / --tint-info-bg (mismo criterio).
+           - #pantallaAcceso (login): sus estilos inline también
+             quedaron con var(--primary)/var(--text-muted)/var(--text-faint)
+             tras el reemplazo masivo. Como son estilos INLINE, la regla
+             "#pantallaAcceso * { color: ... }" que fuerza texto oscuro
+             NO los alcanza (un inline style siempre gana). Se le dieron
+             a #pantallaAcceso sus propias variables --primary/
+             --text-muted/--text-faint/--border/--bg-light fijas en
+             valor claro (igual que a las zonas de impresión), en vez de
+             depender de la regla de color heredado — este fue el bug
+             más serio de todo el punto 4: el título de la pantalla de
+             login quedaba en blanco sobre su tarjeta blanca en oscuro.
+           - #modalConfirmacionAceptar ("Sí, eliminar"): su fondo
+             "sin color de botón" (#edf2f7, pedido explícitamente así)
+             era fijo — se creó --btn-neutral-bg (#edf2f7 →
+             var(--dm-surface-3)) para que sea neutro en ambos modos en
+             vez de quedar como un rectángulo claro fijo en el modal
+             oscuro.
+           - #correlativosPanel (dentro de #panelCuentaModal): fondo
+             fijo #f7fafc → var(--bg-light) (ya existente).
+        ============================================ */
+
+        /* --- Fondos con gradiente que usaban var(--primary) --- */
+        body.dark-mode .header,
+        body.dark-mode .total-section {
+            background: linear-gradient(135deg, var(--dm-surface-2) 0%, var(--dm-bg-base) 100%);
         }
+
+        /* --- Texto sobre fondo fijo de --accent (no cambia con el tema) --- */
+        body.dark-mode .info-banner,
+        body.dark-mode .sucursal-tipo {
+            color:var(--primary);
+        }
+
+        /* --- Chip "activo" del Dashboard: fondo blanco fijo, el texto debe seguir oscuro --- */
+        body.dark-mode .dash-range-btn.active {
+            color: var(--dm-bg-base);
+        }
+
+        /* --- Header "Datos del Cliente" --- */
+        body.dark-mode .cliente-panel-header { background: var(--dm-surface-2); }
+        body.dark-mode .cliente-panel-header:hover { background: var(--dm-surface-3); }
+        body.dark-mode .cliente-summary { color: var(--dm-text-secondary); }
+        body.dark-mode .cliente-field label { color: var(--dm-text-secondary); }
+        body.dark-mode .cliente-field input,
+        body.dark-mode .cliente-field textarea {
+            background: var(--dm-surface-1);
+            color: var(--dm-text-primary);
+            border-color: var(--dm-border);
+        }
+
+        /* --- Botones deshabilitados --- */
+        body.dark-mode .btn-primary:disabled,
+        body.dark-mode .btn-whatsapp:disabled {
+            background: var(--dm-surface-3);
+            color: var(--dm-text-disabled);
+            border: 1px solid var(--dm-border-soft);
+        }
+
+        /* --- Botón "quitar nivel de precio" dentro de modales --- */
+        body.dark-mode .tier-del-btn { background: var(--dm-surface-2); }
+
+        /* --- Textos secundarios sueltos → token de texto secundario --- */
+        body.dark-mode .modal-close,
+        body.dark-mode .historial-card-meta,
+        body.dark-mode .dash-kpi-label,
+        body.dark-mode .ios-section-subtitle,
+        body.dark-mode .shalom-card-subinfo,
+        body.dark-mode .shalom-card-destino,
+        body.dark-mode .shalom-card-detalle {
+            color: var(--dm-text-secondary);
+        }
+        body.dark-mode .modal-close:hover { background: var(--dm-surface-2); }
 
         /* Validación visual de inputs */
         .input-error {
@@ -2234,6 +2558,27 @@
             opacity: 0.9;
             margin-top: 4px;
         }
+
+        /* ============================================
+           PREFERS-REDUCED-MOTION
+           Regla global (no una por cada @keyframes/transition — hay 5
+           @keyframes y 27 reglas con "transition:" repartidas por todo
+           el archivo). Se deja una duración mínima en vez de 0 en punto
+           porque algunos navegadores no disparan el evento
+           "transitionend" con duración exactamente 0, y ciertas partes
+           del JS podrían depender de ese evento; con 0.01ms el cambio
+           es visualmente instantáneo pero el evento se sigue disparando.
+           El equivalente para los gráficos de Chart.js (que no se puede
+           tocar con CSS) está en el script principal, donde se arma
+           la configuración del gráfico. */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2242,12 +2587,12 @@
         <div style="background:white; border-radius:16px; padding:35px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
             <div style="text-align:center; margin-bottom:25px;">
                 <div style="font-size:2.5em;">🏨</div>
-                <h2 style="margin:8px 0 0; color:#2d3748;">Cotizador Línea Hotelera</h2>
+                <h2 style="margin:8px 0 0; color:var(--primary);">Cotizador Línea Hotelera</h2>
             </div>
 
             <!-- Vista 1: configuración de Back4App (solo la primera vez) -->
             <div id="vistaConfigInicial" style="display:none;">
-                <p style="font-size:0.9em; color:#718096; margin-bottom:15px;">Primera vez aquí: pega los datos de tu proyecto de Back4App (Dashboard → App Settings → Security &amp; Keys). Solo se pide una vez por dispositivo.</p>
+                <p style="font-size:0.9em; color:var(--text-muted); margin-bottom:15px;">Primera vez aquí: pega los datos de tu proyecto de Back4App (Dashboard → App Settings → Security &amp; Keys). Solo se pide una vez por dispositivo.</p>
                 <div style="margin-bottom:12px;">
                     <label class="form-label">Application ID</label>
                     <input type="text" class="form-input" id="accesoAppId" placeholder="Tu Application ID">
@@ -2276,7 +2621,7 @@
                     ¿Primera vez? <a href="#" onclick="mostrarVistaRegistro(); return false;" style="color:#667eea; font-weight:600;">Crear cuenta</a>
                 </p>
                 <p style="text-align:center; margin-top:6px;">
-                    <a href="#" onclick="mostrarVistaConfigDesdeGear(); return false;" style="color:#a0aec0; font-size:0.8em;">⚙️ Cambiar datos de Back4App</a>
+                    <a href="#" onclick="mostrarVistaConfigDesdeGear(); return false;" style="color:var(--text-faint); font-size:0.8em;">⚙️ Cambiar datos de Back4App</a>
                 </p>
             </div>
 
@@ -2320,17 +2665,17 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="spinner"></div>
-            <div style="font-weight: 600; color: #2d3748;">Generando cotización...</div>
-            <div style="margin-top: 10px; color: #718096; font-size: 0.9em;">Por favor espere</div>
+            <div style="font-weight: 600; color:var(--primary);">Generando cotización...</div>
+            <div style="margin-top: 10px; color:var(--text-muted); font-size: 0.9em;">Por favor espere</div>
         </div>
     </div>
 
     <!-- MODAL EDITAR PRODUCTO -->
-    <div class="modal" id="editProductoModal">
+    <div class="modal" id="editProductoModal" role="dialog" aria-modal="true" aria-labelledby="editProductoModalTitulo">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">✏️ Editar Producto</h2>
-                <button class="modal-close" onclick="closeEditProductoModal()">×</button>
+                <h2 class="modal-title" id="editProductoModalTitulo">✏️ Editar Producto</h2>
+                <button class="modal-close" onclick="closeEditProductoModal()" aria-label="Cerrar">×</button>
             </div>
             <form id="editProductoForm">
                 <div class="form-group">
@@ -2342,7 +2687,7 @@
                     <input type="text" class="form-input" id="editProductoNombre" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Costo — precio de compra (S/) <span style="font-weight:400; color:#718096;">— opcional, para calcular margen de ganancia</span></label>
+                    <label class="form-label">Costo — precio de compra (S/) <span style="font-weight:400; color:var(--text-muted);">— opcional, para calcular margen de ganancia</span></label>
                     <input type="number" step="0.01" min="0" class="form-input" id="editProductoCosto" placeholder="Ej: 15.00">
                 </div>
                 <div class="form-group">
@@ -2360,37 +2705,37 @@
 
     <!-- MODAL PANEL DE CUENTA / CONFIGURACIÓN -->
     <!-- MODAL VISTA RÁPIDA DE COTIZACIÓN / ORDEN -->
-    <div class="modal" id="verCotizacionModal">
+    <div class="modal" id="verCotizacionModal" role="dialog" aria-modal="true" aria-labelledby="verCotTitulo">
         <div class="modal-content" style="max-width:600px;">
             <div class="modal-header">
                 <h2 class="modal-title" id="verCotTitulo">Cotización</h2>
-                <button class="modal-close" onclick="document.getElementById('verCotizacionModal').classList.remove('active')">×</button>
+                <button class="modal-close" onclick="document.getElementById('verCotizacionModal').classList.remove('active')" aria-label="Cerrar">×</button>
             </div>
             <div id="verCotContenido"></div>
         </div>
     </div>
 
     <!-- MODAL LISTA DE COMPRA (productos pendientes de despachar) -->
-    <div class="modal" id="listaCompraModal">
+    <div class="modal" id="listaCompraModal" role="dialog" aria-modal="true" aria-labelledby="listaCompraModalTitulo">
         <div class="modal-content" style="max-width:700px;">
             <div class="modal-header">
-                <h2 class="modal-title">🛒 Lista de compra — pendientes de despacho</h2>
-                <button class="modal-close" onclick="document.getElementById('listaCompraModal').classList.remove('active')">×</button>
+                <h2 class="modal-title" id="listaCompraModalTitulo">🛒 Lista de compra — pendientes de despacho</h2>
+                <button class="modal-close" onclick="document.getElementById('listaCompraModal').classList.remove('active')" aria-label="Cerrar">×</button>
             </div>
             <div id="listaCompraContenido"></div>
         </div>
     </div>
 
-    <div class="modal" id="panelCuentaModal">
+    <div class="modal" id="panelCuentaModal" role="dialog" aria-modal="true" aria-labelledby="panelCuentaModalTitulo">
         <div class="modal-content" style="max-width:420px;">
             <div class="modal-header">
-                <h2 class="modal-title">⚙️ Cuenta y configuración</h2>
-                <button class="modal-close" onclick="cerrarPanelCuenta()">×</button>
+                <h2 class="modal-title" id="panelCuentaModalTitulo">⚙️ Cuenta y configuración</h2>
+                <button class="modal-close" onclick="cerrarPanelCuenta()" aria-label="Cerrar">×</button>
             </div>
-            <p style="font-size:0.9em; color:#718096;">Sesión activa: <strong id="panelCuentaUsuario">—</strong></p>
+            <p style="font-size:0.9em; color:var(--text-muted);">Sesión activa: <strong id="panelCuentaUsuario">—</strong></p>
 
-            <div id="correlativosPanel" style="display:none; margin:15px 0; padding:12px; background:#f7fafc; border-radius:10px;">
-                <strong style="font-size:0.9em; color:#2d3748;">🔢 Correlativos (solo Admin)</strong>
+            <div id="correlativosPanel" style="display:none; margin:15px 0; padding:12px; background:var(--bg-light); border-radius:10px;">
+                <strong style="font-size:0.9em; color:var(--primary);">🔢 Correlativos (solo Admin)</strong>
                 <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:140px;">
                         <label class="form-label" style="font-size:0.8em;">Cotización (COT-)</label>
@@ -2403,11 +2748,11 @@
                         <button type="button" class="btn btn-small" style="width:100%; margin-top:6px; background:var(--secondary);" onclick="guardarCorrelativoManual('orden_compra', 'correlativoOcInput')">Guardar</button>
                     </div>
                 </div>
-                <p style="font-size:0.75em; color:#a0aec0; margin-top:8px;">El próximo documento usará el número siguiente al que guardes aquí.</p>
+                <p style="font-size:0.75em; color:var(--text-faint); margin-top:8px;">El próximo documento usará el número siguiente al que guardes aquí.</p>
             </div>
 
             <details style="margin:15px 0;">
-                <summary style="cursor:pointer; color:#718096; font-size:0.85em;">Datos de conexión a Back4App (avanzado)</summary>
+                <summary style="cursor:pointer; color:var(--text-muted); font-size:0.85em;">Datos de conexión a Back4App (avanzado)</summary>
                 <div class="form-group" style="margin-top:10px;">
                     <label class="form-label">Application ID</label>
                     <input type="text" class="form-input" id="panelAppId">
@@ -2423,11 +2768,11 @@
     </div>
 
     <!-- MODAL EDITAR SUCURSAL -->
-    <div class="modal" id="editSucursalModal">
+    <div class="modal" id="editSucursalModal" role="dialog" aria-modal="true" aria-labelledby="editSucursalModalTitulo">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">✏️ Editar Sucursal</h2>
-                <button class="modal-close" onclick="closeEditSucursalModal()">×</button>
+                <h2 class="modal-title" id="editSucursalModalTitulo">✏️ Editar Sucursal</h2>
+                <button class="modal-close" onclick="closeEditSucursalModal()" aria-label="Cerrar">×</button>
             </div>
             <form id="editSucursalForm">
                 <div class="form-group">
@@ -2466,6 +2811,27 @@
         </div>
     </div>
 
+    <!-- MODAL GENÉRICO DE CONFIRMACIÓN / PROMPT
+         Reemplaza a confirm()/prompt() nativos del navegador. Un solo
+         componente reutilizado por mostrarConfirmacion() y mostrarPrompt()
+         (ver el script principal, sección "MODAL DE CONFIRMACIÓN / PROMPT"). -->
+    <div class="modal" id="modalConfirmacion" role="dialog" aria-modal="true" aria-labelledby="modalConfirmacionTitulo">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalConfirmacionTitulo">Confirmar</h2>
+                <button type="button" class="modal-close" id="modalConfirmacionCerrarX" aria-label="Cerrar">×</button>
+            </div>
+            <p id="modalConfirmacionMensaje" style="white-space:pre-line; color:var(--text-muted); line-height:1.5;"></p>
+            <div class="form-group" id="modalConfirmacionPromptWrap" style="display:none; margin-top:14px; margin-bottom:0;">
+                <input type="text" class="form-input" id="modalConfirmacionInput">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-danger" id="modalConfirmacionCancelar">Cancelar</button>
+                <button type="button" class="btn" id="modalConfirmacionAceptar" style="background:var(--btn-neutral-bg);color:var(--primary);">Sí, eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SISTEMA DE COTIZACIÓN -->
     <div class="container">
         <div class="header">
@@ -2489,7 +2855,7 @@
                         </span>
                     </div>
                     <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="Alternar tema claro/oscuro (Ctrl+D)">🌙 Oscuro</button>
-                    <button class="theme-toggle-btn" onclick="abrirPanelCuenta()" title="Cuenta y configuración">⚙️</button>
+                    <button class="theme-toggle-btn" onclick="abrirPanelCuenta()" title="Cuenta y configuración" aria-label="Cuenta y configuración">⚙️</button>
                 </div>
             </div>
         </div>
@@ -2500,15 +2866,15 @@
         <div class="content">
             <!-- TABS -->
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('cotizar')">📋 Cotizar</button>
-                <button class="tab" onclick="switchTab('sucursales')">🚚 Sucursales</button>
-                <button class="tab" onclick="switchTab('historial')">🕓 Historial</button>
-                <button class="tab" onclick="switchTab('envios')">🚚 Envíos</button>
-                <button class="tab" onclick="switchTab('dashboard')">📊 Dashboard</button>
-                <button class="tab" onclick="switchTab('productos')">📦 Productos</button>
-                <button class="tab" onclick="switchTab('gestionsucursales')">🏢 Gestión Sucursales</button>
-                <button class="tab" onclick="switchTab('fichas')">📄 Fichas Técnicas</button>
-                <button class="tab" onclick="switchTab('shalom')">🚚 Seguimiento Shalom</button>
+                <button class="tab active" onclick="switchTab('cotizar')" aria-label="Cotizar">📋 Cotizar</button>
+                <button class="tab" onclick="switchTab('sucursales')" aria-label="Sucursales">🚚 Sucursales</button>
+                <button class="tab" onclick="switchTab('historial')" aria-label="Historial">🕓 Historial</button>
+                <button class="tab" onclick="switchTab('envios')" aria-label="Envíos">🚚 Envíos</button>
+                <button class="tab" onclick="switchTab('dashboard')" aria-label="Dashboard">📊 Dashboard</button>
+                <button class="tab" onclick="switchTab('productos')" aria-label="Productos">📦 Productos</button>
+                <button class="tab" onclick="switchTab('gestionsucursales')" aria-label="Gestión Sucursales">🏢 Gestión Sucursales</button>
+                <button class="tab" onclick="switchTab('fichas')" aria-label="Fichas Técnicas">📄 Fichas Técnicas</button>
+                <button class="tab" onclick="switchTab('shalom')" aria-label="Seguimiento Shalom">🚚 Seguimiento Shalom</button>
             </div>
 
             <!-- TAB: COTIZAR -->
@@ -2646,7 +3012,7 @@
                     </div>
                     <div id="sucursalSeleccionada" style="margin-top: 15px; display: none;">
                         <strong style="color: var(--success);">✅ Sucursal seleccionada:</strong>
-                        <div id="sucursalInfo" style="margin-top: 10px; padding: 15px; background: #f0fff4; border-radius: 8px; border: 2px solid var(--success);"></div>
+                        <div id="sucursalInfo" style="margin-top: 10px; padding: 15px; background: #f0fff4; border-radius: 8px; border: 2px solid var(--success); color: #2d3748;"></div>
                         <div class="deselect-hint show" id="deselectHint">
                             💡 <strong>Tip:</strong> Click nuevamente en la sucursal para deseleccionarla
                         </div>
@@ -2848,7 +3214,7 @@
                 <span class="historial-count-badge" id="plantillasCount">0</span>
             </div>
         </div>
-        <p style="color:#718096; font-size:0.85em; margin-bottom:12px;">Paquetes de productos reutilizables (sin datos de cliente) para armar cotizaciones rápidas.</p>
+        <p style="color:var(--text-muted); font-size:0.85em; margin-bottom:12px;">Paquetes de productos reutilizables (sin datos de cliente) para armar cotizaciones rápidas.</p>
         <div id="plantillasList">
             <div class="historial-empty">No hay plantillas guardadas.<br><br>Arma una cotización y haz clic en <strong>"📋 Plantilla"</strong> para guardarla como reutilizable.</div>
         </div>
@@ -2864,7 +3230,7 @@
         </div>
         <button class="ios-link-btn" onclick="cargarEnviosShalom(); renderEnvios();">Actualizar</button>
     </div>
-    <p style="color:#718096; font-size:0.85em; margin-bottom:15px;">Vista de tus órdenes de compra confirmadas y el estado de su envío. Para registrar una guía nueva, ve a <strong>🚚 Seguimiento Shalom</strong>.</p>
+    <p style="color:var(--text-muted); font-size:0.85em; margin-bottom:15px;">Vista de tus órdenes de compra confirmadas y el estado de su envío. Para registrar una guía nueva, ve a <strong>🚚 Seguimiento Shalom</strong>.</p>
 
     <!-- LISTA DE COMPRA: agrupa producto+color+cantidad de todas las OC
          que todavía no se despacharon (sin guía, o con guía pero aún
@@ -2873,7 +3239,7 @@
     <div class="add-product-section" style="margin-bottom:15px; border-color:var(--accent); background:#fffbea;" id="listaCompraResumenWrap">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-                <div style="font-weight:700; color:var(--primary); font-size:1.02em;">🛒 Lista de compra — productos pendientes de despacho</div>
+                <div style="font-weight:700; color:#2d3748; font-size:1.02em;">🛒 Lista de compra — productos pendientes de despacho</div>
                 <div style="font-size:0.85em; color:#718096; margin-top:2px;" id="listaCompraResumenTexto">Calculando...</div>
             </div>
             <button class="btn btn-warning" style="white-space:nowrap;" onclick="abrirListaCompra()">📋 Ver lista de compra</button>
@@ -2959,7 +3325,7 @@
         <div class="dash-kpi-card" id="kpiGananciaWrap" style="display:none; border-left:4px solid #38a169;">
             <div class="dash-kpi-label">💰 Ganancia estimada</div>
             <div class="dash-kpi-valor" id="kpiGanancia" style="color:#38a169;">S/ 0</div>
-            <div style="font-size:0.72em; color:#8e8e93; margin-top:4px;" id="kpiGananciaNota"></div>
+            <div style="font-size:0.72em; color:var(--text-muted); margin-top:4px;" id="kpiGananciaNota"></div>
         </div>
     </div>
 
@@ -2982,7 +3348,7 @@
     <!-- SELECTOR DE PRODUCTO -->
     <div class="add-product-section">
         <div class="add-product-title">📄 Crear Ficha Técnica</div>
-        <p style="margin-bottom: 15px; color: #718096; font-size: 0.9em;">
+        <p style="margin-bottom: 15px; color:var(--text-muted); font-size: 0.9em;">
             Selecciona un producto para generar su ficha técnica profesional
         </p>
         <div class="form-group">
@@ -3113,7 +3479,7 @@
                 🔄 Actualizar Vista Previa
             </button>
             <div id="fichaPreview" style="border: 2px solid var(--border); padding: 20px; background: white; border-radius: 8px;">
-                <p style="text-align: center; color: #718096;">Completa el formulario y click en "Actualizar Vista Previa"</p>
+                <p style="text-align: center; color:var(--text-muted);">Completa el formulario y click en "Actualizar Vista Previa"</p>
             </div>
         </div>
     </div>
@@ -3148,7 +3514,7 @@
              ya no se autocompleta nada con el contenido del QR: solo se
              muestra como referencia. -->
         <details style="margin-top:18px;">
-            <summary style="cursor:pointer; color:#718096; font-size:0.9em;">📷 Escanear QR (referencia — no autocompleta los datos)</summary>
+            <summary style="cursor:pointer; color:var(--text-muted); font-size:0.9em;">📷 Escanear QR (referencia — no autocompleta los datos)</summary>
             <div style="margin-top:10px;">
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
                     <button type="button" class="btn btn-primary" id="btnIniciarCamara" onclick="iniciarCamaraQR()">📷 Usar cámara</button>
@@ -3160,12 +3526,12 @@
                 </div>
                 <div id="shalomCameraWrapper" style="display:none; position:relative; max-width:400px;">
                     <video id="shalomVideo" style="width:100%; border-radius:8px; background:#000;" playsinline autoplay muted></video>
-                    <div id="shalomCameraHint" style="font-size:0.8em; color:#718096; margin-top:6px;">Apunta la cámara al código QR de tu guía…</div>
+                    <div id="shalomCameraHint" style="font-size:0.8em; color:var(--text-muted); margin-top:6px;">Apunta la cámara al código QR de tu guía…</div>
                 </div>
                 <canvas id="shalomCanvas" style="display:none;"></canvas>
                 <div id="shalomCameraError" style="display:none; margin-top:10px; padding:12px; background:#fff5f5; border-radius:8px; border:1px solid var(--danger); font-size:0.85em; color:var(--danger);"></div>
 
-                <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#fffbea; border-radius:8px; border:2px solid var(--accent);">
+                <div id="shalomQrResultado" style="display:none; margin-top:15px; padding:15px; background:#fffbea; border-radius:8px; border:2px solid var(--accent); color:#2d3748;">
                     <strong>📎 Contenido leído del QR:</strong> <span id="shalomQrTexto"></span>
                     <p style="font-size:0.85em; color:#718096; margin:8px 0 0;">Esto no es el N° de Orden — es un código interno de Shalom que esta app no puede traducir automáticamente (su sistema de seguridad bloquea intentos automatizados, y respetamos eso). Escribe el N° de Orden y el Código arriba, en "Registrar nueva guía", tal como aparecen impresos en tu comprobante.</p>
                 </div>
@@ -3196,7 +3562,7 @@
     <!-- LISTA DE ENVÍOS RASTREADOS -->
     <div class="ios-section-header">
         <div>
-            <div class="ios-section-title">Envíos <span id="shalomCount" style="color:#8e8e93; font-weight:600;">0</span></div>
+            <div class="ios-section-title">Envíos <span id="shalomCount" style="color:var(--text-muted); font-weight:600;">0</span></div>
             <div class="ios-section-subtitle">Shalom se actualiza cada 30 min por el robot · Lima se actualiza a mano</div>
         </div>
         <button class="ios-link-btn" onclick="cargarEnviosShalom()">Actualizar</button>
@@ -3215,9 +3581,9 @@
     <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px;">
         <div>
             <div style="font-size:1.6em; font-weight:800; color:var(--primary);">Sucursales — <span id="spImgProvinciaNombre"></span></div>
-            <div style="color:#718096; margin-top:4px;" id="spImgFecha"></div>
+            <div style="color:var(--text-muted); margin-top:4px;" id="spImgFecha"></div>
         </div>
-        <div style="text-align:right; color:#718096; font-size:0.95em;">
+        <div style="text-align:right; color:var(--text-muted); font-size:0.95em;">
             <div><strong id="spImgCantidad"></strong> sucursales</div>
         </div>
     </div>
@@ -3232,7 +3598,7 @@
         </div>
         <div style="text-align: right;">
             <h1 style="font-size: 2.5em; color: var(--primary); margin: 0;">FICHA TÉCNICA</h1>
-            <p style="color: #718096; margin-top: 5px;" id="fichaPrintFecha"></p>
+            <p style="color:var(--text-muted); margin-top: 5px;" id="fichaPrintFecha"></p>
         </div>
     </div>
 
@@ -3244,7 +3610,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
             <div>
                 <h4 style="color: var(--primary); margin-bottom: 10px;">Contacto</h4>
-                <p style="margin: 5px 0;">📞 929 075 546</p>
+                <p style="margin: 5px 0;">📞 923 579 140</p>
                 <p style="margin: 5px 0;">🌐 @lineahotelera</p>
             </div>
             <div>
@@ -3293,7 +3659,7 @@
 
 .ficha-item-label {
     font-weight: 600;
-    color: #718096;
+    color:var(--text-muted);
     font-size: 0.85em;
     margin-bottom: 5px;
 }
@@ -3589,14 +3955,14 @@ async function generarFichaPDF() {
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #2d3748;padding-bottom:14px;margin-bottom:14px;">
                         <div class="print-logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="200" viewBox="0 0 375 374.999991" height="80" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><g/><clipPath id="6419b05467"><path d="M 7 84 L 306 84 L 306 165 L 7 165 Z M 7 84 " clip-rule="nonzero"/></clipPath><clipPath id="d2ff1b2756"><path d="M 7.578125 104.488281 L 301.839844 84.792969 L 305.886719 145.222656 L 11.621094 164.917969 Z M 7.578125 104.488281 " clip-rule="nonzero"/></clipPath><clipPath id="97ee6af1ff"><path d="M 3 21 L 298 21 L 298 69 L 3 69 Z M 3 21 " clip-rule="nonzero"/></clipPath><clipPath id="811528d0df"><path d="M 0.578125 20.488281 L 294.839844 0.792969 L 298.886719 61.222656 L 4.621094 80.917969 Z M 0.578125 20.488281 " clip-rule="nonzero"/></clipPath><clipPath id="b27bef7021"><path d="M 4.632812 81.042969 L 298.894531 61.34375 L 294.847656 0.914062 L 0.585938 20.613281 Z M 4.632812 81.042969 " clip-rule="nonzero"/></clipPath><clipPath id="f39224f628"><path d="M 4.632812 81.042969 L 298.894531 61.34375 L 294.847656 0.914062 L 0.585938 20.613281 Z M 4.632812 81.042969 " clip-rule="nonzero"/></clipPath><clipPath id="2b9cab224f"><rect x="0" width="299" y="0" height="81"/></clipPath><clipPath id="6223f5eb2f"><rect x="0" width="334" y="0" height="294"/></clipPath></defs><rect x="-37.5" width="450" fill="#ffffff" y="-37.499999" height="449.999989" fill-opacity="1"/><g transform="matrix(1, 0, 0, 1, 40, 14)"><g clip-path="url(#6223f5eb2f)"><g fill="#231f20" fill-opacity="1"><g transform="translate(1.139724, 203.780202)"><g><path d="M 74.515625 -26.34375 C 75.234375 -26.457031 75.96875 -26.5 76.71875 -26.46875 C 77.476562 -26.445312 78.21875 -26.238281 78.9375 -25.84375 C 79.050781 -25.726562 79.160156 -25.519531 79.265625 -25.21875 C 79.367188 -24.925781 79.453125 -24.644531 79.515625 -24.375 C 79.515625 -24.257812 79.445312 -24.117188 79.3125 -23.953125 C 79.175781 -23.796875 79.050781 -23.640625 78.9375 -23.484375 C 78.601562 -23.304688 78.273438 -23.175781 77.953125 -23.09375 C 73.703125 -22.257812 69.765625 -20.847656 66.140625 -18.859375 C 62.515625 -16.867188 59.066406 -14.5625 55.796875 -11.9375 C 51.335938 -8.46875 47.226562 -4.660156 43.46875 -0.515625 C 39.71875 3.628906 36.175781 7.960938 32.84375 12.484375 C 26.519531 20.984375 20.640625 29.804688 15.203125 38.953125 C 13.953125 41.066406 12.671875 43.132812 11.359375 45.15625 C 11.179688 45.539062 10.960938 45.894531 10.703125 46.21875 C 10.109375 47.195312 9.453125 48.117188 8.734375 48.984375 C 6.835938 51.003906 4.609375 51.492188 2.046875 50.453125 C 1.003906 49.921875 0.398438 49.210938 0.234375 48.328125 C 0.078125 47.453125 0.101562 46.523438 0.3125 45.546875 C 1.738281 32.648438 2.585938 19.769531 2.859375 6.90625 C 3.359375 -10.351562 3.6875 -27.613281 3.84375 -44.875 C 4.007812 -62.144531 3.738281 -79.394531 3.03125 -96.625 C 2.582031 -106.96875 2.003906 -117.335938 1.296875 -127.734375 C 0.960938 -132.492188 0.632812 -137.265625 0.3125 -142.046875 C 0.3125 -142.429688 0.265625 -142.789062 0.171875 -143.125 C 0.117188 -144.101562 0.09375 -145.082031 0.09375 -146.0625 C 0.238281 -147.570312 1.082031 -148.414062 2.625 -148.59375 C 3.550781 -148.75 4.378906 -148.660156 5.109375 -148.328125 C 5.835938 -148.003906 6.257812 -147.515625 6.375 -146.859375 C 6.96875 -144.421875 7.398438 -141.96875 7.671875 -139.5 C 7.671875 -138.789062 7.695312 -138.066406 7.75 -137.328125 C 8.726562 -123.859375 9.578125 -110.394531 10.296875 -96.9375 C 11.003906 -83.59375 11.34375 -70.234375 11.3125 -56.859375 C 11.289062 -43.492188 11.113281 -30.113281 10.78125 -16.71875 C 10.570312 -5.75 10.273438 5.226562 9.890625 16.21875 C 9.835938 18.78125 9.707031 21.320312 9.5 23.84375 C 9.375 25.300781 9.28125 26.742188 9.21875 28.171875 C 9.164062 29.421875 9.09375 30.695312 9 32 C 9 32.59375 8.972656 33.1875 8.921875 33.78125 C 9.117188 33.84375 9.28125 33.90625 9.40625 33.96875 C 9.613281 33.96875 9.804688 33.992188 9.984375 34.046875 C 10.304688 33.546875 10.632812 33.054688 10.96875 32.578125 C 11.820312 31.210938 12.710938 29.847656 13.640625 28.484375 C 19.703125 18.796875 26.398438 9.613281 33.734375 0.9375 C 37.453125 -3.457031 41.421875 -7.535156 45.640625 -11.296875 C 49.859375 -15.054688 54.476562 -18.378906 59.5 -21.265625 C 61.875 -22.566406 64.285156 -23.671875 66.734375 -24.578125 C 69.191406 -25.484375 71.785156 -26.070312 74.515625 -26.34375 Z M 74.515625 -26.34375 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(73.297867, 203.780202)"><g><path d="M 23.125 -18.09375 C 22.207031 -16.195312 20.640625 -14.085938 18.421875 -11.765625 C 16.210938 -9.453125 13.703125 -7.984375 10.890625 -7.359375 C 8.085938 -6.734375 5.410156 -7.695312 2.859375 -10.25 C 1.867188 -11.375 1.144531 -12.671875 0.6875 -14.140625 C 0.226562 -15.617188 0.0546875 -17.070312 0.171875 -18.5 C 0.171875 -18.882812 0.171875 -19.375 0.171875 -19.96875 C 0.171875 -21.476562 0.238281 -23.226562 0.375 -25.21875 C 0.507812 -27.21875 0.804688 -29.019531 1.265625 -30.625 C 1.734375 -32.226562 2.457031 -33.191406 3.4375 -33.515625 C 6.257812 -34.234375 7.785156 -33.253906 8.015625 -30.578125 C 8.015625 -29.710938 7.988281 -28.847656 7.9375 -27.984375 C 7.875 -27.546875 7.84375 -27.132812 7.84375 -26.75 C 7.78125 -25.5 7.722656 -24.25 7.671875 -23 C 7.671875 -22.019531 7.625 -21.039062 7.53125 -20.0625 C 7.46875 -15.75 8.429688 -13.179688 10.421875 -12.359375 C 12.421875 -11.546875 14.695312 -12.414062 17.25 -14.96875 C 19.800781 -17.53125 21.46875 -19.65625 22.25 -21.34375 C 23.039062 -23.039062 23.613281 -23.398438 23.96875 -22.421875 C 24.332031 -21.441406 24.050781 -20 23.125 -18.09375 Z M 7.4375 -42.703125 C 7.050781 -42.367188 6.582031 -42.15625 6.03125 -42.0625 C 5.488281 -41.976562 5.007812 -42.023438 4.59375 -42.203125 C 4.257812 -42.472656 4.046875 -42.820312 3.953125 -43.25 C 3.867188 -43.6875 3.828125 -44.203125 3.828125 -44.796875 C 3.828125 -44.910156 3.859375 -45.03125 3.921875 -45.15625 C 3.984375 -45.6875 4.117188 -46.21875 4.328125 -46.75 C 4.921875 -48.175781 6.148438 -48.832031 8.015625 -48.71875 C 8.671875 -48.625 9.1875 -48.351562 9.5625 -47.90625 C 9.9375 -47.46875 10.019531 -46.953125 9.8125 -46.359375 C 9.363281 -44.898438 8.570312 -43.679688 7.4375 -42.703125 Z M 7.4375 -42.703125 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(95.181536, 203.780202)"><g><path d="M 36.859375 -17.15625 C 39.148438 -20.78125 40.507812 -23.082031 40.9375 -24.0625 C 41.363281 -25.050781 41.703125 -25.007812 41.953125 -23.9375 C 42.210938 -22.863281 41.476562 -20.445312 39.75 -16.6875 C 38.03125 -12.925781 35.890625 -10.03125 33.328125 -8 C 30.773438 -5.96875 28.390625 -5.21875 26.171875 -5.75 C 23.960938 -6.28125 22.382812 -7.816406 21.4375 -10.359375 C 20.488281 -12.898438 20.207031 -16.101562 20.59375 -19.96875 C 20.59375 -20.03125 20.625 -20.191406 20.6875 -20.453125 C 20.738281 -21.109375 20.847656 -22.070312 21.015625 -23.34375 C 21.179688 -24.625 21.300781 -25.945312 21.375 -27.3125 C 21.445312 -28.6875 21.398438 -29.816406 21.234375 -30.703125 C 21.078125 -31.597656 20.671875 -31.910156 20.015625 -31.640625 C 18.441406 -30.785156 16.898438 -29.101562 15.390625 -26.59375 C 13.890625 -24.082031 12.53125 -21.453125 11.3125 -18.703125 C 10.101562 -15.953125 9.242188 -13.726562 8.734375 -12.03125 C 8.523438 -11.5 8.332031 -10.9375 8.15625 -10.34375 C 7.882812 -9.570312 7.585938 -8.796875 7.265625 -8.015625 C 6.398438 -5.796875 4.898438 -4.9375 2.765625 -5.4375 C 1.578125 -5.707031 0.878906 -6.4375 0.671875 -7.625 C 0.609375 -8.539062 0.578125 -9.414062 0.578125 -10.25 C 0.578125 -10.78125 0.546875 -11.269531 0.484375 -11.71875 C 0.367188 -18.3125 0.207031 -24.953125 0 -31.640625 C 0.0625 -32.410156 0.40625 -32.945312 1.03125 -33.25 C 1.65625 -33.550781 2.394531 -33.703125 3.25 -33.703125 C 3.90625 -33.703125 4.519531 -33.519531 5.09375 -33.15625 C 5.675781 -32.800781 6.046875 -32.0625 6.203125 -30.9375 C 6.253906 -30.550781 6.28125 -30.160156 6.28125 -29.765625 C 6.34375 -29.566406 6.375 -29.375 6.375 -29.1875 C 6.488281 -28.269531 6.546875 -27.484375 6.546875 -26.828125 C 6.546875 -25.847656 6.613281 -25.179688 6.75 -24.828125 C 6.882812 -24.472656 7.164062 -24.488281 7.59375 -24.875 C 8.03125 -25.257812 8.738281 -26.179688 9.71875 -27.640625 C 11.40625 -30.253906 13.5 -32.46875 16 -34.28125 C 18.289062 -35.90625 20.800781 -36.585938 23.53125 -36.328125 C 25.875 -36.085938 27.453125 -34.851562 28.265625 -32.625 C 28.585938 -31.5 28.75 -30.363281 28.75 -29.21875 C 28.75 -28.070312 28.675781 -26.921875 28.53125 -25.765625 C 28.46875 -24.578125 28.378906 -23.359375 28.265625 -22.109375 C 28.171875 -21.722656 28.09375 -21.335938 28.03125 -20.953125 C 27.644531 -16.703125 27.78125 -13.851562 28.4375 -12.40625 C 29.09375 -10.96875 30.085938 -10.492188 31.421875 -10.984375 C 32.753906 -11.472656 34.566406 -13.53125 36.859375 -17.15625 Z M 36.859375 -17.15625 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(134.402758, 203.780202)"><g><path d="M 42.96875 -21.53125 C 43.625 -21.914062 44.257812 -22.210938 44.875 -22.421875 C 45.5 -22.628906 45.90625 -22.613281 46.09375 -22.375 C 46.289062 -22.132812 46.035156 -21.597656 45.328125 -20.765625 C 43.097656 -18.210938 40.429688 -15.875 37.328125 -13.75 C 34.222656 -11.625 31.035156 -9.832031 27.765625 -8.375 C 25.210938 -7.21875 22.515625 -6.296875 19.671875 -5.609375 C 16.835938 -4.929688 14.03125 -4.785156 11.25 -5.171875 C 8.476562 -5.554688 5.945312 -6.789062 3.65625 -8.875 C 0.175781 -12.082031 -1.265625 -16.003906 -0.671875 -20.640625 C -0.160156 -24.316406 1.269531 -27.441406 3.625 -30.015625 C 5.988281 -32.585938 8.96875 -34.332031 12.5625 -35.25 C 15.570312 -35.90625 18.578125 -35.984375 21.578125 -35.484375 C 22.941406 -35.273438 24.1875 -34.8125 25.3125 -34.09375 C 26.351562 -33.289062 26.925781 -32.351562 27.03125 -31.28125 C 27.132812 -30.21875 26.726562 -29.195312 25.8125 -28.21875 C 23.90625 -26.519531 21.703125 -25.507812 19.203125 -25.1875 C 16.410156 -24.707031 13.601562 -24.410156 10.78125 -24.296875 C 9.414062 -24.296875 8.457031 -24.007812 7.90625 -23.4375 C 7.363281 -22.875 7.046875 -21.910156 6.953125 -20.546875 C 6.503906 -16.828125 7.691406 -13.796875 10.515625 -11.453125 C 12.265625 -10.054688 14.394531 -9.460938 16.90625 -9.671875 C 19.425781 -9.878906 22.097656 -10.554688 24.921875 -11.703125 C 27.742188 -12.847656 30.503906 -14.179688 33.203125 -15.703125 C 35.910156 -17.234375 38.347656 -18.6875 40.515625 -20.0625 C 41.429688 -20.65625 42.25 -21.144531 42.96875 -21.53125 Z M 11.984375 -29.46875 C 11.984375 -29.40625 11.941406 -29.375 11.859375 -29.375 C 11.734375 -29.25 11.570312 -29.101562 11.375 -28.9375 C 11.1875 -28.78125 11.007812 -28.617188 10.84375 -28.453125 C 10.6875 -28.296875 10.609375 -28.1875 10.609375 -28.125 C 10.671875 -27.914062 11.207031 -27.863281 12.21875 -27.96875 C 13.226562 -28.070312 14.335938 -28.25 15.546875 -28.5 C 16.765625 -28.75 17.78125 -29.085938 18.59375 -29.515625 C 19.414062 -29.953125 19.664062 -30.46875 19.34375 -31.0625 C 19.195312 -31.238281 19.007812 -31.394531 18.78125 -31.53125 C 18.5625 -31.664062 18.316406 -31.765625 18.046875 -31.828125 C 16.859375 -31.828125 15.773438 -31.59375 14.796875 -31.125 C 13.816406 -30.664062 12.878906 -30.113281 11.984375 -29.46875 Z M 11.984375 -29.46875 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(177.546103, 203.780202)"><g><path d="M 50.421875 -22.90625 C 49.609375 -20.414062 47.988281 -17.554688 45.5625 -14.328125 C 43.144531 -11.109375 40.125 -9.035156 36.5 -8.109375 C 32.875 -7.191406 29.738281 -7.316406 27.09375 -8.484375 C 24.445312 -9.660156 22.992188 -12.804688 22.734375 -17.921875 C 19.734375 -12.097656 16.875 -8.367188 14.15625 -6.734375 C 11.4375 -5.097656 8.601562 -4.472656 5.65625 -4.859375 C 2.332031 -5.390625 0.0820312 -6.679688 -1.09375 -8.734375 C -2.269531 -10.785156 -2.660156 -13.15625 -2.265625 -15.84375 C -1.878906 -18.53125 -1.066406 -21.109375 0.171875 -23.578125 C 1.160156 -25.421875 2.519531 -27.128906 4.25 -28.703125 C 5.988281 -30.273438 7.8125 -31.507812 9.71875 -32.40625 C 12.0625 -33.59375 14.421875 -34.15625 16.796875 -34.09375 C 19.179688 -34.03125 21.722656 -33.242188 24.421875 -31.734375 C 24.484375 -31.671875 24.515625 -31.726562 24.515625 -31.90625 C 24.515625 -32.175781 24.582031 -32.507812 24.71875 -32.90625 C 24.851562 -33.3125 25.082031 -33.632812 25.40625 -33.875 C 26.300781 -34.53125 27.351562 -34.859375 28.5625 -34.859375 C 29.78125 -34.859375 30.71875 -34.25 31.375 -33.03125 C 31.5 -31.457031 31.335938 -29.453125 30.890625 -27.015625 C 29.910156 -21.660156 29.910156 -17.804688 30.890625 -15.453125 C 31.867188 -13.109375 33.597656 -12.019531 36.078125 -12.1875 C 38.554688 -12.351562 41.769531 -14.804688 45.71875 -19.546875 C 49.675781 -24.285156 51.242188 -25.40625 50.421875 -22.90625 Z M 6.546875 -10.34375 C 7.921875 -9.363281 9.488281 -9.492188 11.25 -10.734375 C 13.019531 -11.984375 14.722656 -13.753906 16.359375 -16.046875 C 17.992188 -18.335938 19.367188 -20.625 20.484375 -22.90625 C 21.597656 -25.195312 22.210938 -26.890625 22.328125 -27.984375 C 19.003906 -29.773438 16.148438 -30.082031 13.765625 -28.90625 C 11.390625 -27.726562 9.492188 -25.8125 8.078125 -23.15625 C 6.671875 -20.5 5.832031 -17.914062 5.5625 -15.40625 C 5.300781 -12.894531 5.628906 -11.207031 6.546875 -10.34375 Z M 6.546875 -10.34375 "/></g></g></g><g clip-path="url(#6419b05467)"><g clip-path="url(#d2ff1b2756)"><g transform="matrix(1, 0, 0, 1, 7, 84)"><g clip-path="url(#2b9cab224f)"><g clip-path="url(#97ee6af1ff)"><g clip-path="url(#811528d0df)"><g clip-path="url(#b27bef7021)"><g clip-path="url(#f39224f628)"><path fill="#231f20" d="M 6.523438 43.804688 C 5.808594 43.050781 4.621094 43.011719 3.863281 43.722656 C 3.105469 44.429688 3.0625 45.613281 3.777344 46.367188 C 8.199219 51.078125 12.105469 54.679688 16.265625 57.554688 L 16.382812 57.628906 C 20.527344 60.480469 24.886719 62.578125 30.199219 64.285156 C 64.246094 75.230469 109.199219 60.496094 153.019531 46.128906 C 213.941406 26.152344 272.640625 6.90625 294.097656 60.125 C 294.480469 61.082031 295.578125 61.554688 296.542969 61.167969 C 297.511719 60.785156 297.980469 59.691406 297.589844 58.730469 C 274.820312 2.261719 214.484375 22.042969 151.855469 42.574219 C 108.601562 56.757812 64.238281 71.304688 31.339844 60.734375 C 26.386719 59.140625 22.339844 57.195312 18.511719 54.5625 L 18.40625 54.480469 C 14.511719 51.785156 10.785156 48.34375 6.527344 43.8125 Z M 6.523438 43.804688 " fill-opacity="1" fill-rule="evenodd"/></g></g></g></g></g></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(57.019243, 232.657937)"><g><path d="M 2.765625 -18.421875 L 4.734375 -18.421875 L 4.734375 -10.265625 L 15 -10.265625 L 15 -18.421875 L 16.96875 -18.421875 L 16.96875 0 L 15 0 L 15 -8.421875 L 4.734375 -8.421875 L 4.734375 0 L 2.765625 0 Z M 2.765625 -18.421875 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(93.605727, 232.657937)"><g><path d="M 11.046875 0.265625 C 9.734375 0.265625 8.5 0.0195312 7.34375 -0.46875 C 6.195312 -0.957031 5.191406 -1.628906 4.328125 -2.484375 C 3.472656 -3.347656 2.800781 -4.351562 2.3125 -5.5 C 1.820312 -6.65625 1.578125 -7.890625 1.578125 -9.203125 C 1.578125 -10.523438 1.820312 -11.757812 2.3125 -12.90625 C 2.800781 -14.050781 3.472656 -15.050781 4.328125 -15.90625 C 5.191406 -16.769531 6.195312 -17.445312 7.34375 -17.9375 C 8.5 -18.4375 9.734375 -18.6875 11.046875 -18.6875 C 12.367188 -18.6875 13.601562 -18.4375 14.75 -17.9375 C 15.894531 -17.445312 16.894531 -16.769531 17.75 -15.90625 C 18.613281 -15.050781 19.289062 -14.050781 19.78125 -12.90625 C 20.28125 -11.757812 20.53125 -10.523438 20.53125 -9.203125 C 20.53125 -7.890625 20.28125 -6.65625 19.78125 -5.5 C 19.289062 -4.351562 18.613281 -3.347656 17.75 -2.484375 C 16.894531 -1.628906 15.894531 -0.957031 14.75 -0.46875 C 13.601562 0.0195312 12.367188 0.265625 11.046875 0.265625 Z M 11.046875 -1.578125 C 12.097656 -1.578125 13.078125 -1.769531 13.984375 -2.15625 C 14.898438 -2.539062 15.695312 -3.070312 16.375 -3.75 C 17.050781 -4.4375 17.582031 -5.242188 17.96875 -6.171875 C 18.351562 -7.109375 18.546875 -8.117188 18.546875 -9.203125 C 18.546875 -10.296875 18.351562 -11.304688 17.96875 -12.234375 C 17.582031 -13.160156 17.050781 -13.96875 16.375 -14.65625 C 15.695312 -15.34375 14.898438 -15.878906 13.984375 -16.265625 C 13.078125 -16.648438 12.097656 -16.84375 11.046875 -16.84375 C 9.992188 -16.84375 9.007812 -16.648438 8.09375 -16.265625 C 7.1875 -15.878906 6.394531 -15.34375 5.71875 -14.65625 C 5.039062 -13.96875 4.507812 -13.160156 4.125 -12.234375 C 3.738281 -11.304688 3.546875 -10.296875 3.546875 -9.203125 C 3.546875 -8.117188 3.738281 -7.109375 4.125 -6.171875 C 4.507812 -5.242188 5.039062 -4.4375 5.71875 -3.75 C 6.394531 -3.070312 7.1875 -2.539062 8.09375 -2.15625 C 9.007812 -1.769531 9.992188 -1.578125 11.046875 -1.578125 Z M 11.046875 -1.578125 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(132.560295, 232.657937)"><g><path d="M 6.3125 -16.578125 L 0.53125 -16.578125 L 0.53125 -18.421875 L 14.078125 -18.421875 L 14.078125 -16.578125 L 8.28125 -16.578125 L 8.28125 0 L 6.3125 0 Z M 6.3125 -16.578125 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(164.015965, 232.657937)"><g><path d="M 2.765625 -18.421875 L 15.390625 -18.421875 L 15.390625 -16.578125 L 4.734375 -16.578125 L 4.734375 -10.53125 L 13.28125 -10.53125 L 13.28125 -8.6875 L 4.734375 -8.6875 L 4.734375 -1.84375 L 15.65625 -1.84375 L 15.65625 0 L 2.765625 0 Z M 2.765625 -18.421875 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(197.708148, 232.657937)"><g><path d="M 2.765625 -18.421875 L 4.734375 -18.421875 L 4.734375 -1.84375 L 14.203125 -1.84375 L 14.203125 0 L 2.765625 0 Z M 2.765625 -18.421875 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(229.295387, 232.657937)"><g><path d="M 2.765625 -18.421875 L 15.390625 -18.421875 L 15.390625 -16.578125 L 4.734375 -16.578125 L 4.734375 -10.53125 L 13.28125 -10.53125 L 13.28125 -8.6875 L 4.734375 -8.6875 L 4.734375 -1.84375 L 15.65625 -1.84375 L 15.65625 0 L 2.765625 0 Z M 2.765625 -18.421875 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(262.98757, 232.657937)"><g><path d="M 2.765625 -18.421875 L 10.125 -18.421875 C 10.945312 -18.421875 11.707031 -18.28125 12.40625 -18 C 13.101562 -17.71875 13.703125 -17.332031 14.203125 -16.84375 C 14.703125 -16.351562 15.085938 -15.769531 15.359375 -15.09375 C 15.640625 -14.414062 15.78125 -13.679688 15.78125 -12.890625 C 15.78125 -11.835938 15.578125 -10.972656 15.171875 -10.296875 C 14.773438 -9.617188 14.335938 -9.082031 13.859375 -8.6875 C 13.304688 -8.226562 12.675781 -7.875 11.96875 -7.625 L 16.3125 0 L 14.078125 0 L 10 -7.375 L 4.734375 -7.375 L 4.734375 0 L 2.765625 0 Z M 10.125 -9.203125 C 11.25 -9.203125 12.144531 -9.535156 12.8125 -10.203125 C 13.476562 -10.867188 13.8125 -11.765625 13.8125 -12.890625 C 13.8125 -14.015625 13.476562 -14.910156 12.8125 -15.578125 C 12.144531 -16.242188 11.25 -16.578125 10.125 -16.578125 L 4.734375 -16.578125 L 4.734375 -9.203125 Z M 10.125 -9.203125 "/></g></g></g><g fill="#231f20" fill-opacity="1"><g transform="translate(297.600678, 232.657937)"><g><path d="M 8.15625 -18.421875 L 10 -18.421875 L 17.625 0 L 15.53125 0 L 13.421875 -5.125 L 4.734375 -5.125 L 2.625 0 L 0.53125 0 Z M 12.625 -6.96875 L 9.078125 -15.65625 L 5.53125 -6.96875 Z M 12.625 -6.96875 "/></g></g></g></g></g></svg>
-                <div style="font-size:0.72em;color:#718096;margin-top:3px;">Corporación Andina Integral S.A.C.</div>
-                <div style="font-size:0.7em;color:#a0aec0;">📞 929 075 546 · @lineahotelera</div>
+                <div style="font-size:0.72em;color:var(--text-muted);margin-top:3px;">Corporación Andina Integral S.A.C.</div>
+                <div style="font-size:0.7em;color:var(--text-faint);">📞 923 579 140 · @lineahotelera</div>
             </div>
             <div style="text-align:right;">
-                <div id="printTipoDoc" style="font-size:2em;color:#2d3748;font-weight:800;letter-spacing:-0.5px;line-height:1;">COTIZACIÓN</div>
-                <div id="printNumeroCot" style="font-size:0.8em;color:#718096;margin-top:2px;"></div>
-                <div class="print-date" id="printDate" style="font-size:0.8em;color:#718096;margin-top:2px;"></div>
-                <div id="printValidezBadge" style="margin-top:6px;background:#fbbf24;color:#2d3748;padding:4px 10px;border-radius:4px;font-size:0.72em;font-weight:700;display:inline-block;">⏰ Válido 7 días</div>
+                <div id="printTipoDoc" style="font-size:2em;color:var(--primary);font-weight:800;letter-spacing:-0.5px;line-height:1;">COTIZACIÓN</div>
+                <div id="printNumeroCot" style="font-size:0.8em;color:var(--text-muted);margin-top:2px;"></div>
+                <div class="print-date" id="printDate" style="font-size:0.8em;color:var(--text-muted);margin-top:2px;"></div>
+                <div id="printValidezBadge" style="margin-top:6px;background:#fbbf24;color:var(--primary);padding:4px 10px;border-radius:4px;font-size:0.72em;font-weight:700;display:inline-block;">⏰ Válido 7 días</div>
             </div>
         </div>
 
@@ -3622,46 +3988,54 @@ async function generarFichaPDF() {
             <tbody id="printTableBody"></tbody>
         </table>
 
-        <!-- TOTALES + PAGO + BANCO EN FILA -->
+        <!-- TOTALES + PAGO + BANCO + YAPE EN FILA -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
 
-            <!-- BANCO -->
-            <div style="background:#2d3748;color:white;padding:14px 16px;border-radius:8px;">
-                <div style="font-weight:700;font-size:0.88em;margin-bottom:8px;color:#fbbf24;">💳 Datos para Transferencia</div>
-                <div style="font-size:0.78em;line-height:1.8;">
-                    <div><strong style="color:#fbbf24;">Empresa:</strong> Corp. Andina Integral S.A.C.</div>
-                    <div><strong style="color:#fbbf24;">Banco:</strong> BCP</div>
-                    <div><strong style="color:#fbbf24;">Cuenta S/:</strong> 1947224281034</div>
-                    <div><strong style="color:#fbbf24;">CCI:</strong> 00219400722428103498</div>
+            <!-- BANCO + YAPE (misma columna, mismo ancho) -->
+            <div>
+                <div style="background:#2d3748;color:white;padding:14px 16px;border-radius:8px;">
+                    <div style="font-weight:700;font-size:0.88em;margin-bottom:8px;color:#fbbf24;">💳 Datos para Transferencia</div>
+                    <div style="font-size:0.78em;line-height:1.8;">
+                        <div><strong style="color:#fbbf24;">Empresa:</strong> Corp. Andina Integral S.A.C.</div>
+                        <div><strong style="color:#fbbf24;">Banco:</strong> BCP</div>
+                        <div><strong style="color:#fbbf24;">Cuenta S/:</strong> 1947224281034</div>
+                        <div><strong style="color:#fbbf24;">CCI:</strong> 00219400722428103498</div>
+                    </div>
+                </div>
+
+                <!-- YAPE -->
+                <div style="background:#720e9e;color:#ffffff;padding:12px 16px;border-radius:8px;margin-top:14px;text-align:center;">
+                    <div style="font-weight:800;font-size:0.9em;letter-spacing:0.03em;">📱 Pago Yape</div>
+                    <div style="font-size:0.82em;margin-top:3px;">924 431 877 &nbsp;·&nbsp; Jeyko Mejía</div>
                 </div>
             </div>
 
             <!-- TOTALES -->
             <div style="background:#edf2f7;padding:14px 16px;border-radius:8px;">
-                <div id="printTotalesDetalle" style="font-size:0.82em;color:#718096;margin-bottom:8px;line-height:1.9;"></div>
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:1.4em;font-weight:800;color:#2d3748;border-top:2px solid #cbd5e0;padding-top:8px;">
+                <div id="printTotalesDetalle" style="font-size:0.82em;color:var(--text-muted);margin-bottom:8px;line-height:1.9;"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:1.4em;font-weight:800;color:var(--primary);border-top:2px solid #cbd5e0;padding-top:8px;">
                     <span id="printTotalLabel">TOTAL:</span>
                     <span id="printTotal">S/ 0.00</span>
                 </div>
                 <!-- PAGO -->
                 <div id="printPagoSection" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #cbd5e0;font-size:0.82em;">
-                    <div style="display:flex;justify-content:space-between;color:#2d3748;">
+                    <div style="display:flex;justify-content:space-between;color:var(--primary);">
                         <span>✅ Adelanto pagado:</span>
                         <span id="printAdelanto" style="font-weight:700;color:#38a169;"></span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;color:#2d3748;margin-top:4px;">
+                    <div style="display:flex;justify-content:space-between;color:var(--primary);margin-top:4px;">
                         <span>⏳ Saldo pendiente:</span>
                         <span id="printSaldo" style="font-weight:700;color:#e53e3e;"></span>
                     </div>
                 </div>
-                <div style="margin-top:6px;font-size:0.7em;color:#a0aec0;" id="printTotalInfo"></div>
+                <div style="margin-top:6px;font-size:0.7em;color:var(--text-faint);" id="printTotalInfo"></div>
             </div>
         </div>
 
         <!-- FOOTER -->
-        <div style="text-align:center;padding-top:12px;border-top:1.5px solid #e2e8f0;color:#a0aec0;font-size:0.78em;">
-            <strong style="color:#2d3748;">Línea Hotelera · Corporación Andina Integral S.A.C.</strong>
-            &nbsp;·&nbsp; 📞 929 075 546 &nbsp;·&nbsp; 🌐 @lineahotelera &nbsp;·&nbsp; Lima, Perú
+        <div style="text-align:center;padding-top:12px;border-top:1.5px solid #e2e8f0;color:var(--text-faint);font-size:0.78em;">
+            <strong style="color:var(--primary);">Línea Hotelera · Corporación Andina Integral S.A.C.</strong>
+            &nbsp;·&nbsp; 📞 923 579 140 &nbsp;·&nbsp; 🌐 @lineahotelera &nbsp;·&nbsp; Lima, Perú
         </div>
     </div>
     <script>
@@ -4520,7 +4894,7 @@ async function generarFichaPDF() {
                         <div class="product-name">${producto.nombre}</div>
                         <div class="product-prices">
                             ${tiersHtml}
-                            <span style="margin-left: 10px; color: #a0aec0;">${producto.codigo}</span>
+                            <span style="margin-left: 10px; color:var(--text-faint);">${producto.codigo}</span>
                         </div>
                     </div>`;
                 }).join('');
@@ -4539,7 +4913,7 @@ async function generarFichaPDF() {
                     });
                 });
             } else {
-                autocompleteDropdown.innerHTML = '<div style="padding: 15px; text-align: center; color: #718096;">No se encontraron productos</div>';
+                autocompleteDropdown.innerHTML = '<div style="padding: 15px; text-align: center; color:var(--text-muted);">No se encontraron productos</div>';
                 autocompleteDropdown.style.display = 'block';
             }
         }, 200));
@@ -4654,21 +5028,21 @@ async function generarFichaPDF() {
                             <td class="precio-cell">
                                 <div style="display:flex;align-items:center;gap:4px;">
                                     ${precioDisplay}
-                                    <button class="precio-edit-btn" title="Editar precio" onclick="togglePrecioEdit(${index})">✏️</button>
+                                    <button class="precio-edit-btn" title="Editar precio" aria-label="Editar precio" onclick="togglePrecioEdit(${index})">✏️</button>
                                 </div>
                                 <span class="precio-aplicado">${tipoPrecio}</span>
                                 <div class="precio-inline-edit" id="precioEdit_${index}">
-                                    <span style="font-size:0.85em;color:#718096;">S/</span>
+                                    <span style="font-size:0.85em;color:var(--text-muted);">S/</span>
                                     <input class="precio-inline-input" type="number" step="0.01" min="0"
                                         id="precioInput_${index}" value="${precioUnitario.toFixed(2)}">
-                                    <button class="precio-inline-save" onclick="guardarPrecioOverride(${index})">✔</button>
-                                    <button class="precio-inline-cancel" onclick="cancelarPrecioEdit(${index})">✕</button>
-                                    ${hasOverride ? `<button class="precio-inline-cancel" title="Restaurar" onclick="restaurarPrecio(${index})" style="color:#e53e3e;">↩</button>` : ''}
+                                    <button class="precio-inline-save" aria-label="Guardar precio" onclick="guardarPrecioOverride(${index})">✔</button>
+                                    <button class="precio-inline-cancel" aria-label="Cancelar edición de precio" onclick="cancelarPrecioEdit(${index})">✕</button>
+                                    ${hasOverride ? `<button class="precio-inline-cancel" title="Restaurar" aria-label="Restaurar precio original" onclick="restaurarPrecio(${index})" style="color:#e53e3e;">↩</button>` : ''}
                                 </div>
                             </td>
                             <td class="total-cell">${totalDisplay}</td>
                             <td>
-                                <button class="btn-remove" onclick="removeProduct(${index})">✕</button>
+                                <button class="btn-remove" aria-label="Eliminar producto de la cotización" onclick="removeProduct(${index})">✕</button>
                             </td>
                         </tr>
                     `;
@@ -4698,11 +5072,11 @@ async function generarFichaPDF() {
         }
 
         function removeProduct(index) {
-            if (confirm('¿Eliminar este producto de la cotización?')) {
+            mostrarConfirmacion('¿Eliminar este producto de la cotización?', () => {
                 productosEnTabla.splice(index, 1);
                 renderTable();
                 guardarEstado();
-            }
+            });
         }
 
         function updateTotal() {
@@ -4807,7 +5181,7 @@ async function generarFichaPDF() {
 
         function clearAll() {
             if (productosEnTabla.length === 0 && !sucursalSeleccionada) return;
-            if (confirm('¿Limpiar todo? Se borran los productos y los datos del cliente — la próxima que guardes será una cotización nueva con su propio correlativo.')) {
+            mostrarConfirmacion('¿Limpiar todo? Se borran los productos y los datos del cliente — la próxima que guardes será una cotización nueva con su propio correlativo.', () => {
                 productosEnTabla = [];
                 sucursalSeleccionada = null;
                 cotizacionActualId = null;
@@ -4827,7 +5201,7 @@ async function generarFichaPDF() {
                 if (sucSel) sucSel.style.display = 'none';
                 guardarEstado();
                 renderSucursales();
-            }
+            }, { textoAceptar: 'Sí, limpiar' });
         }
 
         // ============================================
@@ -4890,7 +5264,7 @@ async function generarFichaPDF() {
                 .filter(({ producto }) => !texto || producto.codigo.toLowerCase().includes(texto) || producto.nombre.toLowerCase().includes(texto));
 
             if (texto && filas.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#a0aec0; padding:20px;">No se encontró ningún producto con "${texto}"</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-faint); padding:20px;">No se encontró ningún producto con "${texto}"</td></tr>`;
                 return;
             }
 
@@ -4907,10 +5281,10 @@ async function generarFichaPDF() {
                     <td class="codigo-cell">${producto.codigo}</td>
                     <td class="producto-cell">${producto.nombre}</td>
                     <td class="precio-cell">${tiersTexto}</td>
-                    <td class="precio-cell">${producto.costo != null ? 'S/ ' + Number(producto.costo).toFixed(2) : '<span style="color:#a0aec0;">—</span>'}</td>
+                    <td class="precio-cell">${producto.costo != null ? 'S/ ' + Number(producto.costo).toFixed(2) : '<span style="color:var(--text-faint);">—</span>'}</td>
                     <td>
-                        <button class="btn-edit" onclick="editarProducto(${index})">✏️</button>
-                        <button class="btn-remove" onclick="eliminarProducto(${index})">🗑️</button>
+                        <button class="btn-edit" aria-label="Editar producto" onclick="editarProducto(${index})">✏️</button>
+                        <button class="btn-remove" aria-label="Eliminar producto" onclick="eliminarProducto(${index})">🗑️</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -5066,8 +5440,8 @@ async function generarFichaPDF() {
                         <td>${sucursal.provincia}</td>
                         <td><span class="sucursal-tipo">${sucursal.tipo}</span></td>
                         <td>
-                            <button class="btn-edit" onclick="editarSucursal(${realIndex})">✏️</button>
-                            <button class="btn-remove" onclick="eliminarSucursal(${realIndex})">🗑️</button>
+                            <button class="btn-edit" aria-label="Editar sucursal" onclick="editarSucursal(${realIndex})">✏️</button>
+                            <button class="btn-remove" aria-label="Eliminar sucursal" onclick="eliminarSucursal(${realIndex})">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -5120,12 +5494,12 @@ async function generarFichaPDF() {
         });
 
         function eliminarSucursal(index) {
-            if (confirm('¿Eliminar esta sucursal permanentemente?')) {
+            mostrarConfirmacion('¿Eliminar esta sucursal permanentemente?', () => {
                 sucursalesDB.splice(index, 1);
                 guardarEstado();
                 renderSucursalList();
                 mostrarNotificacion('🗑️ Sucursal eliminada', 'success');
-            }
+            });
         }
 
         // ============================================
@@ -5186,7 +5560,7 @@ async function generarFichaPDF() {
                 return;
             }
 
-            statusEl.innerHTML = '<span style="color:#718096;">Generando imagen…</span>';
+            statusEl.innerHTML = '<span style="color:var(--text-muted);">Generando imagen…</span>';
             showLoading(true);
 
             try {
@@ -5205,9 +5579,9 @@ async function generarFichaPDF() {
                         <div style="display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:#f7fafc; border-radius:10px; border:1px solid #e2e8f0;">
                             <div style="font-size:1.5em; line-height:1;">${iconosPorTipo[s.tipo] || '📍'}</div>
                             <div style="flex:1;">
-                                <div style="font-weight:700; color:#2d3748; font-size:1.05em;">${s.nombre}</div>
-                                <div style="color:#718096; font-size:0.9em; margin-top:2px;">${s.direccion}</div>
-                                <div style="color:#a0aec0; font-size:0.82em; margin-top:2px;">${s.ciudad} · ${s.tipo}</div>
+                                <div style="font-weight:700; color:var(--primary); font-size:1.05em;">${s.nombre}</div>
+                                <div style="color:var(--text-muted); font-size:0.9em; margin-top:2px;">${s.direccion}</div>
+                                <div style="color:var(--text-faint); font-size:0.82em; margin-top:2px;">${s.ciudad} · ${s.tipo}</div>
                             </div>
                         </div>
                     `).join('');
@@ -5267,7 +5641,7 @@ async function generarFichaPDF() {
             const grid = document.getElementById('sucursalGrid');
             
             if (sucursales.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #718096;">No se encontraron sucursales</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color:var(--text-muted);">No se encontraron sucursales</div>';
                 return;
             }
 
@@ -5538,40 +5912,50 @@ async function generarFichaPDF() {
                 mostrarNotificacion('Agrega productos primero', 'warning');
                 return;
             }
-            const nombre = prompt('Nombre de la plantilla (ej: "Paquete Habitación Estándar"):');
-            if (!nombre || !nombre.trim()) return;
+            mostrarPrompt('Nombre de la plantilla (ej: "Paquete Habitación Estándar"):', '', (nombre) => {
+                if (!nombre || !nombre.trim()) return;
 
-            const plantillas = getPlantillasDB();
-            const plantilla = {
-                id: Date.now(),
-                nombre: nombre.trim(),
-                fecha: new Date().toISOString(),
-                productos: JSON.parse(JSON.stringify(productosEnTabla))
-            };
-            plantillas.unshift(plantilla);
-            if (plantillas.length > 50) plantillas.pop();
-            localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
-            mostrarNotificacion(`✅ Plantilla "${plantilla.nombre}" guardada`, 'success');
-            if (typeof renderPlantillas === 'function') renderPlantillas();
+                const plantillas = getPlantillasDB();
+                const plantilla = {
+                    id: Date.now(),
+                    nombre: nombre.trim(),
+                    fecha: new Date().toISOString(),
+                    productos: JSON.parse(JSON.stringify(productosEnTabla))
+                };
+                plantillas.unshift(plantilla);
+                if (plantillas.length > 50) plantillas.pop();
+                localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
+                mostrarNotificacion(`✅ Plantilla "${plantilla.nombre}" guardada`, 'success');
+                if (typeof renderPlantillas === 'function') renderPlantillas();
+            });
         }
 
         function cargarPlantilla(id) {
             const plantillas = getPlantillasDB();
             const plantilla = plantillas.find(p => p.id === id);
             if (!plantilla) return;
-            if (productosEnTabla.length > 0 && !confirm(`¿Cargar plantilla "${plantilla.nombre}"? Se reemplazarán los productos actuales.`)) return;
-            productosEnTabla = JSON.parse(JSON.stringify(plantilla.productos));
-            renderTable();
-            guardarEstado();
-            switchTabById('cotizar');
-            mostrarNotificacion(`📋 Plantilla "${plantilla.nombre}" cargada`, 'success');
+
+            const aplicarPlantilla = () => {
+                productosEnTabla = JSON.parse(JSON.stringify(plantilla.productos));
+                renderTable();
+                guardarEstado();
+                switchTabById('cotizar');
+                mostrarNotificacion(`📋 Plantilla "${plantilla.nombre}" cargada`, 'success');
+            };
+
+            if (productosEnTabla.length > 0) {
+                mostrarConfirmacion(`¿Cargar plantilla "${plantilla.nombre}"? Se reemplazarán los productos actuales.`, aplicarPlantilla, { textoAceptar: 'Sí, cargar' });
+            } else {
+                aplicarPlantilla();
+            }
         }
 
         function eliminarPlantilla(id) {
-            if (!confirm('¿Eliminar esta plantilla?')) return;
-            const plantillas = getPlantillasDB().filter(p => p.id !== id);
-            localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
-            if (typeof renderPlantillas === 'function') renderPlantillas();
+            mostrarConfirmacion('¿Eliminar esta plantilla?', () => {
+                const plantillas = getPlantillasDB().filter(p => p.id !== id);
+                localStorage.setItem('plantillas_lh', JSON.stringify(plantillas));
+                if (typeof renderPlantillas === 'function') renderPlantillas();
+            });
         }
 
         // ============================================
@@ -5614,15 +5998,15 @@ async function generarFichaPDF() {
             if (cliente.nombre || cliente.empresa) {
                 hayCliente = true;
                 let html = `<div style="font-size:0.75em;font-weight:700;color:#5568d3;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;">👤 Cliente</div>`;
-                if (cliente.nombre) html += `<div style="font-weight:700;font-size:0.88em;color:#2d3748;">${cliente.nombre}</div>`;
-                if (cliente.empresa) html += `<div style="font-size:0.8em;color:#718096;">${cliente.empresa}</div>`;
+                if (cliente.nombre) html += `<div style="font-weight:700;font-size:0.88em;color:var(--primary);">${cliente.nombre}</div>`;
+                if (cliente.empresa) html += `<div style="font-size:0.8em;color:var(--text-muted);">${cliente.empresa}</div>`;
                 const detalles = [
                     cliente.ruc ? `📄 ${cliente.ruc}` : null,
                     cliente.telefono ? `📞 ${cliente.telefono}` : null,
                     cliente.email ? `✉️ ${cliente.email}` : null,
                     cliente.direccion ? `📍 ${cliente.direccion}` : null
                 ].filter(Boolean);
-                if (detalles.length) html += `<div style="font-size:0.78em;color:#718096;margin-top:5px;line-height:1.7;">${detalles.join('<br>')}</div>`;
+                if (detalles.length) html += `<div style="font-size:0.78em;color:var(--text-muted);margin-top:5px;line-height:1.7;">${detalles.join('<br>')}</div>`;
                 if (cliente.notas) html += `<div style="font-size:0.75em;color:#92400e;background:#fef3c7;padding:4px 7px;border-radius:4px;margin-top:5px;">📝 ${cliente.notas}</div>`;
                 clientePrintEl.innerHTML = html;
                 clientePrintEl.style.display = 'block';
@@ -5636,8 +6020,8 @@ async function generarFichaPDF() {
                 hayEnvio = true;
                 envioPrintEl.innerHTML = `
                     <div style="font-size:0.75em;font-weight:700;color:#234e52;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;">📦 Envío Shalom</div>
-                    <div style="font-weight:700;font-size:0.88em;color:#2d3748;">${sucursalSeleccionada.nombre}</div>
-                    <div style="font-size:0.78em;color:#718096;line-height:1.7;margin-top:5px;">
+                    <div style="font-weight:700;font-size:0.88em;color:var(--primary);">${sucursalSeleccionada.nombre}</div>
+                    <div style="font-size:0.78em;color:var(--text-muted);line-height:1.7;margin-top:5px;">
                         📍 ${sucursalSeleccionada.direccion}<br>
                         🏙️ ${sucursalSeleccionada.ciudad}, ${sucursalSeleccionada.provincia}<br>
                         🏢 Tipo: ${sucursalSeleccionada.tipo}
@@ -5683,10 +6067,10 @@ async function generarFichaPDF() {
 
                 return `
                     <tr>
-                        <td style="font-size:0.82em;color:#718096;font-family:monospace;">${producto.codigo}</td>
+                        <td style="font-size:0.82em;color:var(--text-muted);font-family:monospace;">${producto.codigo}</td>
                         <td style="font-size:0.88em;">${producto.nombre}${colorInfo}</td>
                         <td style="text-align:center;font-size:0.88em;">${cantidad}</td>
-                        <td style="text-align:right;font-size:0.85em;">S/ ${precioMostrar.toFixed(2)}<br><span style="font-size:0.8em;color:#a0aec0;">${tipoPrecio}</span></td>
+                        <td style="text-align:right;font-size:0.85em;">S/ ${precioMostrar.toFixed(2)}<br><span style="font-size:0.8em;color:var(--text-faint);">${tipoPrecio}</span></td>
                         <td style="text-align:right;font-weight:700;font-size:0.9em;">S/ ${subtotalMostrar.toFixed(2)}</td>
                     </tr>
                 `;
@@ -5726,6 +6110,15 @@ async function generarFichaPDF() {
         // UTILIDADES
         // ============================================
 
+        // El CSS (prefers-reduced-motion, ver <style>) ya cubre las
+        // animaciones/transiciones de la página, pero los gráficos del
+        // Dashboard los dibuja Chart.js con su propia animación interna
+        // (no controlable por CSS) — se apaga a mano aquí.
+        function prefiereMovimientoReducido() {
+            return typeof window.matchMedia === 'function' &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+
         function showLoading(show) {
             document.getElementById('loadingOverlay').classList.toggle('active', show);
         }
@@ -5741,6 +6134,265 @@ async function generarFichaPDF() {
                 setTimeout(() => div.remove(), 300);
             }, 3000);
         }
+
+        // ============================================
+        // MODAL DE CONFIRMACIÓN / PROMPT
+        // Reemplaza a confirm()/prompt() nativos del navegador por un
+        // único modal reutilizable con la identidad visual de la app.
+        //
+        // Uso:
+        //   mostrarConfirmacion('¿Seguro?', () => { ...si acepta... });
+        //   mostrarPrompt('Nombre:', '', (valor) => { ...si acepta... });
+        //
+        // OJO: a diferencia de confirm()/prompt() nativos (que BLOQUEAN
+        // la ejecución y devuelven un valor de inmediato), este modal es
+        // asíncrono — no bloquea nada. Por eso el código que antes iba
+        // después de "if (confirm(...))" ahora va DENTRO del callback.
+        // ============================================
+        (function () {
+            const modal = document.getElementById('modalConfirmacion');
+            const tituloEl = document.getElementById('modalConfirmacionTitulo');
+            const mensajeEl = document.getElementById('modalConfirmacionMensaje');
+            const promptWrap = document.getElementById('modalConfirmacionPromptWrap');
+            const inputEl = document.getElementById('modalConfirmacionInput');
+            const btnAceptar = document.getElementById('modalConfirmacionAceptar');
+            const btnCancelar = document.getElementById('modalConfirmacionCancelar');
+            const btnCerrarX = document.getElementById('modalConfirmacionCerrarX');
+
+            if (!modal) return; // por si el HTML del modal no está presente
+
+            let disparador = null;   // elemento con foco antes de abrir el modal
+            let esPrompt = false;
+            let callbackAceptar = null;
+
+            function elementosFocables() {
+                return Array.from(modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+                    .filter(el => !el.disabled && el.offsetParent !== null);
+            }
+
+            function onKeydown(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cerrar(false);
+                    return;
+                }
+                if (e.key === 'Tab') {
+                    // Trap de foco: Tab no debe salir del modal mientras esté abierto.
+                    const focables = elementosFocables();
+                    if (focables.length === 0) return;
+                    const primero = focables[0];
+                    const ultimo = focables[focables.length - 1];
+                    if (e.shiftKey && document.activeElement === primero) {
+                        e.preventDefault();
+                        ultimo.focus();
+                    } else if (!e.shiftKey && document.activeElement === ultimo) {
+                        e.preventDefault();
+                        primero.focus();
+                    }
+                }
+            }
+
+            function onClickFuera(e) {
+                if (e.target === modal) cerrar(false);
+            }
+
+            function cerrar(confirmado) {
+                modal.classList.remove('active');
+                document.removeEventListener('keydown', onKeydown);
+                modal.removeEventListener('click', onClickFuera);
+
+                const callback = callbackAceptar;
+                const valor = esPrompt ? inputEl.value : undefined;
+                const elementoAEnfocar = disparador;
+                callbackAceptar = null;
+                disparador = null;
+
+                if (confirmado && callback) {
+                    esPrompt ? callback(valor) : callback();
+                }
+
+                // Devuelve el foco a quien abrió el modal. Muchas de estas
+                // acciones re-renderizan listas (renderTable, renderHistorial,
+                // etc.), así que el elemento original puede ya no existir —
+                // en ese caso simplemente no se restaura el foco.
+                if (elementoAEnfocar && document.contains(elementoAEnfocar) && typeof elementoAEnfocar.focus === 'function') {
+                    elementoAEnfocar.focus();
+                }
+            }
+
+            function abrir(opts) {
+                const { titulo, mensaje, prompt, valorInicial, textoAceptar, textoCancelar, callback } = opts;
+                disparador = document.activeElement;
+                esPrompt = !!prompt;
+                callbackAceptar = callback;
+
+                tituloEl.textContent = titulo || (esPrompt ? 'Completar dato' : 'Confirmar');
+                mensajeEl.textContent = mensaje || '';
+                btnAceptar.textContent = textoAceptar || 'Aceptar';
+                btnCancelar.textContent = textoCancelar || 'Cancelar';
+                // Colores fijos: Cancelar siempre rojo, Aceptar siempre
+                // neutro (sin color de botón) — ver estilo en el HTML del
+                // modal (#modalConfirmacionAceptar / #modalConfirmacionCancelar).
+
+                if (esPrompt) {
+                    promptWrap.style.display = 'block';
+                    inputEl.value = valorInicial || '';
+                } else {
+                    promptWrap.style.display = 'none';
+                }
+
+                modal.classList.add('active');
+                document.addEventListener('keydown', onKeydown);
+                modal.addEventListener('click', onClickFuera);
+
+                // Foco inicial: el input si es prompt, si no el botón principal.
+                setTimeout(() => {
+                    if (esPrompt) {
+                        inputEl.focus();
+                        inputEl.select();
+                    } else {
+                        btnAceptar.focus();
+                    }
+                }, 0);
+            }
+
+            btnAceptar.addEventListener('click', () => cerrar(true));
+            btnCancelar.addEventListener('click', () => cerrar(false));
+            btnCerrarX.addEventListener('click', () => cerrar(false));
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); cerrar(true); }
+            });
+
+            // mostrarConfirmacion(mensaje, onConfirmar, opts?)
+            // opts: { titulo, textoAceptar, textoCancelar }
+            // Por defecto el botón de confirmar dice "Sí, eliminar" (la
+            // mayoría de los usos son de borrado) — pásale textoAceptar
+            // para acciones que no son un borrado (ej. "Sí, cargar").
+            window.mostrarConfirmacion = function (mensaje, onConfirmar, opts) {
+                opts = opts || {};
+                abrir({
+                    mensaje,
+                    callback: onConfirmar,
+                    prompt: false,
+                    titulo: opts.titulo,
+                    textoAceptar: opts.textoAceptar || 'Sí, eliminar',
+                    textoCancelar: opts.textoCancelar || 'Cancelar'
+                });
+            };
+
+            // mostrarPrompt(mensaje, valorInicial, onAceptar, opts?)
+            window.mostrarPrompt = function (mensaje, valorInicial, onAceptar, opts) {
+                opts = opts || {};
+                abrir({
+                    mensaje,
+                    callback: onAceptar,
+                    prompt: true,
+                    valorInicial,
+                    titulo: opts.titulo,
+                    textoAceptar: opts.textoAceptar || 'Aceptar',
+                    textoCancelar: opts.textoCancelar
+                });
+            };
+        })();
+
+        // ============================================
+        // ACCESIBILIDAD GENÉRICA DE MODALES (.modal)
+        // Se aplica automáticamente a todo elemento .modal existente al
+        // cargar la página (editProductoModal, verCotizacionModal,
+        // listaCompraModal, panelCuentaModal, editSucursalModal), sin
+        // tener que tocar cada uno de los sitios donde se abren/cierran
+        // (siguen usando su propio classList.add/remove('active') igual
+        // que antes). Un MutationObserver por modal vigila el cambio de
+        // la clase "active" y, mientras está activo:
+        //   - Atrapa el foco (Tab no sale del modal).
+        //   - Cierra con Esc (simulando un click en su botón "×").
+        //   - Al abrir, mueve el foco al primer campo interactivo (sin
+        //     contar el botón "×" de cerrar).
+        //   - Al cerrar, devuelve el foco a quien abrió el modal.
+        // #modalConfirmacion NO se incluye aquí: ya tiene su propio
+        // manejo (ver sección "MODAL DE CONFIRMACIÓN / PROMPT" arriba),
+        // hecho a medida para su flujo de confirmar/cancelar/prompt.
+        // ============================================
+        (function () {
+            const SELECTOR_FOCABLES = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+            const estadoPorModal = new WeakMap(); // modal -> { disparador, onKeydown }
+
+            function esVisible(el) {
+                return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            }
+
+            function elementosFocables(modal) {
+                return Array.from(modal.querySelectorAll(SELECTOR_FOCABLES)).filter(esVisible);
+            }
+
+            function cerrarModal(modal) {
+                // Usa el botón "×" propio del modal (si existe) para que
+                // corra también su lógica de limpieza (closeEditProductoModal,
+                // cerrarPanelCuenta, etc.), en vez de solo quitar la clase.
+                const btnCerrar = modal.querySelector('.modal-close');
+                if (btnCerrar) { btnCerrar.click(); return; }
+                modal.classList.remove('active');
+            }
+
+            function onKeydownModal(e) {
+                const modal = e.currentTarget;
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cerrarModal(modal);
+                    return;
+                }
+                if (e.key === 'Tab') {
+                    const focables = elementosFocables(modal);
+                    if (focables.length === 0) return;
+                    const primero = focables[0];
+                    const ultimo = focables[focables.length - 1];
+                    if (e.shiftKey && document.activeElement === primero) {
+                        e.preventDefault();
+                        ultimo.focus();
+                    } else if (!e.shiftKey && document.activeElement === ultimo) {
+                        e.preventDefault();
+                        primero.focus();
+                    }
+                }
+            }
+
+            function activarModal(modal) {
+                if (estadoPorModal.has(modal)) return;
+                const disparador = document.activeElement;
+                modal.addEventListener('keydown', onKeydownModal);
+                estadoPorModal.set(modal, { disparador });
+
+                setTimeout(() => {
+                    const focables = elementosFocables(modal);
+                    // Foco inicial en el primer campo real, no en el "×".
+                    const primero = focables.find(el => !el.classList.contains('modal-close')) || focables[0];
+                    if (primero) primero.focus();
+                }, 0);
+            }
+
+            function desactivarModal(modal) {
+                const estado = estadoPorModal.get(modal);
+                if (!estado) return;
+                modal.removeEventListener('keydown', onKeydownModal);
+                estadoPorModal.delete(modal);
+                if (estado.disparador && document.contains(estado.disparador) && typeof estado.disparador.focus === 'function') {
+                    estado.disparador.focus();
+                }
+            }
+
+            document.querySelectorAll('.modal').forEach((modal) => {
+                if (modal.id === 'modalConfirmacion') return; // manejo propio, ver arriba
+                if (modal.classList.contains('active')) activarModal(modal);
+                new MutationObserver((mutations) => {
+                    mutations.forEach((m) => {
+                        if (m.attributeName !== 'class') return;
+                        if (modal.classList.contains('active')) activarModal(modal);
+                        else desactivarModal(modal);
+                    });
+                }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+            });
+        })();
 
         // ============================================
         // FUNCIONES PANEL CLIENTE
@@ -6060,34 +6712,35 @@ async function generarFichaPDF() {
             el.style.display = productosDB.length === 0 ? 'block' : 'none';
         }
 
-        async function migrarCatalogoALaNube() {
-            if (!confirm(`Esto va a subir ${productosDBSemilla.length} productos de arranque a tu catálogo en la nube. ¿Continuar?`)) return;
-            showLoading(true);
-            try {
-                for (const p of productosDBSemilla) {
-                    const base = await parseFetch(PRODUCTO_CLASE, 'POST', null, {
-                        codigo: p.codigo,
-                        nombre: p.nombre,
-                        costo: null,
-                        ACL: aclEquipo()
-                    });
-                    await parseFetch(PRECIO_VENTA_CLASE, 'POST', null, {
-                        codigo: p.codigo,
-                        productoId: base.objectId,
-                        tiers: [
-                            { etiqueta: 'Por menor', cantidadMinima: 1, precio: p.menor },
-                            { etiqueta: 'Por mayor', cantidadMinima: 6, precio: p.mayor }
-                        ],
-                        ACL: aclSoloUsuario()
-                    });
+        function migrarCatalogoALaNube() {
+            mostrarConfirmacion(`Esto va a subir ${productosDBSemilla.length} productos de arranque a tu catálogo en la nube. ¿Continuar?`, async () => {
+                showLoading(true);
+                try {
+                    for (const p of productosDBSemilla) {
+                        const base = await parseFetch(PRODUCTO_CLASE, 'POST', null, {
+                            codigo: p.codigo,
+                            nombre: p.nombre,
+                            costo: null,
+                            ACL: aclEquipo()
+                        });
+                        await parseFetch(PRECIO_VENTA_CLASE, 'POST', null, {
+                            codigo: p.codigo,
+                            productoId: base.objectId,
+                            tiers: [
+                                { etiqueta: 'Por menor', cantidadMinima: 1, precio: p.menor },
+                                { etiqueta: 'Por mayor', cantidadMinima: 6, precio: p.mayor }
+                            ],
+                            ACL: aclSoloUsuario()
+                        });
+                    }
+                    await cargarProductosDesdeNube();
+                    mostrarNotificacion('✅ Catálogo subido a la nube', 'success');
+                } catch (err) {
+                    mostrarNotificacion('❌ Error al migrar: ' + err.message, 'warning');
+                } finally {
+                    showLoading(false);
                 }
-                await cargarProductosDesdeNube();
-                mostrarNotificacion('✅ Catálogo subido a la nube', 'success');
-            } catch (err) {
-                mostrarNotificacion('❌ Error al migrar: ' + err.message, 'warning');
-            } finally {
-                showLoading(false);
-            }
+            }, { textoAceptar: 'Sí, subir' });
         }
 
         // ---------- Filas dinámicas de niveles de precio (usado en el
@@ -6101,7 +6754,7 @@ async function generarFichaPDF() {
                 <input type="text" class="form-input tier-etiqueta" placeholder="Ej: Docena" value="${etiqueta}">
                 <input type="number" class="form-input tier-cantidad" placeholder="Cant. mín." min="1" value="${cantidadMinima}">
                 <input type="number" class="form-input tier-precio" placeholder="Precio S/" min="0" step="0.01" value="${precio}">
-                <button type="button" class="tier-del-btn" onclick="this.parentElement.remove()">✕</button>
+                <button type="button" class="tier-del-btn" aria-label="Quitar nivel de precio" onclick="this.parentElement.remove()">✕</button>
             `;
             contenedor.appendChild(fila);
         }
@@ -6120,15 +6773,16 @@ async function generarFichaPDF() {
             return tiers.sort((a, b) => a.cantidadMinima - b.cantidadMinima);
         }
 
-        async function eliminarPrecioVentaNube(objectId) {
-            if (!confirm('¿Quitar tu precio de venta para este producto? (el producto sigue disponible para el resto del equipo)')) return;
-            try {
-                await parseFetch(PRECIO_VENTA_CLASE, 'DELETE', objectId);
-                await cargarProductosDesdeNube();
-                mostrarNotificacion('🗑️ Tu precio fue eliminado', 'success');
-            } catch (err) {
-                mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
-            }
+        function eliminarPrecioVentaNube(objectId) {
+            mostrarConfirmacion('¿Quitar tu precio de venta para este producto? (el producto sigue disponible para el resto del equipo)', async () => {
+                try {
+                    await parseFetch(PRECIO_VENTA_CLASE, 'DELETE', objectId);
+                    await cargarProductosDesdeNube();
+                    mostrarNotificacion('🗑️ Tu precio fue eliminado', 'success');
+                } catch (err) {
+                    mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+                }
+            }, { textoAceptar: 'Sí, quitar' });
         }
 
         // ============================================
@@ -6309,7 +6963,7 @@ async function generarFichaPDF() {
                 const numeroMostrado = esOrden && entry.numeroOrdenCompra ? entry.numeroOrdenCompra : (entry.numeroCotizacion || '');
                 const badgeEstado = esOrden
                     ? `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#e8f9ee; color:#38a169;">✅ Orden de compra</span>`
-                    : `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:#f0f0f0; color:#718096;">📝 Cotización</span>`;
+                    : `<span style="display:inline-block; padding:2px 9px; border-radius:12px; font-size:0.72em; font-weight:700; background:var(--chip-neutral-bg); color:var(--text-muted);">📝 Cotización</span>`;
                 const envioInfo = esOrden ? buscarEnvioPorOC(numeroMostrado) : null;
                 const badgeEnvio = envioInfo ? badgeEnvioHtml(envioInfo) : '';
                 return `
@@ -6329,10 +6983,10 @@ async function generarFichaPDF() {
                                 <button class="btn-historial-load" style="background:var(--secondary);" onclick="verCotizacionDetalle('${entry.objectId}')">👁️ Ver</button>
                                 <button class="btn-historial-load" onclick="cargarDesdeHistorial('${entry.objectId}')">📂 Cargar</button>
                                 ${esOrden
-                                    ? `<button class="btn-historial-load" style="background:#f0f0f0; color:#718096;" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'cotizada')">↩ Desmarcar</button>`
+                                    ? `<button class="btn-historial-load" style="background:var(--chip-neutral-bg); color:var(--text-muted);" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'cotizada')">↩ Desmarcar</button>`
                                     : `<button class="btn-historial-load" style="background:#e8f9ee; color:#38a169;" onclick="cambiarEstadoCotizacion('${entry.objectId}', 'orden_compra')">✅ Marcar venta</button>`
                                 }
-                                <button class="btn-historial-del" onclick="eliminarDeHistorial('${entry.objectId}')">🗑️</button>
+                                <button class="btn-historial-del" aria-label="Eliminar cotización del historial" onclick="eliminarDeHistorial('${entry.objectId}')">🗑️</button>
                             </div>
                         </div>
                     </div>`;
@@ -6428,7 +7082,7 @@ async function generarFichaPDF() {
                             <div class="historial-card-actions">
                                 <button class="btn-historial-load" style="background:var(--secondary);" onclick="verCotizacionDetalle('${entry.objectId}')">👁️ Ver</button>
                                 ${envio
-                                    ? `<button class="btn-historial-load" style="background:#f0f0f0; color:#718096;" onclick="switchTabById('shalom'); cargarEnviosShalom();">🚚 Ver en Shalom</button>`
+                                    ? `<button class="btn-historial-load" style="background:var(--chip-neutral-bg); color:var(--text-muted);" onclick="switchTabById('shalom'); cargarEnviosShalom();">🚚 Ver en Shalom</button>`
                                     : `<button class="btn-historial-load" style="background:#e8f9ee; color:#38a169;" onclick="irARegistrarGuia('${entry.numeroOrdenCompra || ''}', '${(entry.cliente || '').replace(/'/g, "\\'")}')">➕ Registrar guía</button>`
                                 }
                             </div>
@@ -6547,15 +7201,15 @@ async function generarFichaPDF() {
                 const ocsTexto = it.ordenes.map(o => `${o.numeroOC} (${o.cantidad})`).join(', ');
                 return `
                     <tr>
-                        <td>${it.nombre}${it.codigo ? ` <span style="color:#a0aec0; font-size:0.85em;">· ${it.codigo}</span>` : ''}</td>
+                        <td>${it.nombre}${it.codigo ? ` <span style="color:var(--text-faint); font-size:0.85em;">· ${it.codigo}</span>` : ''}</td>
                         <td>${it.color || '—'}</td>
                         <td style="text-align:center; font-weight:800; color:var(--primary);">${it.cantidad}</td>
-                        <td style="font-size:0.78em; color:#718096;">${ocsTexto}</td>
+                        <td style="font-size:0.78em; color:var(--text-muted);">${ocsTexto}</td>
                     </tr>`;
             }).join('');
 
             contenido.innerHTML = `
-                <p style="font-size:0.85em; color:#718096; margin-bottom:14px;">
+                <p style="font-size:0.85em; color:var(--text-muted); margin-bottom:14px;">
                     Suma de productos, colores y cantidades de las <strong>${ordenesIncluidas.length}</strong> orden${ordenesIncluidas.length !== 1 ? 'es' : ''} de compra que aún no se despachan (sin guía registrada, o con guía que todavía no sale de camino). Es una vista de solo lectura — no cambia nada de tus órdenes, precios ni catálogo.
                 </p>
                 <div class="products-table-container">
@@ -6659,19 +7313,19 @@ async function generarFichaPDF() {
             ].filter(Boolean);
 
             document.getElementById('verCotContenido').innerHTML = `
-                ${numero ? `<div style="text-align:center; padding:10px; margin-bottom:14px; border-radius:10px; background:${esOrden ? '#e8f9ee' : '#eef2ff'};">
-                    <div style="font-size:0.75em; color:#718096; font-weight:600; letter-spacing:0.04em;">N° DE ${esOrden ? 'ORDEN DE COMPRA' : 'COTIZACIÓN'}</div>
+                ${numero ? `<div style="text-align:center; padding:10px; margin-bottom:14px; border-radius:10px; background:${esOrden ? 'var(--tint-ok-bg)' : 'var(--tint-info-bg)'};">
+                    <div style="font-size:0.75em; color:var(--text-muted); font-weight:600; letter-spacing:0.04em;">N° DE ${esOrden ? 'ORDEN DE COMPRA' : 'COTIZACIÓN'}</div>
                     <div style="font-size:1.6em; font-weight:800; color:${esOrden ? '#38a169' : 'var(--secondary)'}; letter-spacing:0.02em; word-break:break-word;">${numero}</div>
                 </div>` : ''}
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
-                    <span style="padding:3px 10px; border-radius:12px; font-size:0.78em; font-weight:700; background:${esOrden ? '#e8f9ee' : '#f0f0f0'}; color:${esOrden ? '#38a169' : '#718096'};">${esOrden ? '✅ Orden de compra' : '📝 Cotización'}</span>
+                    <span style="padding:3px 10px; border-radius:12px; font-size:0.78em; font-weight:700; background:${esOrden ? '#e8f9ee' : 'var(--chip-neutral-bg)'}; color:${esOrden ? '#38a169' : 'var(--text-muted)'};">${esOrden ? '✅ Orden de compra' : '📝 Cotización'}</span>
                     ${entry.sucursal ? `<span style="padding:3px 10px; border-radius:12px; font-size:0.78em; background:#ebf8ff; color:#3182ce;">📍 ${entry.sucursal.nombre}</span>` : ''}
                     ${envio ? badgeEnvioHtml(envio) : ''}
                 </div>
                 <div style="margin-bottom:14px; word-break:break-word;">
-                    ${entry.empresa ? `<div style="font-size:0.9em; color:#2d3748; font-weight:600;">${entry.empresa}</div>` : ''}
-                    ${detallesCliente.length ? `<div style="font-size:0.85em; color:#718096; margin-top:5px; line-height:1.7;">${detallesCliente.join('<br>')}</div>` : ''}
-                    <div style="font-size:0.8em; color:#a0aec0; margin-top:5px;">${new Date(registro.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })}</div>
+                    ${entry.empresa ? `<div style="font-size:0.9em; color:var(--primary); font-weight:600;">${entry.empresa}</div>` : ''}
+                    ${detallesCliente.length ? `<div style="font-size:0.85em; color:var(--text-muted); margin-top:5px; line-height:1.7;">${detallesCliente.join('<br>')}</div>` : ''}
+                    <div style="font-size:0.8em; color:var(--text-faint); margin-top:5px;">${new Date(registro.createdAt).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' })}</div>
                     ${entry.notas ? `<div style="font-size:0.8em; color:#92400e; background:#fef3c7; padding:6px 9px; border-radius:6px; margin-top:6px;">📝 ${entry.notas}</div>` : ''}
                 </div>
                 <div class="products-table-container" style="margin-top:0;">
@@ -6695,24 +7349,25 @@ async function generarFichaPDF() {
             try { entry = JSON.parse(registro.datos); }
             catch (e) { mostrarNotificacion('❌ No se pudo leer esta cotización guardada.', 'warning'); return; }
 
-            if (!confirm(`¿Cargar cotización de "${entry.cliente}"? Se reemplazará la cotización actual.`)) return;
-            productosEnTabla = JSON.parse(JSON.stringify(entry.productos));
-            sucursalSeleccionada = entry.sucursal || null;
-            cotizacionActualId = objectId; // seguir editando ESTE registro, mismo correlativo
-            document.getElementById('clienteNombre').value = entry.cliente === 'Sin nombre' ? '' : entry.cliente;
-            document.getElementById('clienteEmpresa').value = entry.empresa || '';
-            document.getElementById('clienteRUC').value = entry.ruc || '';
-            document.getElementById('clienteTelefono').value = entry.telefono || '';
-            document.getElementById('clienteEmail').value = entry.email || '';
-            document.getElementById('clienteDireccion').value = entry.direccion || '';
-            document.getElementById('clienteNotas').value = entry.notas || '';
-            actualizarResumenCliente();
-            renderTable();
-            guardarEstado();
-            if (sucursalSeleccionada) mostrarSucursalSeleccionada();
-            renderSucursales();
-            switchTabById('cotizar');
-            mostrarNotificacion('📂 Cotización cargada', 'success');
+            mostrarConfirmacion(`¿Cargar cotización de "${entry.cliente}"? Se reemplazará la cotización actual.`, () => {
+                productosEnTabla = JSON.parse(JSON.stringify(entry.productos));
+                sucursalSeleccionada = entry.sucursal || null;
+                cotizacionActualId = objectId; // seguir editando ESTE registro, mismo correlativo
+                document.getElementById('clienteNombre').value = entry.cliente === 'Sin nombre' ? '' : entry.cliente;
+                document.getElementById('clienteEmpresa').value = entry.empresa || '';
+                document.getElementById('clienteRUC').value = entry.ruc || '';
+                document.getElementById('clienteTelefono').value = entry.telefono || '';
+                document.getElementById('clienteEmail').value = entry.email || '';
+                document.getElementById('clienteDireccion').value = entry.direccion || '';
+                document.getElementById('clienteNotas').value = entry.notas || '';
+                actualizarResumenCliente();
+                renderTable();
+                guardarEstado();
+                if (sucursalSeleccionada) mostrarSucursalSeleccionada();
+                renderSucursales();
+                switchTabById('cotizar');
+                mostrarNotificacion('📂 Cotización cargada', 'success');
+            }, { textoAceptar: 'Sí, cargar' });
         }
 
         async function eliminarDeHistorial(objectId) {
@@ -6752,17 +7407,18 @@ async function generarFichaPDF() {
             }
         }
 
-        async function limpiarHistorial() {
-            if (!confirm('¿Eliminar todo el historial de cotizaciones? Esta acción no se puede deshacer.')) return;
-            try {
-                for (const entry of historialCache) {
-                    await parseFetch(COTIZACION_CLASE, 'DELETE', entry.objectId);
+        function limpiarHistorial() {
+            mostrarConfirmacion('¿Eliminar todo el historial de cotizaciones? Esta acción no se puede deshacer.', async () => {
+                try {
+                    for (const entry of historialCache) {
+                        await parseFetch(COTIZACION_CLASE, 'DELETE', entry.objectId);
+                    }
+                    renderHistorial();
+                    mostrarNotificacion('Historial eliminado', 'info');
+                } catch (err) {
+                    mostrarNotificacion('❌ Error al eliminar el historial: ' + err.message, 'warning');
                 }
-                renderHistorial();
-                mostrarNotificacion('Historial eliminado', 'info');
-            } catch (err) {
-                mostrarNotificacion('❌ Error al eliminar el historial: ' + err.message, 'warning');
-            }
+            });
         }
 
 
@@ -7018,22 +7674,23 @@ async function generarFichaPDF() {
             }
         }
 
-        async function cerrarSesion() {
-            if (!confirm('¿Cerrar sesión en este dispositivo?')) return;
-            try {
-                if (sesionUsuario) {
-                    await fetch(`${PARSE_URL}/logout`, {
-                        method: 'POST',
-                        headers: {
-                            'X-Parse-Application-Id': cloudConfig.appId,
-                            'X-Parse-JavaScript-Key': cloudConfig.jsKey,
-                            'X-Parse-Session-Token': sesionUsuario.sessionToken
-                        }
-                    });
-                }
-            } catch (err) { /* seguimos igual, ya limpiamos localmente */ }
-            localStorage.removeItem('lh_sesion');
-            location.reload();
+        function cerrarSesion() {
+            mostrarConfirmacion('¿Cerrar sesión en este dispositivo?', async () => {
+                try {
+                    if (sesionUsuario) {
+                        await fetch(`${PARSE_URL}/logout`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Parse-Application-Id': cloudConfig.appId,
+                                'X-Parse-JavaScript-Key': cloudConfig.jsKey,
+                                'X-Parse-Session-Token': sesionUsuario.sessionToken
+                            }
+                        });
+                    }
+                } catch (err) { /* seguimos igual, ya limpiamos localmente */ }
+                localStorage.removeItem('lh_sesion');
+                location.reload();
+            }, { textoAceptar: 'Sí, cerrar sesión' });
         }
 
         // Verifica al cargar la página si la sesión guardada sigue siendo válida.
@@ -7335,14 +7992,15 @@ async function generarFichaPDF() {
             document.getElementById('limaEstadoManual').value = 'pendiente';
         }
 
-        async function eliminarEnvioShalom(objectId) {
-            if (!confirm('¿Eliminar este envío del seguimiento?')) return;
-            try {
-                await parseFetch(SHALOM_CLASE, 'DELETE', objectId);
-                cargarEnviosShalom();
-            } catch (err) {
-                mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
-            }
+        function eliminarEnvioShalom(objectId) {
+            mostrarConfirmacion('¿Eliminar este envío del seguimiento?', async () => {
+                try {
+                    await parseFetch(SHALOM_CLASE, 'DELETE', objectId);
+                    cargarEnviosShalom();
+                } catch (err) {
+                    mostrarNotificacion('❌ Error al eliminar: ' + err.message, 'warning');
+                }
+            });
         }
 
         async function marcarNotificadoShalom(objectId) {
@@ -7352,7 +8010,7 @@ async function generarFichaPDF() {
         }
 
         const ETIQUETAS_ESTADO_SHALOM = {
-            pendiente: { texto: '⏳ Pendiente', color: '#718096', bg: '#f0f0f0' },
+            pendiente: { texto: '⏳ Pendiente', color: 'var(--text-muted)', bg: 'var(--chip-neutral-bg)' },
             en_transito: { texto: '🚚 En tránsito', color: '#3182ce', bg: '#ebf8ff' },
             entregado: { texto: '✅ Entregado', color: '#38a169', bg: '#f0fff4' },
             error: { texto: '⚠️ Error', color: '#e53e3e', bg: '#fff5f5' }
@@ -7452,7 +8110,7 @@ async function generarFichaPDF() {
                                 <h3 class="shalom-card-nombre">${nombreMostrado}</h3>
                                 <div class="shalom-card-subinfo">${subinfo}</div>
                             </div>
-                            <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar">✕</button>
+                            <button class="shalom-card-del-btn" onclick="eliminarEnvioShalom('${e.objectId}')" title="Eliminar" aria-label="Eliminar envío del seguimiento">✕</button>
                         </div>
                         ${e.destino ? `<div class="shalom-card-destino">📍 ${e.destino}</div>` : ''}
                         ${e.numeroOrdenCompra ? `<div style="font-size:0.78em; font-weight:700; color:var(--secondary);">🔗 ${e.numeroOrdenCompra}</div>` : ''}
@@ -7461,7 +8119,7 @@ async function generarFichaPDF() {
                         <div class="shalom-card-fecha">${ultima}${(e.creadoPorUsername && e.creadoPorUsername !== sesionUsuario.username) ? ' · por ' + e.creadoPorUsername : ''}</div>
                         ${esLima ? `<div style="margin-top:8px;">
                             ${e.estado === 'entregado'
-                                ? `<button type="button" class="btn btn-small" style="background:#f0f0f0; color:#718096; width:100%;" onclick="cambiarEstadoLima('${e.objectId}', 'pendiente')">↩ Marcar pendiente</button>`
+                                ? `<button type="button" class="btn btn-small" style="background:var(--chip-neutral-bg); color:var(--text-muted); width:100%;" onclick="cambiarEstadoLima('${e.objectId}', 'pendiente')">↩ Marcar pendiente</button>`
                                 : `<button type="button" class="btn btn-small" style="background:#38a169; color:white; width:100%;" onclick="cambiarEstadoLima('${e.objectId}', 'entregado')">✅ Marcar entregado</button>`
                             }
                         </div>` : ''}
@@ -7629,7 +8287,7 @@ async function generarFichaPDF() {
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        animation: { duration: 800, easing: 'easeOutQuart' },
+                        animation: { duration: prefiereMovimientoReducido() ? 0 : 800, easing: 'easeOutQuart' },
                         plugins: { legend: { display: false } },
                         scales: {
                             x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(128,128,128,0.1)' } },
@@ -7706,7 +8364,7 @@ async function generarFichaPDF() {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        animation: { duration: 900, easing: 'easeOutQuart' },
+                        animation: { duration: prefiereMovimientoReducido() ? 0 : 900, easing: 'easeOutQuart' },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
