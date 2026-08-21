@@ -123,11 +123,44 @@
         /* TABS */
         .tabs {
             display: flex;
-            gap: 5px;
+            gap: 0;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--border);
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            align-items: stretch;
+        }
+
+        /* Fase B1: grupos de tabs por frecuencia de uso. El separador
+           entre grupos es un borde (no depende de ningún color hex
+           suelto — usa var(--border), que ya cambia solo con el tema),
+           así que se ve marcado en ambos modos y también sirve como
+           referencia visual clara si hay que hacer scroll horizontal
+           en pantallas angostas. */
+        .tab-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 0 16px 10px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+        }
+        .tab-group:first-child { padding-left: 2px; }
+        .tab-group:last-child { border-right: none; padding-right: 2px; }
+
+        .tab-group-label {
+            font-size: 0.68em;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 700;
+            color: var(--text-faint);
+            padding-left: 2px;
+            white-space: nowrap;
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 4px;
         }
 
         .tab {
@@ -483,6 +516,46 @@
         .action-buttons .btn {
             flex: 1;
             min-width: 120px;
+        }
+
+        /* Barra de 4 botones del footer (Limpiar/Guardar/Imagen/Copiar
+           imagen): colores mate sólidos, distintos de los .btn-danger/
+           .btn-primary/.btn-success genéricos usados en el resto de la
+           app — por eso van scoped a .action-buttons, no reemplazan las
+           clases base. Guardar habilitado (única excepción, es la acción
+           principal disponible) usa el estilo base .btn-primary, que ya
+           coincide con var(--secondary) = #667eea. */
+        .action-buttons .btn-danger {
+            background: #4a3236;
+            border: 1.5px solid #8b4a52;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+        }
+
+        .action-buttons .btn-primary:disabled {
+            background: #3a3a3a;
+            border: 1.5px solid #555555;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+        }
+
+        .action-buttons .btn-primary:not(:disabled) {
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+        }
+
+        .action-buttons .btn-success {
+            background: #1f4d3a;
+            border: 1.5px solid #2f7a57;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
         }
 
         /* SUCURSALES */
@@ -1139,6 +1212,35 @@
             border: 1.5px solid #c7d2fe;
             flex-wrap: wrap;
         }
+        body.dark-mode .add-extras-row {
+            background: var(--dm-surface-2);
+            border-color: var(--dm-border-soft);
+        }
+
+        /* ============================================
+           FASE A — AUDITORÍA A4 (además de A1/A2/A3 arriba)
+           Se repitió el barrido completo de todo el CSS (script de
+           auditoría estático comparando cada selector con fondo/color
+           fijo contra la lista ya cubierta por body.dark-mode, más un
+           barrido dinámico en navegador que mide contraste real de
+           fondo+texto sobre cada elemento visible, con todas las
+           pestañas/modales abiertos a la vez) para buscar casos NUEVOS
+           más allá de A1-A3. Resultado: 0 casos nuevos encontrados —
+           el resto de selectores con color/fondo fijo que aparecen en
+           el barrido son, en todos los casos, uno de estos tres tipos
+           ya revisados y dejados así a propósito:
+             1) Badges/botones con --accent o --secondary (fijos, no
+                cambian con el tema: .sync-indicator, .cliente-panel-badge,
+                .historial-count-badge, .btn-primary, etc.)
+             2) "Pills" con su propio par fondo+texto fijo y coherente
+                entre sí (.price-menor/.price-mayor, .deselect-hint,
+                .igv-indicator, .color-tag, .precio-override-badge) —
+                se ven igual en ambos modos a propósito, como una
+                etiqueta de estado, no como una tarjeta de la app.
+             3) CSS sin usar en el HTML actual (.envio-info, .bank-info,
+                .print-total-section, .print-client-box) — no generan
+                ningún elemento visible, no hace falta tocarlos.
+        ============================================ */
 
         .add-extras-row.visible { display: flex; }
 
@@ -1740,8 +1842,14 @@
                 max-width: none;
             }
 
-            .tabs {
-                gap: 3px;
+            .tab-group {
+                padding: 0 10px 8px;
+            }
+            .tab-group:first-child { padding-left: 2px; }
+            .tab-group:last-child { padding-right: 2px; }
+
+            .tab-group-label {
+                font-size: 0.62em;
             }
 
             .tab {
@@ -1970,6 +2078,45 @@
             #shalomCameraWrapper {
                 max-width: 100% !important;
             }
+
+            /* Fase C3: footer completo (cabecera + barra de botones)
+               apilado en una sola columna, sin scroll horizontal —
+               los 4 botones pasan de fila a grilla 2x2 para que
+               ninguno quede angosto o cortado. */
+            .total-section {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .total-info-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .ff-right {
+                align-items: flex-start;
+            }
+
+            .total-actions-wrap {
+                text-align: left;
+            }
+
+            .action-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            .action-buttons .btn {
+                flex: initial;
+                min-width: 0;
+                padding: 10px 8px;
+                font-size: 12px;
+            }
         }
 
         /* ---------- ≤420px ---------- */
@@ -2145,6 +2292,21 @@
             --text-muted: #718096;
             --text-faint: #a0aec0;
             --chip-neutral-bg: #f0f0f0;
+        }
+
+        /* FIX A2: el FIX A1 forzaba `color` también con el selector `*`
+           (todo descendiente), lo que pisaba el color:white heredado en
+           los bloques de pago (Transferencia/Yape) — sus hijos internos
+           no tienen color propio, heredan el blanco del contenedor con
+           fondo azul/morado, y `.cotizacion-print *` los sobrescribía a
+           gris oscuro, volviéndolos invisibles sobre su propio fondo.
+           Se aplica `color` solo al contenedor raíz (sin `*`): el texto
+           plano sigue heredando gris oscuro por cascada normal, y los
+           bloques con su propio color inline (blanco) ya no son tocados. */
+        #fichaPreview,
+        .cotizacion-print,
+        .ficha-print {
+            color: #2d3748;
         }
 
         body.dark-mode .loading-content,
@@ -2864,17 +3026,37 @@
 
 
         <div class="content">
-            <!-- TABS -->
+            <!-- TABS — agrupados por frecuencia de uso (Fase B1). Los
+                 botones son EXACTAMENTE los mismos (mismos onclick,
+                 mismos aria-label, misma clase "tab") — switchTab()
+                 usa event.target y querySelectorAll('.tab'), así que le
+                 da igual cuántos <div> envuelvan a cada botón. Solo
+                 cambió el agrupamiento visual. -->
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('cotizar')" aria-label="Cotizar">📋 Cotizar</button>
-                <button class="tab" onclick="switchTab('sucursales')" aria-label="Sucursales">🚚 Sucursales</button>
-                <button class="tab" onclick="switchTab('historial')" aria-label="Historial">🕓 Historial</button>
-                <button class="tab" onclick="switchTab('envios')" aria-label="Envíos">🚚 Envíos</button>
-                <button class="tab" onclick="switchTab('dashboard')" aria-label="Dashboard">📊 Dashboard</button>
-                <button class="tab" onclick="switchTab('productos')" aria-label="Productos">📦 Productos</button>
-                <button class="tab" onclick="switchTab('gestionsucursales')" aria-label="Gestión Sucursales">🏢 Gestión Sucursales</button>
-                <button class="tab" onclick="switchTab('fichas')" aria-label="Fichas Técnicas">📄 Fichas Técnicas</button>
-                <button class="tab" onclick="switchTab('shalom')" aria-label="Seguimiento Shalom">🚚 Seguimiento Shalom</button>
+                <div class="tab-group">
+                    <div class="tab-group-label">Operación diaria</div>
+                    <div class="tab-row">
+                        <button class="tab active" onclick="switchTab('cotizar')" aria-label="Cotizar">📋 Cotizar</button>
+                        <button class="tab" onclick="switchTab('historial')" aria-label="Historial">🕓 Historial</button>
+                        <button class="tab" onclick="switchTab('envios')" aria-label="Envíos">🚚 Envíos</button>
+                    </div>
+                </div>
+                <div class="tab-group">
+                    <div class="tab-group-label">Catálogo</div>
+                    <div class="tab-row">
+                        <button class="tab" onclick="switchTab('productos')" aria-label="Productos">📦 Productos</button>
+                        <button class="tab" onclick="switchTab('sucursales')" aria-label="Sucursales">🚚 Sucursales</button>
+                        <button class="tab" onclick="switchTab('fichas')" aria-label="Fichas Técnicas">📄 Fichas Técnicas</button>
+                        <button class="tab" onclick="switchTab('gestionsucursales')" aria-label="Gestión Sucursales">🏢 Gestión Sucursales</button>
+                    </div>
+                </div>
+                <div class="tab-group">
+                    <div class="tab-group-label">Reportes</div>
+                    <div class="tab-row">
+                        <button class="tab" onclick="switchTab('dashboard')" aria-label="Dashboard">📊 Dashboard</button>
+                        <button class="tab" onclick="switchTab('shalom')" aria-label="Seguimiento Shalom">🚚 Seguimiento Shalom</button>
+                    </div>
+                </div>
             </div>
 
             <!-- TAB: COTIZAR -->
@@ -3909,32 +4091,36 @@ async function generarFichaPDF() {
         </div>
 
         <div class="total-section">
-            <div class="total-info-container">
-                <div id="correlativoEnCursoInfo" style="font-size:0.8em; font-weight:700; margin-bottom:6px;"></div>
-                <div id="totalInfo" style="font-size: 0.95em;">0 productos</div>
-                <div style="font-size: 0.8em; opacity: 0.8; margin-top: 5px;" id="itemsBreakdown"></div>
-                <div class="margen-info" id="margenInfo"></div>
-                <div id="envioInfo" style="font-size: 0.85em; margin-top: 10px;"></div>
-                <div class="doc-tipo-row">
-                    <span>📄</span>
-                    <select id="tipoDocumento" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.35);border-radius:6px;padding:3px 7px;font-size:0.85em;font-weight:700;cursor:pointer;">
-                        <option value="cotizacion">Cotización</option>
-                        <option value="ORDEN DE COMPRA">ORDEN DE COMPRA</option>
-                    </select>
+            <div class="total-info-container" style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+                <div class="ff-left" style="flex:1;min-width:160px;">
+                    <div id="correlativoEnCursoInfo" style="font-size:0.8em; font-weight:700; margin-bottom:6px;"></div>
+                    <div id="totalInfo" style="font-size: 0.95em;">0 productos</div>
+                    <div style="font-size: 0.8em; opacity: 0.8; margin-top: 5px;" id="itemsBreakdown"></div>
+                    <div class="margen-info" id="margenInfo"></div>
+                    <div id="envioInfo" style="font-size: 0.85em; margin-top: 10px;"></div>
                 </div>
-                <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.2);">
-                    <div style="font-size:0.82em;font-weight:700;margin-bottom:6px;opacity:0.85;">💰 Forma de Pago</div>
-                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <span style="font-size:0.82em;">Adelanto S/:</span>
-                        <input type="number" id="montoAdelanto" min="0" step="0.50" placeholder="0.00"
-                            style="width:80px;padding:4px 8px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.15);color:white;font-weight:700;font-size:0.9em;text-align:right;"
-                            oninput="actualizarPago()">
-                        <span id="saldoPendienteLabel" style="font-size:0.82em;opacity:0.9;"></span>
+                <div class="ff-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+                    <div class="doc-tipo-row" style="margin-top:0;">
+                        <span>📄</span>
+                        <select id="tipoDocumento" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.35);border-radius:6px;padding:3px 7px;font-size:0.85em;font-weight:700;cursor:pointer;">
+                            <option value="cotizacion">Cotización</option>
+                            <option value="ORDEN DE COMPRA">ORDEN DE COMPRA</option>
+                        </select>
                     </div>
-                    <div id="pagoResumen" style="font-size:0.78em;margin-top:4px;opacity:0.75;"></div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.82em;font-weight:700;margin-bottom:6px;opacity:0.85;">💰 Forma de Pago</div>
+                        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+                            <span style="font-size:0.82em;">Adelanto S/:</span>
+                            <input type="number" id="montoAdelanto" min="0" step="0.50" placeholder="0.00"
+                                style="width:80px;padding:4px 8px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.15);color:white;font-weight:700;font-size:0.9em;text-align:right;"
+                                oninput="actualizarPago()">
+                            <span id="saldoPendienteLabel" style="font-size:0.82em;opacity:0.9;"></span>
+                        </div>
+                        <div id="pagoResumen" style="font-size:0.78em;margin-top:4px;opacity:0.75;text-align:right;"></div>
+                    </div>
                 </div>
             </div>
-            <div style="text-align: right;">
+            <div class="total-actions-wrap" style="text-align: right;">
                 <div class="total-amount" id="totalAmount">S/ 0.00</div>
                 <div class="action-buttons">
                     <button class="btn btn-danger" onclick="clearAll()">🗑️ Limpiar</button>
@@ -3988,25 +4174,21 @@ async function generarFichaPDF() {
             <tbody id="printTableBody"></tbody>
         </table>
 
-        <!-- TOTALES + PAGO + BANCO + YAPE EN FILA -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <!-- TOTALES + PAGO (FORMAS DE PAGO COMBINADO) EN FILA -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;align-items:start;">
 
-            <!-- BANCO + YAPE (misma columna, mismo ancho) -->
-            <div>
-                <div style="background:#2d3748;color:white;padding:14px 16px;border-radius:8px;">
-                    <div style="font-weight:700;font-size:0.88em;margin-bottom:8px;color:#fbbf24;">💳 Datos para Transferencia</div>
-                    <div style="font-size:0.78em;line-height:1.8;">
-                        <div><strong style="color:#fbbf24;">Empresa:</strong> Corp. Andina Integral S.A.C.</div>
-                        <div><strong style="color:#fbbf24;">Banco:</strong> BCP</div>
-                        <div><strong style="color:#fbbf24;">Cuenta S/:</strong> 1947224281034</div>
-                        <div><strong style="color:#fbbf24;">CCI:</strong> 00219400722428103498</div>
-                    </div>
+            <!-- FORMAS DE PAGO: banco/transferencia + Yape en una sola tarjeta -->
+            <div style="background:#2d3748;color:white;padding:14px 16px;border-radius:8px;">
+                <div style="font-weight:700;font-size:0.88em;margin-bottom:8px;color:#fbbf24;">💳 Formas de pago</div>
+                <div style="font-size:0.78em;line-height:1.8;margin-bottom:10px;">
+                    <div><strong style="color:#fbbf24;">Empresa:</strong> Corp. Andina Integral S.A.C.</div>
+                    <div><strong style="color:#fbbf24;">Banco:</strong> BCP</div>
+                    <div><strong style="color:#fbbf24;">Cuenta S/:</strong> 1947224281034</div>
+                    <div><strong style="color:#fbbf24;">CCI:</strong> 00219400722428103498</div>
                 </div>
-
-                <!-- YAPE -->
-                <div style="background:#720e9e;color:#ffffff;padding:12px 16px;border-radius:8px;margin-top:14px;text-align:center;">
-                    <div style="font-weight:800;font-size:0.9em;letter-spacing:0.03em;">📱 Pago Yape</div>
-                    <div style="font-size:0.82em;margin-top:3px;">924 431 877 &nbsp;·&nbsp; Jeyko Mejía</div>
+                <div style="background:rgba(255,255,255,0.12);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:0.78em;flex-wrap:wrap;gap:4px;">
+                    <span>📱 Yape · 924 431 877</span>
+                    <strong style="color:#e9d5ff;">Jeyko Mejía</strong>
                 </div>
             </div>
 
